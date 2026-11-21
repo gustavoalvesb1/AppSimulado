@@ -1135,6 +1135,35 @@
   .lista-grupos .item-meta { margin-left: 4px; }
   /* Grupo da prova no Histórico */
   .item-grupo { color: var(--texto-suave); }
+  /* Desempenho: "Selecionar prova" fica acima das questões e de "Por que você errou" */
+  .bloco-escolha-prova { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--borda); }
+  .bloco-escolha-prova .campo { font-size: .92rem; padding: 8px 36px 8px 12px; min-height: 38px; }
+
+  /* Questões da prova escolhida: uma coluna por matéria, como uma folha de gabarito */
+  .questoes-prova { margin-top: 18px; }
+  .titulo-questoes { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .titulo-questoes h3 { margin: 0; font-size: 1rem; font-weight: 650; }
+  .detalhe-colunas { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-top: 12px; }
+  .coluna-q { border: 1px solid var(--borda); border-radius: 12px; padding: 10px 10px 8px; min-width: 0; }
+  .coluna-q h4 { display: flex; justify-content: space-between; gap: 8px; margin: 0 0 8px; padding: 0 2px; font-size: .92rem; }
+  .coluna-q h4 .item-meta { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .coluna-q ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .questao-d { display: grid; grid-template-columns: 1.5em 20px minmax(0, 1fr); align-items: center; gap: 6px; min-height: 22px; font-size: .86rem; }
+  .questao-d .num { color: var(--texto-suave); text-align: right; font-variant-numeric: tabular-nums; font-size: .8rem; }
+  /* Quadradinho arredondado: verde com ✓, vermelho com ✗ (desenhados, não emoji) */
+  .marca-q { width: 20px; height: 20px; border-radius: 5px; display: inline-flex; align-items: center; justify-content: center; }
+  .marca-q svg { width: 13px; height: 13px; fill: none; stroke: var(--bg); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  .questao-d.certa .marca-q { background: var(--nivel-excelente); }
+  .questao-d.errada .marca-q { background: var(--nivel-ruim); }
+  .questao-d.branco .marca-q { border: 1.5px solid var(--borda); }
+  /* Etiquetas com o visual do Registrar: Sabia/Não sabia como o botão marcado, os detalhes como pílulas */
+  .etiquetas-q { display: flex; flex-wrap: wrap; gap: 3px; min-width: 0; }
+  .etiqueta-q { color: var(--cor); background: color-mix(in srgb, var(--cor) 16%, transparent); font-size: .72rem; font-weight: 600; line-height: 1; padding: 4px 7px; white-space: nowrap; }
+  .etiqueta-q.sabia { border-radius: 6px; }
+  .etiqueta-q.detalhe { border-radius: 999px; border: 1px solid color-mix(in srgb, var(--cor) 60%, transparent); padding: 3px 7px; }
+  .coluna-q .so-total { margin: 4px 0 0; color: var(--texto-suave); font-size: .86rem; }
+  .detalhe-nota { margin: 10px 0 0; }
+  @media (max-width: 420px) { .detalhe-colunas { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .coluna-q { padding: 8px 6px; } }
   /* Lista vertical de horas por matéria */
   .estudo-lista { list-style: none; margin: 4px 0 0; padding: 0; }
   .estudo-lista li {
@@ -1842,14 +1871,30 @@
         </table>
       </div>
 
+      <!-- Prova escolhida: vale para as questões e para "Por que você errou" -->
+      <div id="bloco-escolha-prova" class="bloco-escolha-prova" hidden>
+        <span class="escolha-prova">
+          <label for="filtro-motivos">Selecionar prova</label>
+          <select id="filtro-motivos" class="campo campo-largo"></select>
+        </span>
+      </div>
+
+      <!-- Questões da prova escolhida (só com uma prova; com "Todas as provas" fica escondido) -->
+      <section id="questoes-prova" class="questoes-prova" hidden aria-labelledby="questoes-titulo">
+        <div class="titulo-questoes">
+          <h3 id="questoes-titulo">Questões</h3>
+          <button id="btn-questoes-editar" class="btn btn-fantasma btn-pequeno" type="button">Editar</button>
+        </div>
+        <p id="questoes-meta" class="grafico-nota"></p>
+        <div id="detalhe-colunas" class="detalhe-colunas"></div>
+        <p id="detalhe-nota" class="item-meta detalhe-nota" hidden>* Eliminatória: não entra na nota.</p>
+        <p id="detalhe-obs" class="item-obs" hidden></p>
+      </section>
+
       <!-- Motivos dos erros (só aparece quando há provas com motivos marcados) -->
       <div id="bloco-motivos" class="bloco-motivos" hidden>
         <div class="titulo-motivos">
           <h3>Por que você errou</h3>
-          <span class="escolha-prova">
-            <label for="filtro-motivos">Selecionar prova</label>
-            <select id="filtro-motivos" class="campo campo-largo"></select>
-          </span>
         </div>
         <p id="nota-motivos" class="grafico-nota"></p>
         <div class="rolagem-tabela">
@@ -3967,13 +4012,16 @@ function itemResultado(r, posicao = {}) {
   if (r.observacoes) li.append(criar('p', 'item-obs', r.observacoes));
 
   const acoes = criar('div', 'item-acoes');
+  const ver = criar('button', 'btn btn-fantasma btn-pequeno', 'Ver questões');
+  ver.type = 'button';
+  ver.addEventListener('click', () => verQuestoesNoDesempenho(r)); // abre no Desempenho
   const editar = criar('button', 'btn btn-fantasma btn-pequeno', 'Editar');
   editar.type = 'button';
   editar.addEventListener('click', () => abrirFormulario({ existente: r }));
   const excluir = criar('button', 'btn btn-fantasma btn-pequeno', 'Excluir');
   excluir.type = 'button';
   excluir.addEventListener('click', () => excluirResultado(r));
-  acoes.append(editar, excluir);
+  acoes.append(ver, editar, excluir);
 
   // Na "Minha ordem", botões para subir/descer a prova na lista
   if (posicao.manual) {
@@ -3993,6 +4041,104 @@ function itemResultado(r, posicao = {}) {
   }
   li.append(acoes);
   return li;
+}
+
+/* ---------- Questões da prova escolhida (Desempenho, acima de "Por que você errou") ---------- */
+
+/** Ícone de linha (sem emoji): ✓ ou ✗ desenhados em SVG */
+function iconeQuestao(certa) {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', '0 0 16 16');
+  svg.setAttribute('aria-hidden', 'true');
+  const p = document.createElementNS(ns, 'path');
+  p.setAttribute('d', certa ? 'M3.5 8.4l2.9 2.9 6.1-6.6' : 'M4.6 4.6l6.8 6.8M11.4 4.6l-6.8 6.8');
+  svg.append(p);
+  return svg;
+}
+
+/** Etiquetas de uma questão, com as mesmas cores e nomes do Registrar */
+function etiquetasDaQuestao(q) {
+  const cor = (lista, id) => lista.find(x => x.id === id);
+  const lista = [];
+  if (q.r === 'e' && q.s) { const s = cor(SABIA_Q, q.s); lista.push({ texto: s.nome, cor: s.cor, tipo: 'sabia' }); }
+  if (q.r === 'b') lista.push({ texto: 'Em branco', cor: 'var(--texto-suave)', tipo: 'sabia' });
+  if (q.r === 'a' && q.c) { const d = cor(DETALHES_Q, 'c'); lista.push({ texto: d.nome, cor: d.cor, tipo: 'detalhe' }); }
+  if (q.t) { const d = cor(DETALHES_Q, 't'); lista.push({ texto: d.nome, cor: d.cor, tipo: 'detalhe' }); }
+  if (q.r === 'e' && q.k) { const d = cor(DETALHES_Q, 'k'); lista.push({ texto: d.nome, cor: d.cor, tipo: 'detalhe' }); }
+  return lista;
+}
+
+/** Mostra as questões de uma prova (r) ou esconde o bloco (r = null: "Todas as provas") */
+function renderQuestoesProva(r) {
+  const bloco = $('questoes-prova');
+  bloco.hidden = !r;
+  if (!r) return;
+  const soma = somar(r.materias);
+  $('questoes-meta').textContent = [
+    r.fonte || r.tipo || '(sem prova)',
+    new Date(r.data).toLocaleDateString('pt-BR'),
+    nomeDoGrupo(grupoDoResultado(r)),
+    soma.total ? `${soma.acertos}/${soma.total} (${porcentagem(soma.pct)})` : 'sem notas'
+  ].join(' · ');
+
+  const colunas = r.materias.map(m => {
+    const col = criar('section', 'coluna-q');
+    const titulo = criar('h4');
+    const elim = minimoEliminatoria(m.nome) !== null;
+    titulo.append(criar('span', '', m.nome + (elim ? ' *' : '')), criar('span', 'item-meta', `${m.acertos}/${m.total}`));
+    if (elim) titulo.title = 'Eliminatória: não entra na nota';
+    col.append(titulo);
+    const questoes = (m.questoes || []).map(textoParaQuestao);
+    if (!questoes.length || questoes.some(q => !q)) {
+      col.append(criar('p', 'so-total', 'Só o total de acertos foi registrado.'));
+      return col;
+    }
+    const ol = criar('ol');
+    questoes.forEach((q, i) => {
+      const estado = q.r === 'a' ? 'certa' : q.r === 'e' ? 'errada' : 'branco';
+      const li = criar('li', `questao-d ${estado}`);
+      const marca = criar('span', 'marca-q');
+      if (q.r === 'a' || q.r === 'e') marca.append(iconeQuestao(q.r === 'a'));
+      const etiquetas = etiquetasDaQuestao(q);
+      const caixa = criar('span', 'etiquetas-q');
+      etiquetas.forEach(e => {
+        const tag = criar('span', `etiqueta-q ${e.tipo}`, e.texto);
+        tag.style.setProperty('--cor', e.cor);
+        caixa.append(tag);
+      });
+      li.append(criar('span', 'num', String(i + 1)), marca, caixa);
+      li.setAttribute('aria-label', `Questão ${i + 1}: ${q.r === 'a' ? 'acertou' : q.r === 'e' ? 'errou' : 'em branco'}` +
+        (etiquetas.length ? `, ${etiquetas.map(e => e.texto.toLocaleLowerCase('pt-BR')).join(', ')}` : ''));
+      ol.append(li);
+    });
+    col.append(ol);
+    return col;
+  });
+  $('detalhe-colunas').replaceChildren(...(colunas.length ? colunas
+    : [criar('p', 'vazio', 'Esta prova foi registrada sem matérias.')]));
+  $('detalhe-nota').hidden = !r.materias.some(m => minimoEliminatoria(m.nome) !== null);
+  $('detalhe-obs').hidden = !r.observacoes;
+  $('detalhe-obs').textContent = r.observacoes ? `Observações: ${r.observacoes}` : '';
+}
+
+$('btn-questoes-editar').addEventListener('click', () => {
+  const r = resultados.find(x => x.id === filtroMotivos);
+  if (r) abrirFormulario({ existente: r });
+});
+
+/** Histórico → "Ver questões": abre o Desempenho com essa prova escolhida */
+function verQuestoesNoDesempenho(r) {
+  filtroDesempenho = r.tipo;
+  gravar(CHAVE_FILTRO, filtroDesempenho);
+  if (filtroGrupo !== '__todos' && grupoDoResultado(r) !== filtroGrupo) {
+    filtroGrupo = '__todos';
+    gravar(CHAVE_FILTRO_GRUPO, filtroGrupo);
+  }
+  filtroMotivos = r.id;
+  renderDesempenho();
+  trocarAbaTela('desempenho');
+  $('bloco-escolha-prova').scrollIntoView({ block: 'start' });
 }
 
 /* ---------- Seleção e ordenação do histórico ---------- */
@@ -4196,16 +4342,19 @@ function renderMotivos(lista, ordem) {
   const bloco = $('bloco-motivos');
   const posicao = chave => { const i = ordem.findIndex(m => m.chave === chave); return i < 0 ? 999 : i; };
 
-  // Seletor: todas as provas com motivos, ou uma delas (da mais recente para a mais antiga)
+  // Seletor (acima das questões e de "Por que você errou"): todas as provas do grupo, ou uma delas
+  // (da mais recente para a mais antiga). Uma prova escolhida mostra as questões dela.
   const comMotivos = lista.filter(r => r.materias.some(m => m.motivos));
-  if (filtroMotivos !== '__todas' && !comMotivos.some(r => r.id === filtroMotivos)) filtroMotivos = '__todas';
+  if (filtroMotivos !== '__todas' && !lista.some(r => r.id === filtroMotivos)) filtroMotivos = '__todas';
   const seletor = $('filtro-motivos');
   seletor.replaceChildren(
-    new Option(`Todas as provas (${comMotivos.length})`, '__todas'),
-    ...comMotivos.map(r => new Option(nomeCurtoResultado(r), r.id))
+    new Option(`Todas as provas (${lista.length})`, '__todas'),
+    ...lista.map(r => new Option(nomeCurtoResultado(r), r.id))
   );
   seletor.value = filtroMotivos;
   seletor.disabled = false; // abre mesmo com uma prova só
+  $('bloco-escolha-prova').hidden = lista.length === 0;
+  renderQuestoesProva(filtroMotivos === '__todas' ? null : lista.find(r => r.id === filtroMotivos));
   const escolhidas = filtroMotivos === '__todas' ? comMotivos : comMotivos.filter(r => r.id === filtroMotivos);
 
   const porMateria = new Map();
