@@ -1115,6 +1115,26 @@
   .segmento button { border: 0; background: transparent; color: var(--texto-suave); padding: 6px 12px; border-radius: 8px; font-size: .88rem; font-weight: 600; cursor: pointer; }
   .segmento button[aria-selected="true"] { background: var(--chip); color: var(--chip-texto); }
   .segmento button:focus-visible { outline: 2px solid var(--foco); }
+
+  /* Grupos de provas no Desempenho: prova + grupos lado a lado */
+  .filtros-desempenho { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+  .filtros-desempenho .campo-largo { width: auto; min-width: 150px; }
+  .grupos-desempenho { flex-wrap: wrap; max-width: 100%; }
+  .grupos-desempenho button { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; }
+  .grupos-desempenho .conta { font-size: .76rem; font-weight: 600; opacity: .7; font-variant-numeric: tabular-nums; }
+  #grupo-vazio { margin: 4px 0 8px; }
+  @media (max-width: 640px) {
+    .filtros-desempenho { justify-content: flex-start; width: 100%; }
+    .filtros-desempenho .campo-largo { flex: 1 1 100%; }
+  }
+  /* Grupos nas Opções (engrenagem) */
+  .lista-grupos { list-style: none; margin: 0 0 10px; padding: 0; }
+  .lista-grupos li { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--borda); }
+  .lista-grupos li:last-child { border-bottom: 0; }
+  .lista-grupos .nome-grupo { flex: 1; min-width: 0; }
+  .lista-grupos .item-meta { margin-left: 4px; }
+  /* Grupo da prova no Histórico */
+  .item-grupo { color: var(--texto-suave); }
   /* Lista vertical de horas por matéria */
   .estudo-lista { list-style: none; margin: 4px 0 0; padding: 0; }
   .estudo-lista li {
@@ -1775,10 +1795,15 @@
   <!-- ABA: DESEMPENHO -->
   <div id="painel-desempenho" role="tabpanel" aria-labelledby="nav-desempenho">
     <section class="cartao">
-      <div class="titulo-tela compacto">
+      <div class="titulo-tela compacto titulo-desempenho">
         <h2><label for="filtro-tipo">Desempenho em</label></h2>
-        <select id="filtro-tipo" class="campo campo-largo"></select>
+        <div class="filtros-desempenho">
+          <select id="filtro-tipo" class="campo campo-largo"></select>
+          <!-- Grupos: todos à mostra, um clique troca (sem lista para abrir) -->
+          <div id="grupos-desempenho" class="segmento grupos-desempenho" role="tablist" aria-label="Grupo de provas"></div>
+        </div>
       </div>
+      <p id="grupo-vazio" class="vazio" hidden></p>
       <div id="desempenho-vazio" class="vazio-bloco" hidden>
         <p class="vazio">Nenhum resultado ainda. Depois da prova, registre na aba "Registrar" — ou veja um exemplo
           com 8 provas do ITA para conhecer as análises.</p>
@@ -1904,6 +1929,10 @@
           <label class="rotulo" for="res-data">Data</label>
           <input id="res-data" class="campo" type="date">
         </div>
+        <div>
+          <label class="rotulo" for="res-grupo">Grupo</label>
+          <select id="res-grupo" class="campo"></select>
+        </div>
       </div>
       <p id="aviso-fonte" class="aviso" hidden></p>
       <p id="res-info" class="item-meta" hidden></p>
@@ -1979,6 +2008,12 @@
     <!-- Botões gerados pelo JavaScript a partir da lista TEMAS -->
     <div id="opcoes-tema" class="temas" role="radiogroup" aria-labelledby="titulo-tema"></div>
 
+    <h3 class="opcoes-secao">Grupos de provas</h3>
+    <p class="dica">Separam as provas no Desempenho. Os dois primeiros não podem ser apagados, só renomeados.
+      Ao apagar um grupo criado por você, as provas dele vão para "Simulados".</p>
+    <ul id="lista-grupos" class="lista-grupos"></ul>
+    <button id="btn-novo-grupo" class="btn btn-fantasma btn-pequeno" type="button">+ Novo grupo</button>
+
     <h3 class="opcoes-secao">Som</h3>
     <p class="dica">Toca o bipe dos adesivos de tempo, para conferir o volume antes da prova.</p>
     <button id="btn-testar-som" class="btn btn-fantasma btn-pequeno" type="button">🔊 Testar som</button>
@@ -2016,7 +2051,8 @@ const TAMANHO_MAX_NOME = 40;
 const CHAVE_PERFIS = 'cronometro-simulado:perfis'; // { perfis: [{ id, nome }], ativoId }
 const CHAVE_TEMA   = 'cronometro-simulado:tema';   // esquema de cores (todos os perfis)
 const DADOS_DO_PERFIL = ['v1', 'tipos', 'resultados', 'ultimo-backup', 'ordenacao', 'ordem-manual', 'versao', 'filtro',
-                         'excluidos', 'filtro-historico', 'ultimo-gabarito', 'estudos', 'estudo-ativo', 'estudos-retirados'];
+                         'excluidos', 'filtro-historico', 'ultimo-gabarito', 'estudos', 'estudo-ativo', 'estudos-retirados',
+                         'grupos', 'filtro-grupo', 'ultimo-grupo'];
 
 function chaveDoPerfil(idPerfil, nome) {
   return idPerfil === 'principal'
@@ -2051,6 +2087,9 @@ const CHAVE_FILTRO     = chaveDoPerfil(PERFIL_ATIVO, 'filtro');        // prova 
 const CHAVE_FILTRO_HIST = chaveDoPerfil(PERFIL_ATIVO, 'filtro-historico'); // prova escolhida no Histórico
 const CHAVE_EXCLUIDOS  = chaveDoPerfil(PERFIL_ATIVO, 'excluidos');     // provas apagadas: [{ id, em }]
 const CHAVE_ULTIMO_GABARITO = chaveDoPerfil(PERFIL_ATIVO, 'ultimo-gabarito'); // { min, em, prova } do último cronômetro
+const CHAVE_GRUPOS     = chaveDoPerfil(PERFIL_ATIVO, 'grupos');        // grupos de provas: [{ id, nome }]
+const CHAVE_FILTRO_GRUPO = chaveDoPerfil(PERFIL_ATIVO, 'filtro-grupo'); // grupo escolhido no Desempenho
+const CHAVE_ULTIMO_GRUPO = chaveDoPerfil(PERFIL_ATIVO, 'ultimo-grupo'); // último grupo usado ao registrar
 
 const NOME_TIPO_PADRAO = 'ITA 1°Fase';
 const PADRAO = Object.freeze({
@@ -2095,6 +2134,14 @@ function faixasPadraoDe(nome) {
   return p && p.faixas ? [...p.faixas] : null;
 }
 
+/* Provas fixas do app (ITA e IME): as matérias são sempre as de PROVAS_PADRAO, não importa o que esteja salvo */
+const IDS_PROVAS_PADRAO = new Set(['padrao', 'ime1fase']);
+const NOME_PROVA_FIXA = { padrao: 'ITA 1°Fase', ime1fase: 'IME 1°Fase' };
+/** Matérias fixas de uma prova pelo nome; null se não for ITA nem IME */
+function materiasFixasDe(nome) {
+  return provaPadraoDe(nome) ? materiasPadraoDe(nome) : null;
+}
+
 /** Matérias de uma prova: [{ nome, total }] sem repetidas. Não é lista → null */
 function limparMateriasDaProva(lista) {
   if (!Array.isArray(lista)) return null;
@@ -2129,8 +2176,9 @@ function limparTipo(t) {
     nome,
     duracao,
     marcos: limparMarcos(t.marcos),
-    // Dados antigos (sem matérias/faixas): usa os da prova padrão de mesmo nome
-    materias: limparMateriasDaProva(t.materias) || materiasPadraoDe(nome),
+    // ITA e IME: sempre as matérias fixas. Outras provas: as salvas; dados antigos sem matérias usam as do padrão de mesmo nome
+    materias: IDS_PROVAS_PADRAO.has(t.id) ? materiasPadraoDe(NOME_PROVA_FIXA[t.id])
+      : limparMateriasDaProva(t.materias) || materiasPadraoDe(nome),
     faixas: faixas === undefined ? faixasPadraoDe(nome) : faixas
   };
 }
@@ -2696,8 +2744,7 @@ function aplicarTipo(id) {
 }
 
 /* Provas padrão (ITA e IME): duração, adesivos e matérias já vêm prontos e não são editados.
-   Para outra configuração, o usuário cria uma prova sua ("+ Criar prova"). */
-const IDS_PROVAS_PADRAO = new Set(['padrao', 'ime1fase']);
+   Para outra configuração, o usuário cria uma prova sua ("+ Criar prova"). (IDS_PROVAS_PADRAO fica na seção 1.) */
 function ehProvaPadrao(tipo) { return !!tipo && IDS_PROVAS_PADRAO.has(tipo.id); }
 
 /** 'padrao' · 'propria' (criada pelo usuário) · 'criando' (prova nova ainda não salva) */
@@ -3589,6 +3636,8 @@ const elR = {
   data: $('res-data'),
   tipo: $('res-tipo'),          // nome digitado quando a prova é "Outra"
   tipoSel: $('res-tipo-sel'),   // seletor de provas
+  grupo: $('res-grupo'),        // grupo da prova (Provas antigas, Simulados…)
+  grupos: $('grupos-desempenho'), // botões de grupo no Desempenho
   info: $('res-info'),
   total: $('res-total'),
   obs: $('res-obs'),
@@ -3673,8 +3722,98 @@ function limparResultado(r) {
     pausaMin: inteiroNaoNegativo(r.pausaMin) ? r.pausaMin : 0,
     concluida: r.concluida !== false,
     materias,
-    observacoes: typeof r.observacoes === 'string' ? r.observacoes.slice(0, 2000) : ''
+    observacoes: typeof r.observacoes === 'string' ? r.observacoes.slice(0, 2000) : '',
+    // Grupo (Provas antigas, Simulados ou criado pelo usuário). Resultados de antes dos grupos: Provas antigas
+    grupo: typeof r.grupo === 'string' && r.grupo.trim() ? r.grupo.trim().slice(0, 40) : GRUPO_ANTIGAS
   };
+}
+
+/* ---------- Grupos de provas ---------- */
+const GRUPO_ANTIGAS = 'antigas';
+const GRUPO_SIMULADOS = 'simulados';
+const GRUPOS_PADRAO = [{ id: GRUPO_ANTIGAS, nome: 'Provas antigas' }, { id: GRUPO_SIMULADOS, nome: 'Simulados' }];
+const IDS_GRUPOS_PADRAO = new Set(GRUPOS_PADRAO.map(g => g.id));
+
+/** Lista de grupos limpa: os dois padrão sempre primeiro (podem ter sido renomeados), depois os criados */
+function limparGrupos(lista) {
+  const vindos = Array.isArray(lista)
+    ? lista.filter(g => g && typeof g.id === 'string' && g.id && typeof g.nome === 'string' && g.nome.trim())
+        .map(g => ({ id: g.id.slice(0, 40), nome: g.nome.trim().slice(0, 30) }))
+    : [];
+  const padrao = GRUPOS_PADRAO.map(p => vindos.find(g => g.id === p.id) || { ...p });
+  const vistos = new Set(padrao.map(g => g.id));
+  const nomes = new Set(padrao.map(g => chaveMateria(g.nome)));
+  const criados = vindos.filter(g => {
+    if (vistos.has(g.id) || nomes.has(chaveMateria(g.nome))) return false;
+    vistos.add(g.id);
+    nomes.add(chaveMateria(g.nome));
+    return true;
+  });
+  return [...padrao, ...criados];
+}
+const grupos = limparGrupos(lerJSON(CHAVE_GRUPOS));
+function salvarGrupos() { gravar(CHAVE_GRUPOS, grupos); }
+function grupoPorId(id) { return grupos.find(g => g.id === id) || null; }
+/** Grupo de um resultado (um grupo que não existe mais conta como Provas antigas) */
+function grupoDoResultado(r) { return grupoPorId(r.grupo) ? r.grupo : GRUPO_ANTIGAS; }
+function nomeDoGrupo(id) { const g = grupoPorId(id); return g ? g.nome : grupoPorId(GRUPO_ANTIGAS).nome; }
+
+/** Valida o nome de um grupo novo ou renomeado */
+function erroNomeGrupo(nome, idAtual = null) {
+  if (!nome) return 'Digite um nome.';
+  if (nome.length > 30) return 'Use no máximo 30 letras.';
+  if (grupos.some(g => g.id !== idAtual && chaveMateria(g.nome) === chaveMateria(nome))) return 'Já existe um grupo com esse nome.';
+  return null;
+}
+
+/** Pede o nome e cria um grupo. Devolve o id criado (ou null se desistir) */
+async function criarGrupo() {
+  const nome = await pedirTexto('Nome do novo grupo (ex.: Simulados Poliedro):', '', 'Criar grupo', v => erroNomeGrupo(v));
+  if (!nome) return null;
+  const grupo = { id: 'g' + novoId(), nome };
+  grupos.push(grupo);
+  salvarGrupos();
+  return grupo.id;
+}
+
+async function renomearGrupo(id) {
+  const g = grupoPorId(id);
+  if (!g) return;
+  const nome = await pedirTexto(`Novo nome para "${g.nome}":`, g.nome, 'Renomear', v => erroNomeGrupo(v, id));
+  if (!nome || nome === g.nome) return;
+  g.nome = nome;
+  salvarGrupos();
+  renderTudoDosGrupos();
+}
+
+async function apagarGrupo(id) {
+  const g = grupoPorId(id);
+  if (!g || IDS_GRUPOS_PADRAO.has(id)) return;
+  const dele = resultados.filter(r => r.grupo === id);
+  const destino = nomeDoGrupo(GRUPO_SIMULADOS);
+  const ok = await confirmar(
+    `Apagar o grupo "${g.nome}"?` +
+    (dele.length ? ` ${plural(dele.length, 'prova dele vai', 'provas dele vão')} para "${destino}". Nenhuma prova é apagada.` : ''),
+    'Apagar grupo'
+  );
+  if (!ok) return;
+  const agora = new Date().toISOString();
+  dele.forEach(r => { r.grupo = GRUPO_SIMULADOS; r.atualizadoEm = agora; });
+  if (dele.length) salvarResultados();
+  grupos.splice(grupos.indexOf(g), 1);
+  salvarGrupos();
+  if (filtroGrupo === id) { filtroGrupo = '__todos'; gravar(CHAVE_FILTRO_GRUPO, filtroGrupo); }
+  renderTudoDosGrupos();
+}
+
+/** Redesenha o que mostra grupos: Opções, Desempenho, Histórico e o campo do Registrar */
+function renderTudoDosGrupos() {
+  renderGruposOpcoes();
+  if (!el.telaResultados.hidden) {
+    renderDesempenho();
+    renderHistoricoAba();
+    if (abaTela === 'registrar') preencherSeletorGrupo(elR.grupo.value);
+  }
 }
 
 function carregarResultados() {
@@ -3747,6 +3886,8 @@ let filtroDesempenho = (() => {
   return salvo && salvo !== '__todos' ? salvo : NOME_TIPO_PADRAO;
 })();
 let filtroTipo = null; // prova em uso de fato no Desempenho (null = nenhum resultado)
+// Desempenho: grupo escolhido ('__todos' = todos os grupos)
+let filtroGrupo = lerTexto(CHAVE_FILTRO_GRUPO) || '__todos';
 // Histórico: pode listar todas as provas juntas
 let filtroHistorico = lerTexto(CHAVE_FILTRO_HIST) || '__todos';
 let temporizadorMsgResultados = null;
@@ -3785,7 +3926,9 @@ function itemResultado(r, posicao = {}) {
   const nome = criar('strong', '', r.tipo || '(sem prova)');
   titulo.append(nome);
   if (r.fonte) titulo.append(criar('span', 'item-fonte', ` · ${r.fonte}`));
-  titulo.append(criar('div', 'item-meta', formatarData(r.data)));
+  const meta = criar('div', 'item-meta', formatarData(r.data));
+  meta.append(criar('span', 'item-grupo', ` · ${nomeDoGrupo(grupoDoResultado(r))}`));
+  titulo.append(meta);
   cabeca.append(caixa, titulo);
   const total = criar('div', 'item-total',
     soma.total ? `${soma.acertos}/${soma.total} · ${porcentagem(soma.pct)}` : 'sem notas');
@@ -4282,9 +4425,37 @@ function renderDesempenho() {
   elR.filtro.value = filtroTipo ?? '';
   elR.filtro.disabled = nomes.length === 0; // abre mesmo com uma prova só
 
-  const lista = filtroTipo === null ? [] : resultados.filter(r => r.tipo === filtroTipo);
+  const daProva = filtroTipo === null ? [] : resultados.filter(r => r.tipo === filtroTipo);
+
+  // Grupos: botões sempre à mostra, com quantas provas desta prova há em cada um
+  if (filtroGrupo !== '__todos' && !grupoPorId(filtroGrupo)) filtroGrupo = '__todos';
+  const contar = id => daProva.filter(r => grupoDoResultado(r) === id).length;
+  const botaoGrupo = (id, nome, n) => {
+    const b = criar('button');
+    b.type = 'button';
+    b.setAttribute('role', 'tab');
+    b.setAttribute('aria-selected', String(filtroGrupo === id));
+    b.append(criar('span', '', nome), criar('span', 'conta', String(n)));
+    b.addEventListener('click', () => {
+      filtroGrupo = id;
+      gravar(CHAVE_FILTRO_GRUPO, id);
+      filtroMotivos = '__todas';
+      renderDesempenho();
+    });
+    return b;
+  };
+  elR.grupos.replaceChildren(
+    botaoGrupo('__todos', 'Todas', daProva.length),
+    ...grupos.map(g => botaoGrupo(g.id, g.nome, contar(g.id)))
+  );
+  elR.grupos.hidden = daProva.length === 0;
+
+  const lista = filtroGrupo === '__todos' ? daProva : daProva.filter(r => grupoDoResultado(r) === filtroGrupo);
   const fx = filtroTipo === null ? null : faixasDaProva(filtroTipo);
-  $('desempenho-vazio').hidden = lista.length > 0;
+  $('desempenho-vazio').hidden = daProva.length > 0;
+  const grupoVazio = daProva.length > 0 && lista.length === 0;
+  $('grupo-vazio').hidden = !grupoVazio;
+  if (grupoVazio) $('grupo-vazio').textContent = `Nenhuma prova de ${filtroTipo} em "${nomeDoGrupo(filtroGrupo)}" ainda.`;
   elR.resumoNumeros.hidden = lista.length === 0;
 
   // Números gerais: quantidade de provas
@@ -5351,6 +5522,10 @@ function abrirFormulario({ existente = null } = {}) {
   elR.btnCancelar.textContent = existente ? 'Cancelar edição' : 'Limpar';
   elR.data.value = paraCampoData(base.data).slice(0, 10); // só a data (AAAA-MM-DD)
   preencherSeletorProva(base.tipo || '');
+  // Grupo: o do resultado (ao editar); senão, o último usado; senão, Provas antigas
+  const ultimoGrupo = lerTexto(CHAVE_ULTIMO_GRUPO);
+  preencherSeletorGrupo(existente ? grupoDoResultado(existente)
+    : grupoPorId(ultimoGrupo) ? ultimoGrupo : GRUPO_ANTIGAS);
   elR.fonte.value = base.fonte || '';
   elR.listaFontes.replaceChildren(...[...new Set(resultados.map(r => r.fonte).filter(Boolean))]
     .slice(0, 50).map(f => new Option(f)));
@@ -5365,11 +5540,25 @@ function abrirFormulario({ existente = null } = {}) {
   elR.info.textContent = info.join(' · ');
   elR.info.hidden = info.length === 0;
 
-  // Matérias: as do resultado (ao editar) ou as da prova escolhida, com os totais
-  const modelo = existente ? existente.materias : modeloDaProva(base.tipo);
+  // Matérias: as do resultado (ao editar) ou as da prova escolhida, com os totais.
+  // ITA e IME: sempre as matérias fixas; ao editar, aproveita o que o resultado já tinha em cada uma.
+  const fixas = materiasFixasDe(base.tipo);
+  let modelo;
+  if (existente && fixas) {
+    const salvas = new Map(existente.materias.map(m => [chaveMateria(m.nome), m]));
+    modelo = fixas.map(f => {
+      const m = salvas.get(chaveMateria(f.nome));
+      if (!m) return { nome: f.nome, total: f.total, acertos: null };
+      const mesmoTotal = m.total === f.total;
+      return { nome: f.nome, total: f.total, acertos: Math.min(m.acertos, f.total),
+               questoes: mesmoTotal ? m.questoes : null, motivos: mesmoTotal ? m.motivos : null };
+    });
+  } else {
+    modelo = existente ? existente.materias : modeloDaProva(base.tipo);
+  }
   carregarMateriasNoForm(modelo.map(m => novaMateriaForm({
     nome: m.nome, total: m.total || 0,
-    acertos: existente ? m.acertos : null, questoes: m.questoes || null, motivos: m.motivos || null
+    acertos: existente ? m.acertos ?? null : null, questoes: m.questoes || null, motivos: m.motivos || null
   })));
 
   if (abaTela !== 'registrar' || el.telaResultados.hidden) trocarAbaTela('registrar');
@@ -5442,8 +5631,10 @@ function salvarFormulario(evento) {
     tempoUsadoMin: edicao.base.tempoUsadoMin ?? null,
     gabaritoMin: edicao.base.gabaritoMin ?? null,
     materias,
-    observacoes: elR.obs.value.trim()
+    observacoes: elR.obs.value.trim(),
+    grupo: grupoPorId(elR.grupo.value) ? elR.grupo.value : GRUPO_ANTIGAS
   });
+  gravar(CHAVE_ULTIMO_GRUPO, registro.grupo);
   const i = resultados.findIndex(r => r.id === registro.id);
   if (i >= 0) resultados[i] = registro;
   else resultados.push(registro);
@@ -5497,12 +5688,31 @@ function preencherSeletorProva(atual) {
   elR.dicaNovaProva.hidden = true;
 }
 
+/* ---------- Grupo (formulário) ---------- */
+const OPCAO_NOVO_GRUPO = '__novo-grupo';
+function preencherSeletorGrupo(valor) {
+  elR.grupo.replaceChildren(
+    ...grupos.map(g => new Option(g.nome, g.id)),
+    new Option('+ Novo grupo…', OPCAO_NOVO_GRUPO)
+  );
+  elR.grupo.value = grupoPorId(valor) ? valor : GRUPO_ANTIGAS;
+  elR.grupo.dataset.anterior = elR.grupo.value;
+}
+async function aoEscolherGrupoNoForm() {
+  if (elR.grupo.value !== OPCAO_NOVO_GRUPO) { elR.grupo.dataset.anterior = elR.grupo.value; return; }
+  const id = await criarGrupo();
+  preencherSeletorGrupo(id || elR.grupo.dataset.anterior);
+  if (id) { renderGruposOpcoes(); avisarResultados(`Grupo "${nomeDoGrupo(id)}" criado.`); }
+}
+
 function provaEscolhida() {
   return elR.tipoSel.value === OPCAO_OUTRA_PROVA ? elR.tipo.value.trim() : elR.tipoSel.value;
 }
 
 /** Matérias (com total de questões, quando conhecido) de uma prova */
 function modeloDaProva(nome) {
+  const fixas = materiasFixasDe(nome); // ITA e IME: sempre as mesmas
+  if (fixas) return fixas;
   const chave = nome ? chaveMateria(nome) : '';
   const salva = provaDaBiblioteca(nome);
   if (salva && salva.materias.length) return salva.materias.map(m => ({ nome: m.nome, total: m.total }));
@@ -5555,6 +5765,7 @@ function montarBackup() {
     resultados,
     excluidos,
     tipos: biblioteca.tipos,
+    grupos, // grupos de provas (Provas antigas, Simulados e os criados)
     estudos, // horas de estudo por matéria
     estudosRetirados: [...estudosRetirados] // sessões apagadas por "Retirar" (não voltam ao importar)
   };
@@ -5614,7 +5825,17 @@ async function importarBackup() {
   // - prova excluída no outro aparelho sai daqui (a menos que tenha sido editada aqui depois).
   const excluidosAqui = new Map(excluidos.map(x => [x.id, x.em]));
   const excluidosLa = limparExcluidos(dados.excluidos);
-  const todosVindos = dados.resultados.map(limparResultado).filter(Boolean);
+  // Grupos do backup: um grupo com o mesmo nome de um daqui vira o daqui; os outros entram como novos
+  const gruposLa = Array.isArray(dados.grupos) ? limparGrupos(dados.grupos) : [];
+  const trocaGrupo = new Map();
+  const gruposNovos = [];
+  gruposLa.forEach(g => {
+    const aqui = grupoPorId(g.id) || grupos.find(x => chaveMateria(x.nome) === chaveMateria(g.nome));
+    if (aqui) { if (aqui.id !== g.id) trocaGrupo.set(g.id, aqui.id); }
+    else gruposNovos.push(g);
+  });
+  const todosVindos = dados.resultados.map(limparResultado).filter(Boolean)
+    .map(r => (trocaGrupo.has(r.grupo) ? { ...r, grupo: trocaGrupo.get(r.grupo) } : r));
   const foiExcluidaAqui = r => excluidosAqui.has(r.id) && excluidosAqui.get(r.id) >= r.atualizadoEm;
   const vindos = todosVindos.filter(r => !foiExcluidaAqui(r));
   const atuais = new Map(resultados.map(r => [r.id, r]));
@@ -5643,7 +5864,8 @@ async function importarBackup() {
     if (exclusoesNovas.length) gravar(CHAVE_EXCLUIDOS, excluidos);
   };
 
-  const temMudancas = novos.length || maisRecentes.length || tiposNovos.length || removidos.length || estudosNovos.length;
+  const temMudancas = novos.length || maisRecentes.length || tiposNovos.length || removidos.length || estudosNovos.length ||
+    gruposNovos.length;
   if (!temMudancas && !voltariam.length) {
     guardarExclusoes();
     avisarResultados('Tudo o que está nesse backup já está aqui. Nada foi alterado.');
@@ -5657,6 +5879,7 @@ async function importarBackup() {
     if (removidos.length) partes.push(plural(removidos.length, 'resultado excluído no outro aparelho', 'resultados excluídos no outro aparelho'));
     if (tiposNovos.length) partes.push(plural(tiposNovos.length, 'prova salva nova', 'provas salvas novas'));
     if (estudosNovos.length) partes.push(plural(estudosNovos.length, 'sessão de estudo', 'sessões de estudo'));
+    if (gruposNovos.length) partes.push(plural(gruposNovos.length, 'grupo novo', 'grupos novos'));
     const ok = await confirmar(
       `Importar de "${arquivo.name}" para o perfil "${perfilAtivo().nome}": ${partes.join(', ')}? ` +
       (typeof dados.perfil === 'string' && dados.perfil !== perfilAtivo().nome
@@ -5680,6 +5903,7 @@ async function importarBackup() {
     tiposNovos.forEach(t => biblioteca.tipos.push(t));
     if (tiposNovos.length) salvarTipos();
     if (estudosNovos.length) { estudos.push(...estudosNovos); salvarEstudos(); }
+    if (gruposNovos.length) { grupos.push(...gruposNovos); salvarGrupos(); }
   }
 
   // Provas do backup que tinham sido excluídas aqui: pergunta se quer trazer de volta
@@ -5730,6 +5954,7 @@ elR.ordenar.addEventListener('change', () => mudarOrdenacao(elR.ordenar.value));
 elR.btnExcluirSel.addEventListener('click', excluirSelecionadas);
 elR.form.addEventListener('submit', salvarFormulario);
 elR.tipoSel.addEventListener('change', aoEscolherProvaNoForm);
+elR.grupo.addEventListener('change', aoEscolherGrupoNoForm);
 elR.btnCancelar.addEventListener('click', cancelarFormulario);
 
 // Pede ao navegador para não apagar os dados sozinho (quando suportado)
@@ -5879,6 +6104,7 @@ async function criarPerfil() {
   if (backup) gravar(chaveDoPerfil(id, 'excluidos'), limparExcluidos(backup.excluidos));
   if (backup) gravar(chaveDoPerfil(id, 'estudos'), limparEstudos(backup.estudos));
   if (backup) gravar(chaveDoPerfil(id, 'estudos-retirados'), limparIdsRetirados(backup.estudosRetirados));
+  if (backup) gravar(chaveDoPerfil(id, 'grupos'), limparGrupos(backup.grupos));
   if (backup && Array.isArray(backup.tipos)) {
     // Timers padrão + os do backup (sem repetir id nem nome)
     const tipos = BACKUP_PADRAO.tipos.map(limparTipo).filter(Boolean);
@@ -6077,9 +6303,36 @@ $('btn-entendi').addEventListener('click', () => {
 
 // Engrenagem: painel de opções (cores do site)
 function abrirOpcoes() {
+  renderGruposOpcoes();
   $('painel-opcoes').hidden = false;
   $('btn-fechar-opcoes').focus();
 }
+
+/** Lista de grupos nas Opções: renomear todos, apagar só os criados */
+function renderGruposOpcoes() {
+  $('lista-grupos').replaceChildren(...grupos.map(g => {
+    const li = criar('li');
+    const n = resultados.filter(r => grupoDoResultado(r) === g.id).length;
+    const nome = criar('span', 'nome-grupo', g.nome);
+    nome.append(criar('span', 'item-meta', plural(n, 'prova', 'provas')));
+    const renomear = criar('button', 'btn btn-fantasma btn-pequeno', 'Renomear');
+    renomear.type = 'button';
+    renomear.setAttribute('aria-label', `Renomear o grupo ${g.nome}`);
+    renomear.addEventListener('click', () => renomearGrupo(g.id));
+    li.append(nome, renomear);
+    if (!IDS_GRUPOS_PADRAO.has(g.id)) {
+      const apagar = criar('button', 'btn btn-fantasma btn-pequeno', 'Apagar');
+      apagar.type = 'button';
+      apagar.setAttribute('aria-label', `Apagar o grupo ${g.nome}`);
+      apagar.addEventListener('click', () => apagarGrupo(g.id));
+      li.append(apagar);
+    }
+    return li;
+  }));
+}
+$('btn-novo-grupo').addEventListener('click', async () => {
+  if (await criarGrupo()) renderTudoDosGrupos();
+});
 function fecharOpcoes() {
   if ($('painel-opcoes').hidden) return;
   $('painel-opcoes').hidden = true;
@@ -6088,7 +6341,8 @@ function fecharOpcoes() {
 $('btn-opcoes').addEventListener('click', abrirOpcoes);
 $('btn-fechar-opcoes').addEventListener('click', fecharOpcoes);
 $('painel-opcoes').addEventListener('click', e => { if (e.target === e.currentTarget) fecharOpcoes(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharOpcoes(); });
+// (Esc numa janela de diálogo aberta por cima só fecha o diálogo)
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !e.defaultPrevented) fecharOpcoes(); });
 el.btnTipoSalvar.addEventListener('click', salvarAlteracoesTipo);
 el.btnTipoNovo.addEventListener('click', salvarComoNovoTipo);
 el.btnTipoRenomear.addEventListener('click', renomearTipo);
