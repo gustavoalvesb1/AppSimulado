@@ -1137,6 +1137,64 @@
   .lista-grupos .item-meta { margin-left: 4px; }
   /* Grupo da prova no Histórico */
   .item-grupo { color: var(--texto-suave); }
+
+  /* Resultados: 3 abas (Registrar · Desempenho · 2ª fase); Histórico e Perfil abrem pela engrenagem */
+  #tela-resultados > .titulo-tela, .cabecalho .barra-topo { position: relative; }
+  #abas-tela.nav-abas { grid-template-columns: repeat(3, 1fr); }
+  .menu-engrenagem {
+    position: absolute; right: 0; top: calc(100% + 6px); z-index: 20;
+    display: flex; flex-direction: column; min-width: 200px; padding: 6px;
+    background: var(--bg-2); border: 1px solid var(--borda); border-radius: 12px;
+    box-shadow: 0 18px 40px -14px rgba(0, 0, 0, .55);
+  }
+  .menu-engrenagem button {
+    text-align: left; background: none; border: 0; border-radius: 8px; padding: 10px 12px;
+    color: var(--texto); font-size: .95rem; cursor: pointer;
+  }
+  .menu-engrenagem button:hover, .menu-engrenagem button:focus-visible { background: var(--sup-2, var(--bg)); outline: none; }
+  .barra-secundaria { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; }
+  .barra-secundaria h2 { margin: 0; font-size: 1.15rem; }
+
+  /* 2ª fase */
+  .grupos-segunda { margin: 0 0 16px; }
+  .form-segunda { margin: 6px 0 18px; padding: 16px; border: 1px solid var(--borda); border-radius: 14px; scroll-margin-top: 90px; }
+  .form-segunda h3 { margin: 0 0 12px; font-size: 1rem; }
+  .grade-segunda { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; align-items: end; }
+  .grade-segunda .campo { width: 100%; font-size: 1rem; }
+  .grade-segunda .seg-largo { grid-column: span 2; }
+  .grade-segunda .seg-largo .campo + .campo { margin-top: 8px; }
+  .seg-previa { margin: 12px 0 0; min-height: 1.3em; }
+  .form-segunda .linha { margin-top: 12px; }
+  .tabela-segunda { width: 100%; min-width: 600px; }
+  .tabela-segunda td, .tabela-segunda th { white-space: nowrap; padding-left: 6px; padding-right: 6px; }
+  .tabela-segunda .acertos-seg { font-size: .74rem; color: var(--texto-suave); font-weight: 400; }
+  /* No celular a tabela rola de lado; a coluna do ciclo fica parada */
+  .tabela-segunda th:first-child, .tabela-segunda td:first-child { position: sticky; left: 0; z-index: 1; background: var(--bg-2); }
+  :root[data-tema^="editorial"] .tabela-segunda th:first-child, :root[data-tema^="editorial"] .tabela-segunda td:first-child { background: var(--bg); }
+  .tabela-segunda .linha-ciclo { cursor: pointer; }
+  .tabela-segunda .linha-ciclo:focus-visible { outline: 2px solid var(--foco); outline-offset: -2px; }
+  .tabela-segunda .nome-ciclo { font-weight: 600; }
+  .tabela-segunda .forte { font-weight: 700; }
+  .tabela-segunda td.meta-ok { color: var(--nivel-excelente); }
+  /* Média geral em destaque: faixa colorida na coluna e número maior, na cor de destaque do tema */
+  #tela-resultados .tabela-segunda th:last-child,
+  #tela-resultados .tabela-segunda td.forte { background: color-mix(in srgb, var(--chip) 12%, transparent); }
+  #tela-resultados .tabela-segunda td.forte { color: var(--chip); font-size: 1.08rem; font-weight: 800; }
+  #tela-resultados .tabela-segunda td.forte.meta-ok { color: var(--nivel-excelente); }
+  #tela-resultados .tabela-segunda .linha-meta td.forte { font-style: normal; opacity: .8; }
+  /* Cabeçalhos (Fase 1, Mat., …) com letra mais cheia e mais clara */
+  #tela-resultados .tabela-segunda thead th { font-size: .8rem; font-weight: 800; color: var(--texto); letter-spacing: .05em; }
+  #tela-resultados .tabela-segunda thead th:last-child { color: var(--chip); }
+  .tabela-segunda .linha-meta td { color: var(--texto-suave); font-style: italic; }
+  .tabela-segunda tfoot .linha-total td { border-top: 2px solid var(--borda); font-weight: 600; }
+  .lista-falta-meta { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .lista-falta-meta .falta { font-weight: 600; }
+  .lista-falta-meta li.abaixo .falta { color: var(--aviso); }
+  .lista-falta-meta li.ok .falta { color: var(--nivel-excelente); }
+  .lista-falta-meta .resumo-falta { margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--borda); }
+  #det-metas { margin-top: 22px; }
+  .grade-metas { margin-top: 12px; }
+  @media (max-width: 520px) { .grade-segunda { grid-template-columns: 1fr 1fr; } }
   /* Desempenho: "Selecionar prova" fica acima das questões e de "Por que você errou" */
   .bloco-escolha-prova { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--borda); }
   .bloco-escolha-prova .campo { font-size: .92rem; padding: 8px 36px 8px 12px; min-height: 38px; }
@@ -1769,6 +1827,16 @@
   :root[data-tema^="editorial"] #tela-resultados .grupos-desempenho { border: 0; padding: 0; gap: 6px; }
   :root[data-tema^="editorial"] #tela-resultados .grupos-desempenho button { border: 1px solid var(--borda); }
   :root[data-tema^="editorial"] #tela-resultados .grupos-desempenho button[aria-selected="true"] { border-color: var(--chip); }
+  /* Menu da engrenagem, barra "← Voltar" e 2ª fase */
+  :root[data-tema^="editorial"] #tela-resultados .menu-engrenagem { border-radius: 8px; background: var(--bg); }
+  :root[data-tema^="editorial"] #tela-resultados .barra-secundaria h2 {
+    font-family: var(--serifa); font-weight: 400; font-synthesis: none; font-size: 1.8rem; color: var(--chip); letter-spacing: 0;
+  }
+  :root[data-tema^="editorial"] #tela-resultados .form-segunda { border-radius: 6px; background: none; border-left: 2px solid var(--chip); }
+  :root[data-tema^="editorial"] #tela-resultados .tabela-segunda td.forte { font-weight: 700; color: var(--chip); }
+  :root[data-tema^="editorial"] #tela-resultados .tabela-segunda td.forte.meta-ok { color: var(--nivel-excelente); }
+  :root[data-tema^="editorial"] #tela-resultados .tabela-segunda thead th { font-size: .78rem; font-weight: 800; color: var(--texto); letter-spacing: .08em; }
+  :root[data-tema^="editorial"] #tela-resultados .tabela-segunda thead th:last-child { color: var(--chip); }
 
   /* Abas principais: texto com sublinhado, como um menu */
   :root[data-tema^="editorial"] #tela-resultados .nav-abas {
@@ -1878,7 +1946,14 @@
     <div class="barra-topo">
       <button id="btn-estudos" class="btn btn-fantasma btn-pequeno" type="button">Estudos</button>
       <button id="btn-abrir-resultados" class="btn btn-fantasma btn-pequeno" type="button">Resultados →</button>
-      <button id="btn-opcoes" class="btn btn-fantasma btn-pequeno btn-icone" type="button" aria-label="Opções" title="Opções">
+      <!-- Mesmo menu da engrenagem de Resultados -->
+      <div id="menu-inicio" class="menu-engrenagem" role="menu" aria-label="Mais opções" hidden>
+        <button type="button" role="menuitem" data-menu="historico">Histórico</button>
+        <button type="button" role="menuitem" data-menu="perfil">Perfil e backup</button>
+        <button type="button" role="menuitem" data-menu="aparencia">Aparência</button>
+      </div>
+      <button id="btn-opcoes" class="btn btn-fantasma btn-pequeno btn-icone" type="button" aria-label="Mais opções" title="Mais opções"
+              aria-haspopup="menu" aria-expanded="false" aria-controls="menu-inicio">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
     </div>
@@ -2110,9 +2185,14 @@
   <div class="titulo-tela">
     <h1>Resultados</h1>
     <button id="btn-resultados-voltar" class="btn btn-fantasma btn-pequeno" type="button">← Voltar</button>
-    <!-- Engrenagem: as mesmas Opções da tela inicial (cores, grupos de provas, som) -->
+    <!-- Engrenagem: menu com Histórico, Perfil e backup e Aparência (as Opções da tela inicial) -->
     <button id="btn-opcoes-resultados" class="btn btn-fantasma btn-pequeno btn-icone btn-opcoes-tela" type="button"
-            aria-label="Opções" title="Opções"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+            aria-label="Mais opções" title="Mais opções" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-resultados"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    <div id="menu-resultados" class="menu-engrenagem" role="menu" aria-label="Mais opções" hidden>
+      <button type="button" role="menuitem" data-menu="historico">Histórico</button>
+      <button type="button" role="menuitem" data-menu="perfil">Perfil e backup</button>
+      <button type="button" role="menuitem" data-menu="aparencia">Aparência</button>
+    </div>
   </div>
 
   <nav id="abas-tela" class="nav-abas" role="tablist" aria-label="Seções dos resultados">
@@ -2120,11 +2200,14 @@
             aria-controls="painel-registrar" aria-selected="false" tabindex="-1">Registrar</button>
     <button id="nav-desempenho" class="nav-aba" type="button" role="tab" data-aba="desempenho"
             aria-controls="painel-desempenho" aria-selected="true">Desempenho</button>
-    <button id="nav-historico" class="nav-aba" type="button" role="tab" data-aba="historico"
-            aria-controls="painel-historico" aria-selected="false" tabindex="-1">Histórico</button>
-    <button id="nav-perfil" class="nav-aba" type="button" role="tab" data-aba="perfil"
-            aria-controls="painel-perfil" aria-selected="false" tabindex="-1">Perfil e backup</button>
+    <button id="nav-segunda" class="nav-aba" type="button" role="tab" data-aba="segunda"
+            aria-controls="painel-segunda" aria-selected="false" tabindex="-1">2ª fase</button>
   </nav>
+  <!-- Histórico e Perfil e backup abrem pela engrenagem: barra com "← Voltar" -->
+  <div id="barra-secundaria" class="barra-secundaria" hidden>
+    <button id="btn-secundaria-voltar" class="btn btn-fantasma btn-pequeno" type="button">← Voltar</button>
+    <h2 id="titulo-secundaria"></h2>
+  </div>
   <!-- Aparece só no perfil "Exemplo" -->
   <div id="aviso-exemplo" class="aviso-exemplo" hidden>
     <span>Você está vendo o <strong>exemplo</strong>: 8 provas antigas do ITA e 5 simulados Ciclos Poliedro, marcados questão a questão.</span>
@@ -2134,7 +2217,7 @@
   <p id="erro-resultados" class="msg msg-erro" role="alert"></p>
 
   <!-- ABA: PERFIL E BACKUP -->
-  <div id="painel-perfil" role="tabpanel" aria-labelledby="nav-perfil" hidden>
+  <div id="painel-perfil" role="region" aria-labelledby="titulo-secundaria" hidden>
     <!-- Perfis: cada um com suas provas, resultados e backup -->
     <section class="cartao">
       <h2><label for="sel-perfil">Perfil</label></h2>
@@ -2157,6 +2240,113 @@
         <button id="btn-exportar" class="btn btn-pequeno" type="button">⬇ Exportar backup</button>
         <button id="btn-importar" class="btn btn-fantasma btn-pequeno" type="button">⬆ Importar backup</button>
         <input id="input-importar" type="file" hidden>
+      </div>
+    </section>
+  </div>
+
+  <!-- ABA: 2ª FASE (ITA: Matemática, Física, Química dissertativas + Português e Redação) -->
+  <div id="painel-segunda" role="tabpanel" aria-labelledby="nav-segunda" hidden>
+    <section class="cartao">
+      <div class="titulo-tela compacto">
+        <h2>Resultado total</h2>
+        <button id="btn-segunda-novo" class="btn btn-pequeno" type="button">+ Adicionar ciclo</button>
+      </div>
+      <p class="dica">Fase 1 = acertos de 36 · Matemática, Física, Química e Redação de 0 a 10 · Português = acertos de 15.
+        Linguagens = média de Português e Redação. Média geral = média de Fase 1, Matemática, Física, Química e Linguagens.</p>
+      <!-- Grupos da 2ª fase (2026, 2027 e os criados): todos à mostra, um clique troca -->
+      <div id="grupos-segunda" class="segmento grupos-desempenho grupos-segunda" role="tablist" aria-label="Grupo da 2ª fase"></div>
+
+      <!-- Formulário de um ciclo (novo ou editando) -->
+      <form id="form-segunda" class="form-segunda" hidden novalidate>
+        <h3 id="titulo-form-segunda">Novo ciclo</h3>
+        <div class="grade-segunda">
+          <div class="campo-edicao">
+            <label class="rotulo" for="seg-nome">Ciclo / edição</label>
+            <input id="seg-nome" class="campo" type="text" maxlength="60" autocomplete="off" placeholder="ex.: Ciclo 1">
+          </div>
+          <div>
+            <label class="rotulo" for="seg-data">Data</label>
+            <input id="seg-data" class="campo" type="date">
+          </div>
+          <div>
+            <label class="rotulo" for="seg-grupo">Grupo</label>
+            <select id="seg-grupo" class="campo"></select>
+          </div>
+          <div class="seg-largo">
+            <label class="rotulo" for="seg-fase1-sel">Fase 1</label>
+            <select id="seg-fase1-sel" class="campo"></select>
+            <input id="seg-fase1-acertos" class="campo seg-num" type="number" min="0" max="36" step="1" inputmode="numeric"
+                   placeholder="acertos de 36" aria-label="Acertos na 1ª fase (de 36)" hidden>
+          </div>
+          <div>
+            <label class="rotulo" for="seg-mat">Matemática</label>
+            <input id="seg-mat" class="campo seg-num" type="number" min="0" max="10" step="0.1" inputmode="decimal" placeholder="0 a 10">
+          </div>
+          <div>
+            <label class="rotulo" for="seg-fis">Física</label>
+            <input id="seg-fis" class="campo seg-num" type="number" min="0" max="10" step="0.1" inputmode="decimal" placeholder="0 a 10">
+          </div>
+          <div>
+            <label class="rotulo" for="seg-qui">Química</label>
+            <input id="seg-qui" class="campo seg-num" type="number" min="0" max="10" step="0.1" inputmode="decimal" placeholder="0 a 10">
+          </div>
+          <div>
+            <label class="rotulo" for="seg-port">Português (acertos)</label>
+            <input id="seg-port" class="campo seg-num" type="number" min="0" max="15" step="1" inputmode="numeric" placeholder="de 15">
+          </div>
+          <div>
+            <label class="rotulo" for="seg-red">Redação</label>
+            <input id="seg-red" class="campo seg-num" type="number" min="0" max="10" step="0.1" inputmode="decimal" placeholder="0 a 10">
+          </div>
+        </div>
+        <p id="seg-previa" class="item-meta seg-previa"></p>
+        <p id="erro-segunda" class="msg msg-erro" role="alert"></p>
+        <div class="linha">
+          <button class="btn btn-pequeno" type="submit">Salvar ciclo</button>
+          <button id="btn-segunda-cancelar" class="btn btn-fantasma btn-pequeno" type="button">Cancelar</button>
+          <button id="btn-segunda-excluir" class="btn btn-fantasma btn-pequeno empurrar" type="button" hidden>Excluir ciclo</button>
+        </div>
+      </form>
+
+      <p id="segunda-vazio" class="vazio" hidden>Nenhum ciclo de 2ª fase ainda. Toque em "+ Adicionar ciclo".</p>
+      <div id="bloco-segunda" hidden>
+        <div class="rolagem-tabela">
+          <table class="tabela tabela-segunda">
+            <thead>
+              <tr>
+                <th>Ciclo</th>
+                <th class="num" title="Nota (0 a 10) · acertos de 36">Fase 1</th>
+                <th class="num">Mat.</th>
+                <th class="num">Fís.</th>
+                <th class="num">Quí.</th>
+                <th class="num" title="Nota (0 a 10) · acertos de 15">Port.</th>
+                <th class="num">Red.</th>
+                <th class="num" title="Média de Português e Redação">Ling.</th>
+                <th class="num">Média geral</th>
+              </tr>
+            </thead>
+            <tbody id="corpo-segunda"></tbody>
+            <tfoot id="pe-segunda"></tfoot>
+          </table>
+        </div>
+        <p class="grafico-nota">Toque num ciclo para editar. Em verde, o que já bateu a meta. "Média de cada" usa só os ciclos completos.</p>
+
+        <div class="bloco-dicas">
+          <h3>Onde está a distância para a meta</h3>
+          <ul id="lista-falta-meta" class="lista-falta-meta"></ul>
+        </div>
+
+        <details id="det-metas" class="dobra">
+          <summary><span class="dobra-titulo">Metas</span><span id="resumo-metas" class="item-meta"></span></summary>
+          <form id="form-metas" class="grade-segunda grade-metas" novalidate>
+            <div><label class="rotulo" for="meta-f1">Fase 1 (acertos)</label><input id="meta-f1" class="campo seg-num" type="number" min="0" max="36" step="1"></div>
+            <div><label class="rotulo" for="meta-mat">Matemática</label><input id="meta-mat" class="campo seg-num" type="number" min="0" max="10" step="0.1"></div>
+            <div><label class="rotulo" for="meta-fis">Física</label><input id="meta-fis" class="campo seg-num" type="number" min="0" max="10" step="0.1"></div>
+            <div><label class="rotulo" for="meta-qui">Química</label><input id="meta-qui" class="campo seg-num" type="number" min="0" max="10" step="0.1"></div>
+            <div><label class="rotulo" for="meta-port">Português (acertos)</label><input id="meta-port" class="campo seg-num" type="number" min="0" max="15" step="1"></div>
+            <div><label class="rotulo" for="meta-red">Redação</label><input id="meta-red" class="campo seg-num" type="number" min="0" max="10" step="0.1"></div>
+          </form>
+        </details>
       </div>
     </section>
   </div>
@@ -2266,7 +2456,7 @@
   </div>
 
   <!-- ABA: HISTÓRICO -->
-  <div id="painel-historico" role="tabpanel" aria-labelledby="nav-historico" hidden>
+  <div id="painel-historico" role="region" aria-labelledby="titulo-secundaria" hidden>
     <section class="cartao">
       <div class="titulo-tela compacto">
         <h2><label for="filtro-historico">Histórico</label></h2>
@@ -2395,9 +2585,15 @@
 
     <h3 class="opcoes-secao">Grupos de provas</h3>
     <p class="dica">Separam as provas no Desempenho. Os dois primeiros não podem ser apagados, só renomeados.
-      Ao apagar um grupo criado por você, as provas dele vão para "Simulados".</p>
+      Ao apagar um grupo criado por você, as provas dele vão para o segundo grupo ("Ciclos").</p>
     <ul id="lista-grupos" class="lista-grupos"></ul>
     <button id="btn-novo-grupo" class="btn btn-fantasma btn-pequeno" type="button">+ Novo grupo</button>
+
+    <h3 class="opcoes-secao">Grupos da 2ª fase</h3>
+    <p class="dica">Separam os ciclos na aba "2ª fase". "2026" e "2027" não podem ser apagados, só renomeados.
+      Ao apagar um grupo criado por você, os ciclos dele vão para o primeiro grupo.</p>
+    <ul id="lista-grupos-segunda" class="lista-grupos"></ul>
+    <button id="btn-novo-grupo-segunda" class="btn btn-fantasma btn-pequeno" type="button">+ Novo grupo da 2ª fase</button>
 
     <h3 class="opcoes-secao">Som</h3>
     <p class="dica">Toca o bipe dos adesivos de tempo, para conferir o volume antes da prova.</p>
@@ -2437,7 +2633,8 @@ const CHAVE_PERFIS = 'cronometro-simulado:perfis'; // { perfis: [{ id, nome }], 
 const CHAVE_TEMA   = 'cronometro-simulado:tema';   // esquema de cores (todos os perfis)
 const DADOS_DO_PERFIL = ['v1', 'tipos', 'resultados', 'ultimo-backup', 'ordenacao', 'ordem-manual', 'versao', 'filtro',
                          'excluidos', 'filtro-historico', 'ultimo-gabarito', 'estudos', 'estudo-ativo', 'estudos-retirados',
-                         'grupos', 'filtro-grupo', 'ultimo-grupo'];
+                         'grupos', 'filtro-grupo', 'ultimo-grupo', 'segunda-fase', 'grupos-ciclos',
+                         'filtro-grupo-segunda', 'ultimo-grupo-segunda'];
 
 function chaveDoPerfil(idPerfil, nome) {
   return idPerfil === 'principal'
@@ -2587,7 +2784,7 @@ const BACKUP_PADRAO = {
 
 /**
  * Exemplo: 8 provas antigas da 1ª fase do ITA (2017 a 2024) e 5 simulados "Ciclos Poliedro"
- * (grupo 'ciclos-poliedro'), todos marcados questão a questão.
+ * (no grupo padrão 'simulados', chamado \"Ciclos\"), todos marcados questão a questão.
  * Abre num perfil separado ("Exemplo") pelo botão "Ver exemplo", sem misturar com os seus dados.
  */
 const EXEMPLO_RESULTADOS = [
@@ -2599,11 +2796,11 @@ const EXEMPLO_RESULTADOS = [
   {"id":"amostraita06","data":"2026-10-31T12:00:00.000Z","atualizadoEm":"2026-10-31T18:30:00.000Z","tipo":"ITA 1°Fase","fonte":"ITA 2022","duracaoMin":300,"tempoUsadoMin":300,"gabaritoMin":13,"pausas":0,"pausaMin":0,"concluida":true,"materias":[{"nome":"Matemática","acertos":9,"total":12,"questoes":["A","Esk","A","A","A","A","A","A","Esk","A","Esk","A"],"motivos":{"conta":3}},{"nome":"Física","acertos":7,"total":12,"questoes":["A","A","A","A","A","En","Est","Est","A","Esk","En","Ac"],"motivos":{"conta":1,"conteudo":2,"tempo":2,"chute":1}},{"nome":"Química","acertos":9,"total":12,"questoes":["A","A","A","Ent","En","A","Ac","A","En","A","A","A"],"motivos":{"conteudo":2,"tempo":1,"chute":1}},{"nome":"Inglês","acertos":10,"total":12,"questoes":["A","A","A","Ac","A","Ent","A","A","A","A","En","A"],"motivos":{"conteudo":1,"tempo":1,"chute":1}}],"observacoes":""},
   {"id":"amostraita07","data":"2026-11-07T12:00:00.000Z","atualizadoEm":"2026-11-07T18:30:00.000Z","tipo":"ITA 1°Fase","fonte":"ITA 2023","duracaoMin":300,"tempoUsadoMin":285,"gabaritoMin":12,"pausas":0,"pausaMin":0,"concluida":true,"materias":[{"nome":"Matemática","acertos":10,"total":12,"questoes":["A","A","A","A","A","En","Esk","A","A","A","A","A"],"motivos":{"conta":1,"conteudo":1}},{"nome":"Física","acertos":8,"total":12,"questoes":["A","Esk","A","A","En","Est","En","A","A","A","A","Ac"],"motivos":{"conta":1,"conteudo":2,"tempo":1,"chute":1}},{"nome":"Química","acertos":10,"total":12,"questoes":["A","Est","A","A","Ac","En","A","A","A","A","A","A"],"motivos":{"conteudo":1,"tempo":1,"chute":1}},{"nome":"Inglês","acertos":12,"total":12,"questoes":["A","A","Ac","A","A","A","A","A","A","A","A","A"],"motivos":{"chute":1}}],"observacoes":"Gerenciei melhor o tempo."},
   {"id":"amostraita08","data":"2026-11-14T12:00:00.000Z","atualizadoEm":"2026-11-14T18:30:00.000Z","tipo":"ITA 1°Fase","fonte":"ITA 2024","duracaoMin":300,"tempoUsadoMin":280,"gabaritoMin":12,"pausas":0,"pausaMin":0,"concluida":true,"materias":[{"nome":"Matemática","acertos":10,"total":12,"questoes":["Est","A","A","A","A","A","A","A","En","A","A","A"],"motivos":{"conteudo":1,"tempo":1}},{"nome":"Física","acertos":9,"total":12,"questoes":["En","A","Ent","A","A","A","En","A","A","A","Ac","Ac"],"motivos":{"conteudo":2,"tempo":1,"chute":2}},{"nome":"Química","acertos":10,"total":12,"questoes":["A","A","A","En","A","A","A","Esk","A","A","A","A"],"motivos":{"conta":1,"conteudo":1}},{"nome":"Inglês","acertos":12,"total":12,"questoes":["A","A","A","A","A","A","A","A","A","A","A","A"]}],"observacoes":"Melhor prova até agora."},
-  {"id":"amostrapoli01","data":"2026-09-12T12:00:00.000Z","atualizadoEm":"2026-09-12T18:30:00.000Z","tipo":"ITA 1°Fase","fonte":"Poliedro · Ciclo 1","duracaoMin":300,"tempoUsadoMin":300,"gabaritoMin":17,"pausas":0,"pausaMin":0,"concluida":true,"materias":[{"nome":"Matemática","acertos":7,"total":12,"questoes":["En","A","A","A","Ent","Esk","A","A","A","Esk","Esk","A"],"motivos":{"conta":3,"conteudo":1,"tempo":1}},{"nome":"Física","acertos":4,"total":12,"questoes":["En","Esk","Ent","En","A","A","Ent","En","A","Ent","A","En"],"motivos":{"conta":1,"conteudo":4,"tempo":3}},{"nome":"Química","acertos":6,"total":12,"questoes":["En","Ac","A","Esk","Ac","Ac","A","A","Ent","En","En","En"],"motivos":{"conta":1,"conteudo":4,"tempo":1,"chute":3}},{"nome":"Inglês","acertos":8,"total":12,"questoes":["A","En","A","A","A","Ent","En","A","A","Est","A","Ac"],"motivos":{"conteudo":2,"tempo":2,"chute":1}}],"observacoes":"Primeiro simulado do cursinho. Prova longa, faltou tempo.","grupo":"ciclos-poliedro"},
-  {"id":"amostrapoli02","data":"2026-09-26T12:00:00.000Z","atualizadoEm":"2026-09-26T18:30:00.000Z","tipo":"ITA 1°Fase","fonte":"Poliedro · Ciclo 2","duracaoMin":300,"tempoUsadoMin":300,"gabaritoMin":15,"pausas":0,"pausaMin":0,"concluida":true,"materias":[{"nome":"Matemática","acertos":7,"total":12,"questoes":["Ac","Esk","Ac","Esk","A","Esk","Esk","Ac","Ac","A","A","Esk"],"motivos":{"conta":5,"chute":4}},{"nome":"Física","acertos":5,"total":12,"questoes":["Ent","En","Ac","Est","Esk","A","En","Ent","A","En","A","Ac"],"motivos":{"conta":1,"conteudo":3,"tempo":3,"chute":2}},{"nome":"Química","acertos":7,"total":12,"questoes":["A","A","A","Ac","En","En","A","En","En","A","En","A"],"motivos":{"conteudo":5,"chute":1}},{"nome":"Inglês","acertos":8,"total":12,"questoes":["A","Ac","En","A","A","En","Ent","A","A","A","Est","A"],"motivos":{"conteudo":2,"tempo":2,"chute":1}}],"observacoes":"","grupo":"ciclos-poliedro"},
-  {"id":"amostrapoli03","data":"2026-10-10T12:00:00.000Z","atualizadoEm":"2026-10-10T18:30:00.000Z","tipo":"ITA 1°Fase","fonte":"Poliedro · Ciclo 3","duracaoMin":300,"tempoUsadoMin":295,"gabaritoMin":15,"pausas":0,"pausaMin":0,"concluida":true,"materias":[{"nome":"Matemática","acertos":8,"total":12,"questoes":["A","Esk","A","En","Ac","Ent","A","A","Ac","En","Ac","A"],"motivos":{"conta":1,"conteudo":2,"tempo":1,"chute":3}},{"nome":"Física","acertos":6,"total":12,"questoes":["Ent","A","En","En","A","En","Esk","Ac","En","A","A","A"],"motivos":{"conta":1,"conteudo":4,"tempo":1,"chute":1}},{"nome":"Química","acertos":8,"total":12,"questoes":["A","En","A","Est","Ac","En","A","Esk","Ac","A","A","Ac"],"motivos":{"conta":1,"conteudo":2,"tempo":1,"chute":3}},{"nome":"Inglês","acertos":9,"total":12,"questoes":["A","A","A","A","A","En","A","A","A","Ent","A","Est"],"motivos":{"conteudo":1,"tempo":2}}],"observacoes":"Física bem mais difícil que nas provas antigas.","grupo":"ciclos-poliedro"},
-  {"id":"amostrapoli04","data":"2026-10-28T12:00:00.000Z","atualizadoEm":"2026-10-28T18:30:00.000Z","tipo":"ITA 1°Fase","fonte":"Poliedro · Ciclo 4","duracaoMin":300,"tempoUsadoMin":290,"gabaritoMin":13,"pausas":0,"pausaMin":0,"concluida":true,"materias":[{"nome":"Matemática","acertos":9,"total":12,"questoes":["A","A","Ent","Esk","A","A","Esk","Ac","A","A","A","A"],"motivos":{"conta":2,"tempo":1,"chute":1}},{"nome":"Física","acertos":7,"total":12,"questoes":["A","A","En","A","A","A","En","A","Esk","Esk","Esk","A"],"motivos":{"conta":3,"conteudo":2}},{"nome":"Química","acertos":8,"total":12,"questoes":["A","En","En","A","En","A","A","A","A","A","Est","A"],"motivos":{"conteudo":3,"tempo":1}},{"nome":"Inglês","acertos":10,"total":12,"questoes":["A","Ac","A","A","A","Est","A","A","A","Ac","A","En"],"motivos":{"conteudo":1,"tempo":1,"chute":2}}],"observacoes":"","grupo":"ciclos-poliedro"},
-  {"id":"amostrapoli05","data":"2026-11-11T12:00:00.000Z","atualizadoEm":"2026-11-11T18:30:00.000Z","tipo":"ITA 1°Fase","fonte":"Poliedro · Ciclo 5","duracaoMin":300,"tempoUsadoMin":285,"gabaritoMin":12,"pausas":0,"pausaMin":0,"concluida":true,"materias":[{"nome":"Matemática","acertos":9,"total":12,"questoes":["Ac","Esk","A","A","A","A","A","En","A","Esk","A","A"],"motivos":{"conta":2,"conteudo":1,"chute":1}},{"nome":"Física","acertos":9,"total":12,"questoes":["A","A","Est","A","A","A","A","A","A","Esk","En","A"],"motivos":{"conta":1,"conteudo":1,"tempo":1}},{"nome":"Química","acertos":8,"total":12,"questoes":["Esk","En","Ent","A","A","A","A","Esk","A","A","Ac","A"],"motivos":{"conta":2,"conteudo":1,"tempo":1,"chute":1}},{"nome":"Inglês","acertos":9,"total":12,"questoes":["A","A","A","A","A","A","En","A","A","En","En","A"],"motivos":{"conteudo":3}}],"observacoes":"Melhor ciclo até agora.","grupo":"ciclos-poliedro"}
+  {"id":"amostrapoli01","data":"2026-09-12T12:00:00.000Z","atualizadoEm":"2026-09-12T18:30:00.000Z","tipo":"ITA 1°Fase","fonte":"Poliedro · Ciclo 1","duracaoMin":300,"tempoUsadoMin":300,"gabaritoMin":17,"pausas":0,"pausaMin":0,"concluida":true,"materias":[{"nome":"Matemática","acertos":7,"total":12,"questoes":["En","A","A","A","Ent","Esk","A","A","A","Esk","Esk","A"],"motivos":{"conta":3,"conteudo":1,"tempo":1}},{"nome":"Física","acertos":4,"total":12,"questoes":["En","Esk","Ent","En","A","A","Ent","En","A","Ent","A","En"],"motivos":{"conta":1,"conteudo":4,"tempo":3}},{"nome":"Química","acertos":6,"total":12,"questoes":["En","Ac","A","Esk","Ac","Ac","A","A","Ent","En","En","En"],"motivos":{"conta":1,"conteudo":4,"tempo":1,"chute":3}},{"nome":"Inglês","acertos":8,"total":12,"questoes":["A","En","A","A","A","Ent","En","A","A","Est","A","Ac"],"motivos":{"conteudo":2,"tempo":2,"chute":1}}],"observacoes":"Primeiro simulado do cursinho. Prova longa, faltou tempo.","grupo":"simulados"},
+  {"id":"amostrapoli02","data":"2026-09-26T12:00:00.000Z","atualizadoEm":"2026-09-26T18:30:00.000Z","tipo":"ITA 1°Fase","fonte":"Poliedro · Ciclo 2","duracaoMin":300,"tempoUsadoMin":300,"gabaritoMin":15,"pausas":0,"pausaMin":0,"concluida":true,"materias":[{"nome":"Matemática","acertos":7,"total":12,"questoes":["Ac","Esk","Ac","Esk","A","Esk","Esk","Ac","Ac","A","A","Esk"],"motivos":{"conta":5,"chute":4}},{"nome":"Física","acertos":5,"total":12,"questoes":["Ent","En","Ac","Est","Esk","A","En","Ent","A","En","A","Ac"],"motivos":{"conta":1,"conteudo":3,"tempo":3,"chute":2}},{"nome":"Química","acertos":7,"total":12,"questoes":["A","A","A","Ac","En","En","A","En","En","A","En","A"],"motivos":{"conteudo":5,"chute":1}},{"nome":"Inglês","acertos":8,"total":12,"questoes":["A","Ac","En","A","A","En","Ent","A","A","A","Est","A"],"motivos":{"conteudo":2,"tempo":2,"chute":1}}],"observacoes":"","grupo":"simulados"},
+  {"id":"amostrapoli03","data":"2026-10-10T12:00:00.000Z","atualizadoEm":"2026-10-10T18:30:00.000Z","tipo":"ITA 1°Fase","fonte":"Poliedro · Ciclo 3","duracaoMin":300,"tempoUsadoMin":295,"gabaritoMin":15,"pausas":0,"pausaMin":0,"concluida":true,"materias":[{"nome":"Matemática","acertos":8,"total":12,"questoes":["A","Esk","A","En","Ac","Ent","A","A","Ac","En","Ac","A"],"motivos":{"conta":1,"conteudo":2,"tempo":1,"chute":3}},{"nome":"Física","acertos":6,"total":12,"questoes":["Ent","A","En","En","A","En","Esk","Ac","En","A","A","A"],"motivos":{"conta":1,"conteudo":4,"tempo":1,"chute":1}},{"nome":"Química","acertos":8,"total":12,"questoes":["A","En","A","Est","Ac","En","A","Esk","Ac","A","A","Ac"],"motivos":{"conta":1,"conteudo":2,"tempo":1,"chute":3}},{"nome":"Inglês","acertos":9,"total":12,"questoes":["A","A","A","A","A","En","A","A","A","Ent","A","Est"],"motivos":{"conteudo":1,"tempo":2}}],"observacoes":"Física bem mais difícil que nas provas antigas.","grupo":"simulados"},
+  {"id":"amostrapoli04","data":"2026-10-28T12:00:00.000Z","atualizadoEm":"2026-10-28T18:30:00.000Z","tipo":"ITA 1°Fase","fonte":"Poliedro · Ciclo 4","duracaoMin":300,"tempoUsadoMin":290,"gabaritoMin":13,"pausas":0,"pausaMin":0,"concluida":true,"materias":[{"nome":"Matemática","acertos":9,"total":12,"questoes":["A","A","Ent","Esk","A","A","Esk","Ac","A","A","A","A"],"motivos":{"conta":2,"tempo":1,"chute":1}},{"nome":"Física","acertos":7,"total":12,"questoes":["A","A","En","A","A","A","En","A","Esk","Esk","Esk","A"],"motivos":{"conta":3,"conteudo":2}},{"nome":"Química","acertos":8,"total":12,"questoes":["A","En","En","A","En","A","A","A","A","A","Est","A"],"motivos":{"conteudo":3,"tempo":1}},{"nome":"Inglês","acertos":10,"total":12,"questoes":["A","Ac","A","A","A","Est","A","A","A","Ac","A","En"],"motivos":{"conteudo":1,"tempo":1,"chute":2}}],"observacoes":"","grupo":"simulados"},
+  {"id":"amostrapoli05","data":"2026-11-11T12:00:00.000Z","atualizadoEm":"2026-11-11T18:30:00.000Z","tipo":"ITA 1°Fase","fonte":"Poliedro · Ciclo 5","duracaoMin":300,"tempoUsadoMin":285,"gabaritoMin":12,"pausas":0,"pausaMin":0,"concluida":true,"materias":[{"nome":"Matemática","acertos":9,"total":12,"questoes":["Ac","Esk","A","A","A","A","A","En","A","Esk","A","A"],"motivos":{"conta":2,"conteudo":1,"chute":1}},{"nome":"Física","acertos":9,"total":12,"questoes":["A","A","Est","A","A","A","A","A","A","Esk","En","A"],"motivos":{"conta":1,"conteudo":1,"tempo":1}},{"nome":"Química","acertos":8,"total":12,"questoes":["Esk","En","Ent","A","A","A","A","Esk","A","A","Ac","A"],"motivos":{"conta":2,"conteudo":1,"tempo":1,"chute":1}},{"nome":"Inglês","acertos":9,"total":12,"questoes":["A","A","A","A","A","A","En","A","A","En","En","A"],"motivos":{"conteudo":3}}],"observacoes":"Melhor ciclo até agora.","grupo":"simulados"}
 ];
 
 /**
@@ -4047,7 +4244,7 @@ const elR = {
   data: $('res-data'),
   tipo: $('res-tipo'),          // nome digitado quando a prova é "Outra"
   tipoSel: $('res-tipo-sel'),   // seletor de provas
-  grupo: $('res-grupo'),        // grupo da prova (Provas antigas, Simulados…)
+  grupo: $('res-grupo'),        // grupo da prova (Provas antigas, Ciclos…)
   grupos: $('grupos-desempenho'), // botões de grupo no Desempenho
   info: $('res-info'),
   total: $('res-total'),
@@ -4134,7 +4331,7 @@ function limparResultado(r) {
     concluida: r.concluida !== false,
     materias,
     observacoes: typeof r.observacoes === 'string' ? r.observacoes.slice(0, 2000) : '',
-    // Grupo (Provas antigas, Simulados ou criado pelo usuário). Resultados de antes dos grupos: Provas antigas
+    // Grupo (Provas antigas, Ciclos ou criado pelo usuário). Resultados de antes dos grupos: Provas antigas
     grupo: typeof r.grupo === 'string' && r.grupo.trim() ? r.grupo.trim().slice(0, 40) : GRUPO_ANTIGAS
   };
 }
@@ -4142,7 +4339,8 @@ function limparResultado(r) {
 /* ---------- Grupos de provas ---------- */
 const GRUPO_ANTIGAS = 'antigas';
 const GRUPO_SIMULADOS = 'simulados';
-const GRUPOS_PADRAO = [{ id: GRUPO_ANTIGAS, nome: 'Provas antigas' }, { id: GRUPO_SIMULADOS, nome: 'Simulados' }];
+// O 2º grupo padrão se chama "Ciclos" (simulados de cursinho); o id continua 'simulados' para não perder dados
+const GRUPOS_PADRAO = [{ id: GRUPO_ANTIGAS, nome: 'Provas antigas' }, { id: GRUPO_SIMULADOS, nome: 'Ciclos' }];
 const IDS_GRUPOS_PADRAO = new Set(GRUPOS_PADRAO.map(g => g.id));
 
 /** Lista de grupos limpa: os dois padrão sempre primeiro (podem ter sido renomeados), depois os criados */
@@ -4164,6 +4362,16 @@ function limparGrupos(lista) {
 }
 const grupos = limparGrupos(lerJSON(CHAVE_GRUPOS));
 function salvarGrupos() { gravar(CHAVE_GRUPOS, grupos); }
+
+// Uma vez por perfil: o grupo padrão "Simulados" (se ninguém o renomeou) passa a se chamar "Ciclos"
+(function renomearSimuladosParaCiclos() {
+  const chave = chaveDoPerfil(PERFIL_ATIVO, 'grupos-ciclos');
+  if (lerTexto(chave)) return;
+  const g = grupoPorId(GRUPO_SIMULADOS);
+  const nomeLivre = !grupos.some(x => x.id !== GRUPO_SIMULADOS && chaveMateria(x.nome) === chaveMateria('Ciclos'));
+  if (g && g.nome === 'Simulados' && nomeLivre) { g.nome = 'Ciclos'; salvarGrupos(); }
+  gravar(chave, '1');
+})();
 function grupoPorId(id) { return grupos.find(g => g.id === id) || null; }
 /** Grupo de um resultado (um grupo que não existe mais conta como Provas antigas) */
 function grupoDoResultado(r) { return grupoPorId(r.grupo) ? r.grupo : GRUPO_ANTIGAS; }
@@ -4179,7 +4387,7 @@ function erroNomeGrupo(nome, idAtual = null) {
 
 /** Pede o nome e cria um grupo. Devolve o id criado (ou null se desistir) */
 async function criarGrupo() {
-  const nome = await pedirTexto('Nome do novo grupo (ex.: Simulados Poliedro):', '', 'Criar grupo', v => erroNomeGrupo(v));
+  const nome = await pedirTexto('Nome do novo grupo (ex.: Simulados Etapa):', '', 'Criar grupo', v => erroNomeGrupo(v));
   if (!nome) return null;
   const grupo = { id: 'g' + novoId(), nome };
   grupos.push(grupo);
@@ -5043,24 +5251,82 @@ function renderDesempenho() {
 }
 
 /* ---------- Abas da tela de Resultados ---------- */
-const ABAS_TELA = ['registrar', 'desempenho', 'historico', 'perfil'];
+const ABAS_TELA = ['registrar', 'desempenho', 'segunda', 'historico', 'perfil'];
+// Histórico e Perfil e backup não ficam nas abas: abrem pela engrenagem, com "← Voltar"
+const ABAS_SECUNDARIAS = { historico: 'Histórico', perfil: 'Perfil e backup' };
 let abaTela = 'desempenho';
+let ultimaAbaPrincipal = 'desempenho'; // para onde o "← Voltar" leva
 
 function trocarAbaTela(aba) {
   if (!ABAS_TELA.includes(aba)) aba = 'desempenho';
   cancelarAvanco();
+  fecharMenuResultados();
   abaTela = aba;
+  const secundaria = ABAS_SECUNDARIAS[aba];
+  if (!secundaria) ultimaAbaPrincipal = aba;
   document.querySelectorAll('#abas-tela .nav-aba').forEach(botao => {
     const ativa = botao.dataset.aba === aba;
     botao.setAttribute('aria-selected', String(ativa));
-    botao.tabIndex = ativa ? 0 : -1;
+    botao.tabIndex = ativa || (secundaria && botao.dataset.aba === ultimaAbaPrincipal) ? 0 : -1;
   });
+  $('barra-secundaria').hidden = !secundaria;
+  $('titulo-secundaria').textContent = secundaria || '';
   ABAS_TELA.forEach(a => { $(`painel-${a}`).hidden = a !== aba; });
   // Registrar sem nada em andamento: abre um formulário novo
   if (aba === 'registrar' && !edicao) abrirFormulario();
   // O gráfico só mede a largura certa com a aba visível
   if (aba === 'desempenho') atualizarGrafico();
+  if (aba === 'segunda') renderSegunda();
 }
+
+/* ---------- Engrenagem (tela inicial e Resultados): o mesmo menu com Histórico, Perfil e backup e Aparência ---------- */
+const MENUS_ENGRENAGEM = [
+  { botao: 'btn-opcoes-resultados', menu: 'menu-resultados' },
+  { botao: 'btn-opcoes', menu: 'menu-inicio' }
+];
+function fecharMenusEngrenagem(devolverFoco = false) {
+  MENUS_ENGRENAGEM.forEach(({ botao, menu }) => {
+    if ($(menu).hidden) return;
+    $(menu).hidden = true;
+    $(botao).setAttribute('aria-expanded', 'false');
+    if (devolverFoco) $(botao).focus();
+  });
+}
+const fecharMenuResultados = fecharMenusEngrenagem; // (nome antigo, usado ao trocar de aba)
+
+MENUS_ENGRENAGEM.forEach(({ botao, menu }) => {
+  $(botao).addEventListener('click', e => {
+    e.stopPropagation();
+    const aberto = !$(menu).hidden;
+    fecharMenusEngrenagem();
+    if (aberto) { $(botao).focus(); return; }
+    $(menu).hidden = false;
+    $(botao).setAttribute('aria-expanded', 'true');
+    $(menu).querySelector('button').focus();
+  });
+  $(menu).addEventListener('click', e => {
+    const item = e.target.closest('[data-menu]');
+    if (!item) return;
+    fecharMenusEngrenagem();
+    if (item.dataset.menu === 'aparencia') { abrirOpcoes({ currentTarget: $(botao) }); return; }
+    // Na tela inicial, abre Resultados direto em Histórico ou Perfil e backup
+    if ($('tela-resultados').hidden) abrirResultados(item.dataset.menu);
+    else trocarAbaTela(item.dataset.menu);
+    window.scrollTo(0, 0);
+  });
+  $(menu).addEventListener('keydown', e => {
+    const itens = [...$(menu).querySelectorAll('button')];
+    const i = itens.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      itens[(i + (e.key === 'ArrowDown' ? 1 : -1) + itens.length) % itens.length].focus();
+    } else if (e.key === 'Escape') { e.preventDefault(); fecharMenusEngrenagem(true); }
+  });
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('.menu-engrenagem')) fecharMenusEngrenagem();
+});
+$('btn-secundaria-voltar').addEventListener('click', () => trocarAbaTela(ultimaAbaPrincipal));
 
 /** Abre a tela de Resultados numa aba */
 function abrirResultados(aba = abaTela) {
@@ -5189,7 +5455,8 @@ function montarDadosTotal(lista, fx) {
   const limites = fx && totais.length === 1 ? fx.limites.map(v => (v * totais[0]) / fx.base) : null;
   return {
     provas,
-    series: [{ nome: temEliminatoria ? 'Total (sem Inglês)' : 'Total', cor: 'var(--serie-1)', pontos, faixas: fx }],
+    // Curva do total na cor de destaque do tema (amarelo no Preto e amarelo), para não parecer a de Matemática
+    series: [{ nome: temEliminatoria ? 'Total (sem Inglês)' : 'Total', cor: 'var(--chip)', pontos, faixas: fx }],
     ocultas: 0,
     unica: true,
     limites,
@@ -6280,7 +6547,8 @@ function montarBackup() {
     resultados,
     excluidos,
     tipos: biblioteca.tipos,
-    grupos, // grupos de provas (Provas antigas, Simulados e os criados)
+    grupos, // grupos de provas (Provas antigas, Ciclos e os criados)
+    segundaFase: segunda, // ciclos de 2ª fase, metas e excluídos
     estudos, // horas de estudo por matéria
     estudosRetirados: [...estudosRetirados] // sessões apagadas por "Retirar" (não voltam ao importar)
   };
@@ -6379,8 +6647,24 @@ async function importarBackup() {
     if (exclusoesNovas.length) gravar(CHAVE_EXCLUIDOS, excluidos);
   };
 
+  // 2ª fase: ciclos novos entram, os mais recentes substituem; os excluídos (aqui ou lá) não voltam
+  const segundaLa = limparSegunda(dados.segundaFase);
+  // Grupos da 2ª fase: um com o mesmo nome de um daqui vira o daqui; os outros entram como novos
+  const trocaGrupoSegunda = new Map();
+  const gruposSegundaNovos = [];
+  segundaLa.grupos.forEach(g => {
+    const aqui = grupoSegundaPorId(g.id) || segunda.grupos.find(x => chaveMateria(x.nome) === chaveMateria(g.nome));
+    if (aqui) { if (aqui.id !== g.id) trocaGrupoSegunda.set(g.id, aqui.id); }
+    else gruposSegundaNovos.push(g);
+  });
+  segundaLa.ciclos.forEach(c => { if (trocaGrupoSegunda.has(c.grupo)) c.grupo = trocaGrupoSegunda.get(c.grupo); });
+  const excluidosSegunda = new Set([...segunda.excluidos, ...segundaLa.excluidos]);
+  const ciclosAqui = new Map(segunda.ciclos.map(c => [c.id, c]));
+  const ciclosNovos = segundaLa.ciclos.filter(c => !excluidosSegunda.has(c.id) &&
+    (!ciclosAqui.has(c.id) || c.atualizadoEm > ciclosAqui.get(c.id).atualizadoEm));
+
   const temMudancas = novos.length || maisRecentes.length || tiposNovos.length || removidos.length || estudosNovos.length ||
-    gruposNovos.length;
+    gruposNovos.length || ciclosNovos.length || gruposSegundaNovos.length;
   if (!temMudancas && !voltariam.length) {
     guardarExclusoes();
     avisarResultados('Tudo o que está nesse backup já está aqui. Nada foi alterado.');
@@ -6395,6 +6679,8 @@ async function importarBackup() {
     if (tiposNovos.length) partes.push(plural(tiposNovos.length, 'prova salva nova', 'provas salvas novas'));
     if (estudosNovos.length) partes.push(plural(estudosNovos.length, 'sessão de estudo', 'sessões de estudo'));
     if (gruposNovos.length) partes.push(plural(gruposNovos.length, 'grupo novo', 'grupos novos'));
+    if (ciclosNovos.length) partes.push(plural(ciclosNovos.length, 'ciclo de 2ª fase', 'ciclos de 2ª fase'));
+    if (gruposSegundaNovos.length) partes.push(plural(gruposSegundaNovos.length, 'grupo novo da 2ª fase', 'grupos novos da 2ª fase'));
     const ok = await confirmar(
       `Importar de "${arquivo.name}" para o perfil "${perfilAtivo().nome}": ${partes.join(', ')}? ` +
       (typeof dados.perfil === 'string' && dados.perfil !== perfilAtivo().nome
@@ -6419,6 +6705,15 @@ async function importarBackup() {
     if (tiposNovos.length) salvarTipos();
     if (estudosNovos.length) { estudos.push(...estudosNovos); salvarEstudos(); }
     if (gruposNovos.length) { grupos.push(...gruposNovos); salvarGrupos(); }
+    if (ciclosNovos.length || segundaLa.excluidos.length || gruposSegundaNovos.length) {
+      segunda.grupos.push(...gruposSegundaNovos);
+      ciclosNovos.forEach(c => {
+        const i = segunda.ciclos.findIndex(x => x.id === c.id);
+        if (i >= 0) segunda.ciclos[i] = c; else segunda.ciclos.push(c);
+      });
+      segunda.excluidos = [...excluidosSegunda].slice(-500);
+      salvarSegunda();
+    }
   }
 
   // Provas do backup que tinham sido excluídas aqui: pergunta se quer trazer de volta
@@ -6531,31 +6826,30 @@ function trocarParaPerfil(id, aba = 'perfil') {
 }
 
 /* ---------- Exemplo ----------
-   "Ver exemplo" abre um perfil separado ("Exemplo") com 8 provas antigas do ITA e 5 simulados
-   "Ciclos Poliedro" (num grupo próprio), para conhecer as análises sem misturar com os dados de quem usa o app. */
+   "Ver exemplo" abre um perfil separado ("Exemplo") com 8 provas antigas do ITA (grupo "Provas antigas")
+   e 5 simulados Ciclos Poliedro (grupo "Ciclos"), para conhecer as análises sem misturar com os dados de quem usa o app. */
 const ID_PERFIL_EXEMPLO = 'exemplo';
-const GRUPOS_EXEMPLO = [{ id: 'ciclos-poliedro', nome: 'Ciclos Poliedro' }];
 
 function verExemplo() {
   if (!perfis.perfis.some(p => p.id === ID_PERFIL_EXEMPLO)) {
     gravar(chaveDoPerfil(ID_PERFIL_EXEMPLO, 'resultados'), EXEMPLO_RESULTADOS.map(limparResultado).filter(Boolean));
-    gravar(chaveDoPerfil(ID_PERFIL_EXEMPLO, 'grupos'), limparGrupos(GRUPOS_EXEMPLO));
     gravar(chaveDoPerfil(ID_PERFIL_EXEMPLO, 'versao'), String(VERSAO_DADOS));
     perfis.perfis.push({ id: ID_PERFIL_EXEMPLO, nome: 'Exemplo' });
   }
   trocarParaPerfil(ID_PERFIL_EXEMPLO, 'desempenho');
 }
 
-// Exemplo criado por uma versão anterior (só com as 8 provas do ITA): ganha o grupo e as provas
-// que faltam. As que a pessoa excluiu do exemplo não voltam.
+// Exemplo criado por uma versão anterior: as provas que faltam entram (as excluídas não voltam) e
+// o antigo grupo "Ciclos Poliedro" some, com as provas dele indo para "Ciclos". Ficam só os 2 grupos padrão.
 if (PERFIL_ATIVO === ID_PERFIL_EXEMPLO) {
-  let mudouGrupos = false;
-  GRUPOS_EXEMPLO.forEach(g => {
-    if (grupoPorId(g.id) || grupos.some(x => chaveMateria(x.nome) === chaveMateria(g.nome))) return;
-    grupos.push({ ...g });
-    mudouGrupos = true;
-  });
-  if (mudouGrupos) salvarGrupos();
+  const antigo = grupoPorId('ciclos-poliedro');
+  if (antigo) {
+    resultados.forEach(r => { if (r.grupo === 'ciclos-poliedro') r.grupo = GRUPO_SIMULADOS; });
+    grupos.splice(grupos.indexOf(antigo), 1);
+    salvarGrupos();
+    salvarResultados();
+    if (filtroGrupo === 'ciclos-poliedro') { filtroGrupo = GRUPO_SIMULADOS; gravar(CHAVE_FILTRO_GRUPO, filtroGrupo); }
+  }
   const ids = new Set(resultados.map(r => r.id));
   const apagadas = new Set(excluidos.map(x => x.id));
   const faltam = EXEMPLO_RESULTADOS.filter(r => !ids.has(r.id) && !apagadas.has(r.id)).map(limparResultado).filter(Boolean);
@@ -6638,6 +6932,7 @@ async function criarPerfil() {
   if (backup) gravar(chaveDoPerfil(id, 'estudos'), limparEstudos(backup.estudos));
   if (backup) gravar(chaveDoPerfil(id, 'estudos-retirados'), limparIdsRetirados(backup.estudosRetirados));
   if (backup) gravar(chaveDoPerfil(id, 'grupos'), limparGrupos(backup.grupos));
+  if (backup) gravar(chaveDoPerfil(id, 'segunda-fase'), limparSegunda(backup.segundaFase));
   if (backup && Array.isArray(backup.tipos)) {
     // Timers padrão + os do backup (sem repetir id nem nome)
     const tipos = BACKUP_PADRAO.tipos.map(limparTipo).filter(Boolean);
@@ -6839,6 +7134,7 @@ let abriuOpcoes = null; // botão que abriu as Opções (o foco volta para ele a
 function abrirOpcoes(evento) {
   abriuOpcoes = evento && evento.currentTarget ? evento.currentTarget : null;
   renderGruposOpcoes();
+  renderGruposSegundaOpcoes();
   $('painel-opcoes').hidden = false;
   $('btn-fechar-opcoes').focus();
 }
@@ -6873,8 +7169,6 @@ function fecharOpcoes() {
   $('painel-opcoes').hidden = true;
   (abriuOpcoes && document.contains(abriuOpcoes) ? abriuOpcoes : $('btn-opcoes')).focus();
 }
-$('btn-opcoes').addEventListener('click', abrirOpcoes);
-$('btn-opcoes-resultados').addEventListener('click', abrirOpcoes);
 $('btn-fechar-opcoes').addEventListener('click', fecharOpcoes);
 $('painel-opcoes').addEventListener('click', e => { if (e.target === e.currentTarget) fecharOpcoes(); });
 // (Esc numa janela de diálogo aberta por cima só fecha o diálogo)
@@ -7262,6 +7556,533 @@ prepararFormEstudoManual();
 renderBotaoEstudosTopo();
 setInterval(atualizarRelogioEstudo, 1000);
 document.addEventListener('visibilitychange', atualizarRelogioEstudo);
+
+
+/* ================================================================
+   15. 2ª FASE (resultado total, no formato da planilha dos ciclos)
+   Fase 1 = acertos ÷ 36 × 10 · Português = acertos ÷ 15 × 10
+   Linguagens = média de Português e Redação
+   Média geral = média de Fase 1, Matemática, Física, Química e Linguagens
+   (nota que falta conta como 0, como na planilha; "Média de cada" usa só os ciclos completos)
+   ================================================================ */
+const CHAVE_SEGUNDA = chaveDoPerfil(PERFIL_ATIVO, 'segunda-fase'); // { ciclos, metas, excluidos }
+const METAS_SEGUNDA_PADRAO = { f1: 25, mat: 7, fis: 6, qui: 7, port: 12, red: 7.5 };
+const LIMITES_SEGUNDA = { f1: [36, true], mat: [10, false], fis: [10, false], qui: [10, false], port: [15, true], red: [10, false] };
+
+/** Número dentro do limite (inteiro quando pedido); vazio ou inválido → null */
+function numeroSegunda(v, campo) {
+  if (v === null || v === undefined || v === '') return null;
+  const [maximo, inteiro] = LIMITES_SEGUNDA[campo];
+  const n = Number(String(v).replace(',', '.'));
+  if (!Number.isFinite(n) || n < 0 || n > maximo) return null;
+  if (inteiro) return Number.isInteger(n) ? n : null;
+  return Math.round(n * 100) / 100;
+}
+
+function limparCicloSegunda(c) {
+  if (!c || typeof c !== 'object' || typeof c.id !== 'string' || !c.id) return null;
+  const nome = typeof c.nome === 'string' ? c.nome.trim().slice(0, 60) : '';
+  if (!nome) return null;
+  const data = dataValida(c.data) || new Date().toISOString();
+  const ciclo = { id: c.id.slice(0, 40), nome, data, atualizadoEm: dataValida(c.atualizadoEm) || data,
+                  fase1Id: typeof c.fase1Id === 'string' && c.fase1Id ? c.fase1Id.slice(0, 40) : null,
+                  // Grupo da 2ª fase; ciclos de antes dos grupos vão para o do ano da data (2027 → "2027", senão "2026")
+                  grupo: typeof c.grupo === 'string' && c.grupo.trim() ? c.grupo.trim().slice(0, 40)
+                    : String(new Date(data).getFullYear()) === '2027' ? '2027' : '2026' };
+  Object.keys(LIMITES_SEGUNDA).forEach(campo => { ciclo[campo] = numeroSegunda(c[campo], campo); });
+  return ciclo;
+}
+function limparMetasSegunda(m) {
+  const metas = { ...METAS_SEGUNDA_PADRAO };
+  if (m && typeof m === 'object') {
+    Object.keys(metas).forEach(campo => { const v = numeroSegunda(m[campo], campo); if (v !== null) metas[campo] = v; });
+  }
+  return metas;
+}
+/* Grupos da 2ª fase: uma classe própria, separada dos grupos de provas. "2026" e "2027" são os padrão
+   (podem ser renomeados, não apagados); os criados pelo usuário vêm depois. */
+const GRUPOS_SEGUNDA_PADRAO = [{ id: '2026', nome: '2026' }, { id: '2027', nome: '2027' }];
+const IDS_GRUPOS_SEGUNDA_PADRAO = new Set(GRUPOS_SEGUNDA_PADRAO.map(g => g.id));
+function limparGruposSegunda(lista) {
+  const vindos = Array.isArray(lista)
+    ? lista.filter(g => g && typeof g.id === 'string' && g.id && typeof g.nome === 'string' && g.nome.trim())
+        .map(g => ({ id: g.id.slice(0, 40), nome: g.nome.trim().slice(0, 30) }))
+    : [];
+  const padrao = GRUPOS_SEGUNDA_PADRAO.map(p => vindos.find(g => g.id === p.id) || { ...p });
+  const ids = new Set(padrao.map(g => g.id));
+  const nomes = new Set(padrao.map(g => chaveMateria(g.nome)));
+  return [...padrao, ...vindos.filter(g => {
+    if (ids.has(g.id) || nomes.has(chaveMateria(g.nome))) return false;
+    ids.add(g.id); nomes.add(chaveMateria(g.nome));
+    return true;
+  })];
+}
+
+function limparSegunda(s) {
+  const dados = s && typeof s === 'object' ? s : {};
+  return {
+    ciclos: Array.isArray(dados.ciclos) ? dados.ciclos.map(limparCicloSegunda).filter(Boolean) : [],
+    metas: limparMetasSegunda(dados.metas),
+    grupos: limparGruposSegunda(dados.grupos),
+    excluidos: Array.isArray(dados.excluidos) ? dados.excluidos.filter(x => typeof x === 'string').slice(-500) : []
+  };
+}
+const segunda = limparSegunda(lerJSON(CHAVE_SEGUNDA));
+function salvarSegunda() { gravar(CHAVE_SEGUNDA, segunda); }
+
+const CHAVE_FILTRO_GRUPO_SEGUNDA = chaveDoPerfil(PERFIL_ATIVO, 'filtro-grupo-segunda');
+const CHAVE_ULTIMO_GRUPO_SEGUNDA = chaveDoPerfil(PERFIL_ATIVO, 'ultimo-grupo-segunda');
+let filtroGrupoSegunda = lerTexto(CHAVE_FILTRO_GRUPO_SEGUNDA) || '__todos';
+function grupoSegundaPorId(id) { return segunda.grupos.find(g => g.id === id) || null; }
+/** Grupo de um ciclo (um grupo que não existe mais conta como o primeiro, "2026") */
+function grupoDoCiclo(c) { return grupoSegundaPorId(c.grupo) ? c.grupo : segunda.grupos[0].id; }
+function nomeGrupoSegunda(id) { return (grupoSegundaPorId(id) || segunda.grupos[0]).nome; }
+
+function erroNomeGrupoSegunda(nome, idAtual = null) {
+  if (!nome) return 'Digite um nome.';
+  if (nome.length > 30) return 'Use no máximo 30 letras.';
+  if (segunda.grupos.some(g => g.id !== idAtual && chaveMateria(g.nome) === chaveMateria(nome))) return 'Já existe um grupo da 2ª fase com esse nome.';
+  return null;
+}
+async function criarGrupoSegunda() {
+  const nome = await pedirTexto('Nome do novo grupo da 2ª fase (ex.: 2028, Poliedro):', '', 'Criar grupo', v => erroNomeGrupoSegunda(v));
+  if (!nome) return null;
+  const g = { id: 'g2' + novoId(), nome };
+  segunda.grupos.push(g);
+  salvarSegunda();
+  return g.id;
+}
+async function renomearGrupoSegunda(id) {
+  const g = grupoSegundaPorId(id);
+  if (!g) return;
+  const nome = await pedirTexto(`Novo nome para "${g.nome}":`, g.nome, 'Renomear', v => erroNomeGrupoSegunda(v, id));
+  if (!nome || nome === g.nome) return;
+  g.nome = nome;
+  salvarSegunda();
+  renderTudoDosGruposSegunda();
+}
+async function apagarGrupoSegunda(id) {
+  const g = grupoSegundaPorId(id);
+  if (!g || IDS_GRUPOS_SEGUNDA_PADRAO.has(id)) return;
+  const deles = segunda.ciclos.filter(c => c.grupo === id);
+  const destino = segunda.grupos[0];
+  const ok = await confirmar(`Apagar o grupo da 2ª fase "${g.nome}"?` +
+    (deles.length ? ` ${plural(deles.length, 'ciclo dele vai', 'ciclos dele vão')} para "${destino.nome}". Nenhum ciclo é apagado.` : ''),
+    'Apagar grupo');
+  if (!ok) return;
+  const agora = new Date().toISOString();
+  deles.forEach(c => { c.grupo = destino.id; c.atualizadoEm = agora; });
+  segunda.grupos.splice(segunda.grupos.indexOf(g), 1);
+  salvarSegunda();
+  if (filtroGrupoSegunda === id) { filtroGrupoSegunda = '__todos'; gravar(CHAVE_FILTRO_GRUPO_SEGUNDA, filtroGrupoSegunda); }
+  renderTudoDosGruposSegunda();
+}
+/** Redesenha o que mostra os grupos da 2ª fase: Opções, aba 2ª fase e o campo do formulário */
+function renderTudoDosGruposSegunda() {
+  renderGruposSegundaOpcoes();
+  if (!el.telaResultados.hidden && abaTela === 'segunda') {
+    renderSegunda();
+    if (!$('form-segunda').hidden) preencherSeletorGrupoSegunda($('seg-grupo').value);
+  }
+}
+function renderGruposSegundaOpcoes() {
+  $('lista-grupos-segunda').replaceChildren(...segunda.grupos.map(g => {
+    const li = criar('li');
+    const n = segunda.ciclos.filter(c => grupoDoCiclo(c) === g.id).length;
+    const nome = criar('span', 'nome-grupo', g.nome);
+    nome.append(criar('span', 'item-meta', plural(n, 'ciclo', 'ciclos')));
+    const renomear = criar('button', 'btn btn-fantasma btn-pequeno', 'Renomear');
+    renomear.type = 'button';
+    renomear.setAttribute('aria-label', `Renomear o grupo da 2ª fase ${g.nome}`);
+    renomear.addEventListener('click', () => renomearGrupoSegunda(g.id));
+    li.append(nome, renomear);
+    if (!IDS_GRUPOS_SEGUNDA_PADRAO.has(g.id)) {
+      const apagar = criar('button', 'btn btn-fantasma btn-pequeno', 'Apagar');
+      apagar.type = 'button';
+      apagar.setAttribute('aria-label', `Apagar o grupo da 2ª fase ${g.nome}`);
+      apagar.addEventListener('click', () => apagarGrupoSegunda(g.id));
+      li.append(apagar);
+    }
+    return li;
+  }));
+}
+
+/* Campo "Grupo" do formulário do ciclo */
+const OPCAO_NOVO_GRUPO_SEGUNDA = '__novo-grupo-segunda';
+function preencherSeletorGrupoSegunda(valor) {
+  const sel = $('seg-grupo');
+  sel.replaceChildren(...segunda.grupos.map(g => new Option(g.nome, g.id)), new Option('+ Novo grupo…', OPCAO_NOVO_GRUPO_SEGUNDA));
+  sel.value = grupoSegundaPorId(valor) ? valor : segunda.grupos[0].id;
+  sel.dataset.anterior = sel.value;
+}
+/** Grupo sugerido para um ciclo novo: o filtrado; senão o último usado; senão o do ano atual; senão o primeiro */
+function grupoSegundaSugerido() {
+  if (filtroGrupoSegunda !== '__todos' && grupoSegundaPorId(filtroGrupoSegunda)) return filtroGrupoSegunda;
+  const ultimo = lerTexto(CHAVE_ULTIMO_GRUPO_SEGUNDA);
+  if (grupoSegundaPorId(ultimo)) return ultimo;
+  const doAno = segunda.grupos.find(g => g.nome === String(new Date().getFullYear()));
+  return doAno ? doAno.id : segunda.grupos[0].id;
+}
+
+/* ----- Contas ----- */
+const media = lista => lista.reduce((s, v) => s + v, 0) / lista.length;
+
+/** Acertos da 1ª fase de um ciclo: da prova ligada (ao vivo) ou o número guardado */
+function fase1DoCiclo(c) {
+  const r = c.fase1Id && resultados.find(x => x.id === c.fase1Id);
+  if (r) {
+    const s = somar(r.materias);
+    if (s.total) return { acertos: s.acertos, total: s.total, prova: r };
+  }
+  return c.f1 === null ? null : { acertos: c.f1, total: 36, prova: null };
+}
+
+/** Todas as notas de um ciclo (null = não preenchida) */
+function valoresCiclo(c) {
+  const f1 = fase1DoCiclo(c);
+  const v = {
+    f1Acertos: f1 ? f1.acertos : null,
+    f1: f1 ? (f1.acertos / f1.total) * 10 : null,
+    mat: c.mat, fis: c.fis, qui: c.qui,
+    portAcertos: c.port,
+    port: c.port === null ? null : (c.port / 15) * 10,
+    red: c.red
+  };
+  v.ling = v.port === null && v.red === null ? null : ((v.port || 0) + (v.red || 0)) / 2;
+  const partes = [v.f1, v.mat, v.fis, v.qui, v.ling];
+  v.media = partes.every(x => x === null) ? null : partes.reduce((s, x) => s + (x || 0), 0) / 5;
+  v.completo = [v.f1, v.mat, v.fis, v.qui, v.port, v.red].every(x => x !== null);
+  return v;
+}
+
+/** Metas no mesmo formato de valoresCiclo */
+function valoresMeta() {
+  const m = segunda.metas;
+  const v = { f1Acertos: m.f1, f1: (m.f1 / 36) * 10, mat: m.mat, fis: m.fis, qui: m.qui,
+              portAcertos: m.port, port: (m.port / 15) * 10, red: m.red };
+  v.ling = (v.port + v.red) / 2;
+  v.media = (v.f1 + v.mat + v.fis + v.qui + v.ling) / 5;
+  return v;
+}
+
+// Fase 1 e Português mostram a nota e, pequeno ao lado, os acertos (para a tabela caber na tela).
+// Casas decimais: Fase 1, Português, Linguagens e Média geral com 4; Redação com 1; Mat./Fís./Quí. com 2.
+const CASAS_SEGUNDA = { f1: 4, mat: 2, fis: 2, qui: 2, port: 4, red: 1, ling: 4, media: 4 };
+const COLUNAS_SEGUNDA = [
+  { chave: 'f1', acertos: 'f1Acertos' }, { chave: 'mat' }, { chave: 'fis' }, { chave: 'qui' },
+  { chave: 'port', acertos: 'portAcertos' }, { chave: 'red' }, { chave: 'ling' }, { chave: 'media', forte: true }
+].map(col => ({ ...col, casas: CASAS_SEGUNDA[col.chave] }));
+function formatarNotaSegunda(v, casas = 2) {
+  if (v === null || v === undefined || Number.isNaN(v)) return '—';
+  return v.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas });
+}
+function ciclosEmOrdem() {
+  return [...segunda.ciclos].sort((a, b) => a.data.localeCompare(b.data) || a.nome.localeCompare(b.nome, 'pt-BR', { numeric: true }));
+}
+
+/* ----- Tabela, médias e análise ----- */
+function renderSegunda() {
+  const todos = ciclosEmOrdem();
+
+  // Grupos da 2ª fase: botões sempre à mostra, com quantos ciclos há em cada um
+  if (filtroGrupoSegunda !== '__todos' && !grupoSegundaPorId(filtroGrupoSegunda)) filtroGrupoSegunda = '__todos';
+  const botaoGrupo = (id, nome, n) => {
+    const b = criar('button');
+    b.type = 'button';
+    b.setAttribute('role', 'tab');
+    b.setAttribute('aria-selected', String(filtroGrupoSegunda === id));
+    b.append(criar('span', '', nome), criar('span', 'conta', String(n)));
+    b.addEventListener('click', () => {
+      filtroGrupoSegunda = id;
+      gravar(CHAVE_FILTRO_GRUPO_SEGUNDA, id);
+      renderSegunda();
+    });
+    return b;
+  };
+  $('grupos-segunda').replaceChildren(
+    botaoGrupo('__todos', 'Todos', todos.length),
+    ...segunda.grupos.map(g => botaoGrupo(g.id, g.nome, todos.filter(c => grupoDoCiclo(c) === g.id).length))
+  );
+
+  const ciclos = filtroGrupoSegunda === '__todos' ? todos : todos.filter(c => grupoDoCiclo(c) === filtroGrupoSegunda);
+  const vazio = $('segunda-vazio');
+  vazio.hidden = ciclos.length > 0 || !$('form-segunda').hidden;
+  vazio.textContent = todos.length
+    ? `Nenhum ciclo em "${nomeGrupoSegunda(filtroGrupoSegunda)}" ainda. Toque em "+ Adicionar ciclo".`
+    : 'Nenhum ciclo de 2ª fase ainda. Toque em "+ Adicionar ciclo".';
+  $('bloco-segunda').hidden = ciclos.length === 0;
+  renderMetasSegunda();
+  if (!ciclos.length) return;
+  const meta = valoresMeta();
+
+  const celulas = (tr, v, comMeta) => COLUNAS_SEGUNDA.forEach(col => {
+    const valor = v[col.chave];
+    const td = criar('td', 'num', formatarNotaSegunda(valor, col.casas));
+    if (col.acertos && v[col.acertos] !== null && v[col.acertos] !== undefined) {
+      td.append(criar('span', 'acertos-seg', ` ·${Math.round(v[col.acertos])}`));
+    }
+    if (col.forte) td.classList.add('forte');
+    if (comMeta && valor !== null && valor !== undefined) td.classList.add(valor >= meta[col.chave] - 1e-9 ? 'meta-ok' : 'meta-abaixo');
+    if (col.chave === 'media' && v.completo === false && valor !== null) { td.textContent += '*'; td.title = 'Incompleto: as notas que faltam contam 0'; }
+    tr.append(td);
+  });
+
+  $('corpo-segunda').replaceChildren(...ciclos.map(c => {
+    const v = valoresCiclo(c);
+    const tr = criar('tr', 'linha-ciclo');
+    tr.tabIndex = 0;
+    tr.title = 'Editar este ciclo';
+    const nome = criar('td', 'nome-ciclo', c.nome);
+    const f1 = fase1DoCiclo(c);
+    if (f1 && f1.prova) nome.title = `1ª fase: ${f1.prova.tipo} · ${nomeCurtoResultado(f1.prova)}`;
+    tr.append(nome);
+    celulas(tr, v, true);
+    tr.addEventListener('click', () => abrirFormSegunda(c));
+    tr.addEventListener('keydown', e => { if (e.key === 'Enter') abrirFormSegunda(c); });
+    return tr;
+  }));
+
+  // Média de cada (só ciclos completos; sem nenhum completo, usa o que houver em cada coluna) + Meta
+  const valores = ciclos.map(valoresCiclo);
+  const completos = valores.filter(v => v.completo);
+  const base = completos.length ? completos : valores;
+  const medias = {};
+  COLUNAS_SEGUNDA.forEach(col => {
+    const lista = base.map(v => v[col.chave]).filter(x => x !== null && x !== undefined);
+    medias[col.chave] = lista.length ? media(lista) : null;
+  });
+  const linhaMedia = criar('tr', 'linha-total');
+  linhaMedia.append(criar('td', '', completos.length ? `Média de cada (${completos.length})` : 'Média de cada'));
+  celulas(linhaMedia, medias, true);
+  const linhaMeta = criar('tr', 'linha-meta');
+  linhaMeta.append(criar('td', '', 'Meta'));
+  celulas(linhaMeta, meta, false);
+  $('pe-segunda').replaceChildren(linhaMedia, linhaMeta);
+
+  renderFaltaMeta(medias, meta);
+}
+
+/** "Onde está a distância para a meta": as 5 partes da média geral, da maior falta para a menor */
+function renderFaltaMeta(medias, meta) {
+  const partes = [['Fase 1', 'f1'], ['Matemática', 'mat'], ['Física', 'fis'], ['Química', 'qui'], ['Linguagens', 'ling']]
+    .filter(([, k]) => medias[k] !== null)
+    .map(([nome, k]) => ({ nome, media: medias[k], meta: meta[k], falta: meta[k] - medias[k], casas: CASAS_SEGUNDA[k] }))
+    .sort((a, b) => b.falta - a.falta);
+  const lista = $('lista-falta-meta');
+  const itens = partes.map(p => {
+    const li = criar('li', p.falta > 1e-9 ? 'abaixo' : 'ok');
+    li.append(criar('strong', '', p.nome),
+      criar('span', '', ` — média ${formatarNotaSegunda(p.media, p.casas)}, meta ${formatarNotaSegunda(p.meta, p.casas)}: `),
+      criar('span', 'falta', p.falta > 1e-9 ? `faltam ${formatarNotaSegunda(p.falta, p.casas)}` : 'meta batida'));
+    return li;
+  });
+  if (medias.media !== null) {
+    const falta = meta.media - medias.media;
+    const li = criar('li', 'resumo-falta');
+    li.append(criar('strong', '', 'Média geral'),
+      criar('span', '', ` ${formatarNotaSegunda(medias.media, 4)} → meta ${formatarNotaSegunda(meta.media, 4)}. `),
+      criar('span', '', falta > 1e-9
+        ? `Faltam ${formatarNotaSegunda(falta, 4)}. Cada ponto a mais numa das 5 notas sobe 0,2 na média geral.`
+        : 'Meta da média geral batida.'));
+    itens.push(li);
+  }
+  lista.replaceChildren(...itens);
+}
+
+function renderMetasSegunda() {
+  const m = segunda.metas;
+  const campos = { 'meta-f1': 'f1', 'meta-mat': 'mat', 'meta-fis': 'fis', 'meta-qui': 'qui', 'meta-port': 'port', 'meta-red': 'red' };
+  Object.entries(campos).forEach(([id, campo]) => { if (document.activeElement !== $(id)) $(id).value = m[campo]; });
+  $('resumo-metas').textContent = `média geral ${formatarNotaSegunda(valoresMeta().media, 4)}`;
+}
+
+/* ----- Formulário de um ciclo ----- */
+let cicloEditando = null;     // id do ciclo em edição (null = novo)
+let fase1EscolhidaAMao = false; // a pessoa mexeu no seletor: não sugerir mais pela edição
+const OPCAO_F1_MANUAL = '__manual';
+
+/** Provas de 1ª fase que podem ser ligadas (as do ITA primeiro, mais recentes primeiro) */
+function provasParaFase1() {
+  return [...resultados].filter(r => somar(r.materias).total > 0)
+    .sort((a, b) => (chaveMateria(b.tipo) === chaveMateria(NOME_TIPO_PADRAO)) - (chaveMateria(a.tipo) === chaveMateria(NOME_TIPO_PADRAO))
+      || b.data.localeCompare(a.data));
+}
+
+/** Prova de 1ª fase com a mesma edição do ciclo (ex.: "Ciclo 3" → "Poliedro · Ciclo 3") */
+function sugerirFase1(nome) {
+  const chave = chaveMateria(nome);
+  if (!chave) return null;
+  const provas = provasParaFase1().filter(r => r.fonte);
+  return provas.find(r => chaveMateria(r.fonte) === chave)
+    || provas.find(r => chaveMateria(r.fonte).endsWith(chave) || chave.endsWith(chaveMateria(r.fonte)))
+    || null;
+}
+
+function preencherSeletorFase1(valor) {
+  const sel = $('seg-fase1-sel');
+  sel.replaceChildren(
+    new Option('Digitar os acertos', OPCAO_F1_MANUAL),
+    ...provasParaFase1().map(r => new Option(`${r.tipo} · ${nomeCurtoResultado(r)}`, r.id))
+  );
+  sel.value = [...sel.options].some(o => o.value === valor) ? valor : OPCAO_F1_MANUAL;
+  $('seg-fase1-acertos').hidden = sel.value !== OPCAO_F1_MANUAL;
+}
+
+function abrirFormSegunda(ciclo = null) {
+  cicloEditando = ciclo ? ciclo.id : null;
+  fase1EscolhidaAMao = !!ciclo;
+  $('titulo-form-segunda').textContent = ciclo ? `Editar ${ciclo.nome}` : 'Novo ciclo';
+  $('seg-nome').value = ciclo ? ciclo.nome : '';
+  $('seg-data').value = paraCampoData(ciclo ? ciclo.data : new Date().toISOString()).slice(0, 10);
+  preencherSeletorGrupoSegunda(ciclo ? grupoDoCiclo(ciclo) : grupoSegundaSugerido());
+  const ligada = ciclo && ciclo.fase1Id && resultados.some(r => r.id === ciclo.fase1Id) ? ciclo.fase1Id : OPCAO_F1_MANUAL;
+  preencherSeletorFase1(ligada);
+  $('seg-fase1-acertos').value = ciclo && ligada === OPCAO_F1_MANUAL && ciclo.f1 !== null ? ciclo.f1 : '';
+  [['seg-mat', 'mat'], ['seg-fis', 'fis'], ['seg-qui', 'qui'], ['seg-port', 'port'], ['seg-red', 'red']].forEach(([id, campo]) => {
+    $(id).value = ciclo && ciclo[campo] !== null ? ciclo[campo] : '';
+  });
+  $('btn-segunda-excluir').hidden = !ciclo;
+  $('erro-segunda').textContent = '';
+  $('form-segunda').hidden = false;
+  $('btn-segunda-novo').hidden = true;
+  atualizarPreviaSegunda();
+  renderSegunda();
+  $('form-segunda').scrollIntoView({ block: 'start' });
+  $('seg-nome').focus({ preventScroll: true });
+}
+
+function fecharFormSegunda() {
+  cicloEditando = null;
+  $('form-segunda').hidden = true;
+  $('btn-segunda-novo').hidden = false;
+  renderSegunda();
+}
+
+/** Lê o formulário: { ciclo } ou { erro, campo } */
+function lerFormSegunda() {
+  const nome = $('seg-nome').value.trim();
+  if (!nome) return { erro: 'Dê um nome ao ciclo (ex.: Ciclo 1).', campo: 'seg-nome' };
+  const dia = /^(\d{4})-(\d{2})-(\d{2})$/.exec($('seg-data').value);
+  const data = dia ? new Date(Number(dia[1]), Number(dia[2]) - 1, Number(dia[3]), 12, 0) : new Date();
+  const ciclo = { id: cicloEditando || 's' + novoId(), nome, data: data.toISOString(), atualizadoEm: new Date().toISOString(), fase1Id: null,
+                  grupo: grupoSegundaPorId($('seg-grupo').value) ? $('seg-grupo').value : segunda.grupos[0].id };
+  const sel = $('seg-fase1-sel').value;
+  if (sel !== OPCAO_F1_MANUAL) {
+    ciclo.fase1Id = sel;
+    const f1 = fase1DoCiclo({ fase1Id: sel, f1: null });
+    ciclo.f1 = f1 ? Math.min(36, Math.round(f1.acertos * 36 / f1.total)) : null; // cópia, se a prova for apagada
+  } else {
+    const bruto = $('seg-fase1-acertos').value;
+    ciclo.f1 = numeroSegunda(bruto, 'f1');
+    if (bruto !== '' && ciclo.f1 === null) return { erro: 'Acertos da 1ª fase: um número inteiro de 0 a 36.', campo: 'seg-fase1-acertos' };
+  }
+  const regras = [['seg-mat', 'mat', 'Matemática: nota de 0 a 10.'], ['seg-fis', 'fis', 'Física: nota de 0 a 10.'],
+    ['seg-qui', 'qui', 'Química: nota de 0 a 10.'], ['seg-port', 'port', 'Português: acertos inteiros de 0 a 15.'],
+    ['seg-red', 'red', 'Redação: nota de 0 a 10.']];
+  for (const [id, campo, msg] of regras) {
+    const bruto = $(id).value;
+    ciclo[campo] = numeroSegunda(bruto, campo);
+    if (bruto !== '' && ciclo[campo] === null) return { erro: msg, campo: id };
+  }
+  return { ciclo: limparCicloSegunda(ciclo) };
+}
+
+function atualizarPreviaSegunda() {
+  const { ciclo } = lerFormSegunda();
+  const previa = $('seg-previa');
+  if (!ciclo) { previa.textContent = ''; return; }
+  const v = valoresCiclo(ciclo);
+  previa.textContent = [
+    v.f1 !== null ? `Fase 1 ${formatarNotaSegunda(v.f1, 4)}` : '',
+    v.port !== null ? `Português ${formatarNotaSegunda(v.port, 4)}` : '',
+    v.ling !== null ? `Linguagens ${formatarNotaSegunda(v.ling, 4)}` : '',
+    v.media !== null ? `Média geral ${formatarNotaSegunda(v.media, 4)}${v.completo ? '' : ' (incompleta)'}` : ''
+  ].filter(Boolean).join(' · ');
+}
+
+function salvarFormSegunda(evento) {
+  evento.preventDefault();
+  const { ciclo, erro, campo } = lerFormSegunda();
+  if (erro) { $('erro-segunda').textContent = erro; if (campo) $(campo).focus(); return; }
+  const i = segunda.ciclos.findIndex(c => c.id === ciclo.id);
+  if (i >= 0) segunda.ciclos[i] = ciclo; else segunda.ciclos.push(ciclo);
+  gravar(CHAVE_ULTIMO_GRUPO_SEGUNDA, ciclo.grupo);
+  // Se o filtro esconderia o ciclo salvo, mostra o grupo dele
+  if (filtroGrupoSegunda !== '__todos' && filtroGrupoSegunda !== ciclo.grupo) {
+    filtroGrupoSegunda = ciclo.grupo;
+    gravar(CHAVE_FILTRO_GRUPO_SEGUNDA, filtroGrupoSegunda);
+  }
+  salvarSegunda();
+  fecharFormSegunda();
+  avisarResultados(`${ciclo.nome} salvo.`);
+}
+
+async function excluirCicloSegunda() {
+  const c = segunda.ciclos.find(x => x.id === cicloEditando);
+  if (!c || !await confirmar(`Excluir o ciclo "${c.nome}" da 2ª fase?`, 'Excluir')) return;
+  segunda.ciclos.splice(segunda.ciclos.indexOf(c), 1);
+  segunda.excluidos.push(c.id); // um backup antigo não traz de volta
+  salvarSegunda();
+  fecharFormSegunda();
+  avisarResultados(`${c.nome} excluído.`);
+}
+
+$('btn-segunda-novo').addEventListener('click', () => abrirFormSegunda(null));
+$('btn-segunda-cancelar').addEventListener('click', fecharFormSegunda);
+$('btn-segunda-excluir').addEventListener('click', excluirCicloSegunda);
+$('form-segunda').addEventListener('submit', salvarFormSegunda);
+$('form-segunda').addEventListener('input', () => { $('erro-segunda').textContent = ''; atualizarPreviaSegunda(); });
+$('seg-nome').addEventListener('input', () => {
+  if (fase1EscolhidaAMao) return;
+  const r = sugerirFase1($('seg-nome').value);
+  preencherSeletorFase1(r ? r.id : OPCAO_F1_MANUAL);
+  atualizarPreviaSegunda();
+});
+$('seg-grupo').addEventListener('change', async () => {
+  const sel = $('seg-grupo');
+  if (sel.value !== OPCAO_NOVO_GRUPO_SEGUNDA) { sel.dataset.anterior = sel.value; return; }
+  const id = await criarGrupoSegunda();
+  preencherSeletorGrupoSegunda(id || sel.dataset.anterior);
+  if (id) { renderGruposSegundaOpcoes(); renderSegunda(); avisarResultados(`Grupo "${nomeGrupoSegunda(id)}" criado.`); }
+});
+$('btn-novo-grupo-segunda').addEventListener('click', async () => {
+  if (await criarGrupoSegunda()) renderTudoDosGruposSegunda();
+});
+$('seg-fase1-sel').addEventListener('change', () => {
+  fase1EscolhidaAMao = true;
+  $('seg-fase1-acertos').hidden = $('seg-fase1-sel').value !== OPCAO_F1_MANUAL;
+  atualizarPreviaSegunda();
+});
+$('form-metas').addEventListener('input', e => {
+  const campo = { 'meta-f1': 'f1', 'meta-mat': 'mat', 'meta-fis': 'fis', 'meta-qui': 'qui', 'meta-port': 'port', 'meta-red': 'red' }[e.target.id];
+  if (!campo) return;
+  const v = numeroSegunda(e.target.value, campo);
+  e.target.classList.toggle('invalido', v === null);
+  if (v === null) return;
+  segunda.metas[campo] = v;
+  salvarSegunda();
+  renderSegunda();
+});
+$('form-metas').addEventListener('submit', e => e.preventDefault());
+
+/* ----- Exemplo: 2ª fase dos 5 Ciclos Poliedro (ligados às provas de 1ª fase do exemplo) ----- */
+const EXEMPLO_SEGUNDA = {
+  ciclos: [
+    { id: 'amostraseg01', nome: 'Poliedro · Ciclo 1', data: '2026-09-13T12:00:00.000Z', fase1Id: 'amostrapoli01', mat: 6.5, fis: 4.2, qui: 5.9, port: 10, red: 7.2 },
+    { id: 'amostraseg02', nome: 'Poliedro · Ciclo 2', data: '2026-09-27T12:00:00.000Z', fase1Id: 'amostrapoli02', mat: 5.6, fis: 6.6, qui: 5.3, port: 9, red: 8 },
+    { id: 'amostraseg03', nome: 'Poliedro · Ciclo 3', data: '2026-10-11T12:00:00.000Z', fase1Id: 'amostrapoli03', mat: 5.3, fis: 6, qui: 5.9, port: 7, red: 7.2 },
+    { id: 'amostraseg04', nome: 'Poliedro · Ciclo 4', data: '2026-10-29T12:00:00.000Z', fase1Id: 'amostrapoli04', mat: 6.7, fis: 6.4, qui: 6.1, port: 7, red: 5.2 },
+    { id: 'amostraseg05', nome: 'Poliedro · Ciclo 5', data: '2026-11-12T12:00:00.000Z', fase1Id: 'amostrapoli05', mat: 5.6, fis: 5.3, qui: 7, port: 8, red: 8.4 }
+  ],
+  metas: { f1: 25, mat: 7, fis: 6, qui: 7, port: 12, red: 7.5 }
+};
+// No perfil Exemplo, completa a 2ª fase (exemplos criados antes desta versão não tinham)
+if (PERFIL_ATIVO === ID_PERFIL_EXEMPLO && !segunda.ciclos.length && !segunda.excluidos.length) {
+  const dados = limparSegunda(EXEMPLO_SEGUNDA);
+  segunda.ciclos.push(...dados.ciclos);
+  segunda.metas = dados.metas;
+  salvarSegunda();
+}
 
 renderOpcoesTema();
 aplicarTema(lerTexto(CHAVE_TEMA) || 'preto-amarelo');
