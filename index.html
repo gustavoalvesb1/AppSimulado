@@ -2029,6 +2029,23 @@
   .config-lista.lista-grupos li:last-child { border-bottom: 0; }
   .config-lista.lista-grupos .nome-grupo { font-weight: 600; }
   .config-lista.lista-grupos .nome-grupo .item-meta { font-weight: 400; margin-left: 8px; }
+  /* Linha do grupo: setas ↑ ↓ à esquerda, nome no meio, Renomear e Apagar à direita */
+  .config-lista.lista-grupos li.linha-grupo { gap: 10px; padding: 8px 8px 8px 10px; }
+  .linha-grupo .nome-grupo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; overflow-wrap: anywhere; line-height: 1.3; }
+  .config-lista.lista-grupos .linha-grupo .nome-grupo .item-meta { margin-left: 0; font-size: .8rem; }
+  .acoes-grupo .btn-texto { padding: 8px; }
+  .mover-grupo { display: flex; flex-direction: column; flex: none; }
+  .btn-seta {
+    width: 28px; height: 22px; padding: 0; display: grid; place-items: center;
+    background: none; border: 0; border-radius: 6px; cursor: pointer;
+    font: inherit; font-size: .9rem; line-height: 1; color: var(--texto-suave);
+  }
+  .btn-seta:hover:not(:disabled) { color: var(--texto); background: color-mix(in srgb, var(--texto) 8%, transparent); }
+  .btn-seta:focus-visible { outline: 2px solid var(--foco); outline-offset: -1px; }
+  .btn-seta:disabled { opacity: .25; cursor: default; }
+  .acoes-grupo { display: flex; flex: none; gap: 2px; }
+  .acoes-grupo .btn-texto.perigo { margin-left: 0; color: var(--texto-suave); }
+  .acoes-grupo .btn-texto.perigo:hover { color: var(--erro); }
   .config-lista:empty { display: none; }
 
   /* Interruptor (liga/desliga) */
@@ -2784,14 +2801,14 @@
 
         <section id="config-grupos" class="config-secao" role="tabpanel" aria-labelledby="titulo-cfg-grupos" hidden>
           <h3 id="titulo-cfg-grupos">Grupos de provas</h3>
-          <p class="config-dica">Separam as provas no Desempenho. Os dois primeiros só podem ser renomeados;
-            ao apagar um grupo seu, as provas dele vão para o segundo.</p>
+          <p class="config-dica">Separam as provas no Desempenho. Use ↑ ↓ para mudar a ordem. Ao apagar um grupo,
+            as provas dele vão para o primeiro da lista — nenhuma prova é apagada.</p>
           <ul id="lista-grupos" class="lista-grupos config-lista"></ul>
           <button id="btn-novo-grupo" class="btn btn-fantasma btn-pequeno config-adicionar" type="button">+ Novo grupo</button>
 
           <h3 class="config-sub">Grupos da 2ª fase</h3>
-          <p class="config-dica">Separam os ciclos na aba "2ª fase". "2026" e "2027" só podem ser renomeados;
-            ao apagar um grupo seu, os ciclos dele vão para o primeiro.</p>
+          <p class="config-dica">Separam os ciclos na aba "2ª fase". Use ↑ ↓ para mudar a ordem. Ao apagar um grupo,
+            os ciclos dele vão para o primeiro da lista — nenhum ciclo é apagado.</p>
           <ul id="lista-grupos-segunda" class="lista-grupos config-lista"></ul>
           <button id="btn-novo-grupo-segunda" class="btn btn-fantasma btn-pequeno config-adicionar" type="button">+ Novo grupo da 2ª fase</button>
         </section>
@@ -4755,24 +4772,25 @@ const GRUPO_ANTIGAS = 'antigas';
 const GRUPO_SIMULADOS = 'simulados';
 // O 2º grupo padrão se chama "Ciclos" (simulados de cursinho); o id continua 'simulados' para não perder dados
 const GRUPOS_PADRAO = [{ id: GRUPO_ANTIGAS, nome: 'Provas antigas' }, { id: GRUPO_SIMULADOS, nome: 'Ciclos' }];
-const IDS_GRUPOS_PADRAO = new Set(GRUPOS_PADRAO.map(g => g.id));
 
-/** Lista de grupos limpa: os dois padrão sempre primeiro (podem ter sido renomeados), depois os criados */
+/**
+ * Lista de grupos limpa, na ordem escolhida pelo usuário (sem ids nem nomes repetidos).
+ * Qualquer grupo pode ser apagado ou movido; só quando não sobra nenhum voltam os dois padrão.
+ */
 function limparGrupos(lista) {
   const vindos = Array.isArray(lista)
     ? lista.filter(g => g && typeof g.id === 'string' && g.id && typeof g.nome === 'string' && g.nome.trim())
         .map(g => ({ id: g.id.slice(0, 40), nome: g.nome.trim().slice(0, 30) }))
     : [];
-  const padrao = GRUPOS_PADRAO.map(p => vindos.find(g => g.id === p.id) || { ...p });
-  const vistos = new Set(padrao.map(g => g.id));
-  const nomes = new Set(padrao.map(g => chaveMateria(g.nome)));
-  const criados = vindos.filter(g => {
+  const vistos = new Set();
+  const nomes = new Set();
+  const limpos = vindos.filter(g => {
     if (vistos.has(g.id) || nomes.has(chaveMateria(g.nome))) return false;
     vistos.add(g.id);
     nomes.add(chaveMateria(g.nome));
     return true;
   });
-  return [...padrao, ...criados];
+  return limpos.length ? limpos : GRUPOS_PADRAO.map(p => ({ ...p }));
 }
 const grupos = limparGrupos(lerJSON(CHAVE_GRUPOS));
 function salvarGrupos() { gravar(CHAVE_GRUPOS, grupos); }
@@ -4787,9 +4805,11 @@ function salvarGrupos() { gravar(CHAVE_GRUPOS, grupos); }
   gravar(chave, '1');
 })();
 function grupoPorId(id) { return grupos.find(g => g.id === id) || null; }
-/** Grupo de um resultado (um grupo que não existe mais conta como Provas antigas) */
-function grupoDoResultado(r) { return grupoPorId(r.grupo) ? r.grupo : GRUPO_ANTIGAS; }
-function nomeDoGrupo(id) { const g = grupoPorId(id); return g ? g.nome : grupoPorId(GRUPO_ANTIGAS).nome; }
+/** Primeiro grupo da lista: recebe as provas sem grupo (ou de um grupo que não existe mais) */
+function grupoPrincipal() { return grupos[0].id; }
+/** Grupo de um resultado (um grupo que não existe mais conta como o primeiro da lista) */
+function grupoDoResultado(r) { return grupoPorId(r.grupo) ? r.grupo : grupoPrincipal(); }
+function nomeDoGrupo(id) { return (grupoPorId(id) || grupos[0]).nome; }
 
 /** Valida o nome de um grupo novo ou renomeado */
 function erroNomeGrupo(nome, idAtual = null) {
@@ -4821,22 +4841,77 @@ async function renomearGrupo(id) {
 
 async function apagarGrupo(id) {
   const g = grupoPorId(id);
-  if (!g || IDS_GRUPOS_PADRAO.has(id)) return;
-  const dele = resultados.filter(r => r.grupo === id);
-  const destino = nomeDoGrupo(GRUPO_SIMULADOS);
+  if (!g || grupos.length < 2) return; // sempre sobra pelo menos um grupo
+  const dele = resultados.filter(r => grupoDoResultado(r) === id);
+  const destino = grupos.find(x => x.id !== id); // o primeiro da lista que fica
   const ok = await confirmar(
     `Apagar o grupo "${g.nome}"?` +
-    (dele.length ? ` ${plural(dele.length, 'prova dele vai', 'provas dele vão')} para "${destino}". Nenhuma prova é apagada.` : ''),
+    (dele.length ? ` ${plural(dele.length, 'prova dele vai', 'provas dele vão')} para "${destino.nome}" (o primeiro da lista). Nenhuma prova é apagada.` : ''),
     'Apagar grupo'
   );
   if (!ok) return;
   const agora = new Date().toISOString();
-  dele.forEach(r => { r.grupo = GRUPO_SIMULADOS; r.atualizadoEm = agora; });
+  dele.forEach(r => { r.grupo = destino.id; r.atualizadoEm = agora; });
   if (dele.length) salvarResultados();
   grupos.splice(grupos.indexOf(g), 1);
   salvarGrupos();
   if (filtroGrupo === id) { filtroGrupo = '__todos'; gravar(CHAVE_FILTRO_GRUPO, filtroGrupo); }
   renderTudoDosGrupos();
+}
+
+/** Sobe (-1) ou desce (+1) um grupo na lista; a ordem vale para as Configurações, o Desempenho e o Registrar */
+function moverGrupo(id, direcao) {
+  const i = grupos.findIndex(g => g.id === id);
+  const j = i + direcao;
+  if (i < 0 || j < 0 || j >= grupos.length) return;
+  [grupos[i], grupos[j]] = [grupos[j], grupos[i]];
+  salvarGrupos();
+  renderTudoDosGrupos();
+  focarMoverGrupo('lista-grupos', id, direcao);
+}
+
+/** Depois de mover, o foco fica na mesma seta (para poder clicar várias vezes seguidas) */
+function focarMoverGrupo(lista, id, direcao) {
+  const linha = $(lista).querySelector(`[data-id="${CSS.escape(id)}"]`);
+  if (!linha) return;
+  const setas = linha.querySelectorAll('.mover-grupo button');
+  const alvo = setas[direcao < 0 ? 0 : 1];
+  (alvo && !alvo.disabled ? alvo : [...setas].find(b => !b.disabled))?.focus();
+}
+
+/**
+ * Uma linha da lista de grupos (1ª e 2ª fase): setas ↑ ↓ para a ordem, nome com a contagem,
+ * Renomear e Apagar (Apagar some quando é o único grupo)
+ */
+function linhaDeGrupo({ g, i, total, contagem, rotulo, aoMover, aoRenomear, aoApagar }) {
+  const li = criar('li', 'linha-grupo');
+  li.dataset.id = g.id;
+  const mover = criar('div', 'mover-grupo');
+  [[-1, '↑', 'Subir'], [1, '↓', 'Descer']].forEach(([direcao, seta, acao]) => {
+    const b = criar('button', 'btn-seta', seta);
+    b.type = 'button';
+    b.disabled = direcao < 0 ? i === 0 : i === total - 1;
+    b.setAttribute('aria-label', `${acao} o ${rotulo} ${g.nome}`);
+    b.addEventListener('click', () => aoMover(direcao));
+    mover.append(b);
+  });
+  const nome = criar('span', 'nome-grupo', g.nome);
+  nome.append(criar('span', 'item-meta', contagem));
+  const acoes = criar('span', 'acoes-grupo');
+  const renomear = criar('button', 'btn-texto', 'Renomear');
+  renomear.type = 'button';
+  renomear.setAttribute('aria-label', `Renomear o ${rotulo} ${g.nome}`);
+  renomear.addEventListener('click', aoRenomear);
+  acoes.append(renomear);
+  if (total > 1) {
+    const apagar = criar('button', 'btn-texto perigo', 'Apagar');
+    apagar.type = 'button';
+    apagar.setAttribute('aria-label', `Apagar o ${rotulo} ${g.nome}`);
+    apagar.addEventListener('click', aoApagar);
+    acoes.append(apagar);
+  }
+  li.append(mover, nome, acoes);
+  return li;
 }
 
 /** Redesenha o que mostra grupos: Opções, Desempenho, Histórico e o campo do Registrar */
@@ -6825,7 +6900,7 @@ function abrirFormulario({ existente = null, novo = null } = {}) {
   // Grupo: o do resultado (ao editar); senão, o último usado; senão, Provas antigas
   const ultimoGrupo = lerTexto(CHAVE_ULTIMO_GRUPO);
   preencherSeletorGrupo(existente ? grupoDoResultado(existente)
-    : grupoPorId(ultimoGrupo) ? ultimoGrupo : GRUPO_ANTIGAS);
+    : grupoPorId(ultimoGrupo) ? ultimoGrupo : grupoPrincipal());
   elR.fonte.value = base.fonte || '';
   elR.listaFontes.replaceChildren(...[...new Set(resultados.map(r => r.fonte).filter(Boolean))]
     .slice(0, 50).map(f => new Option(f)));
@@ -6940,7 +7015,7 @@ function salvarFormulario(evento) {
     gabaritoMin: edicao.base.gabaritoMin ?? null,
     materias,
     observacoes: elR.obs.value.trim(),
-    grupo: grupoPorId(elR.grupo.value) ? elR.grupo.value : GRUPO_ANTIGAS
+    grupo: grupoPorId(elR.grupo.value) ? elR.grupo.value : grupoPrincipal()
   });
   gravar(CHAVE_ULTIMO_GRUPO, registro.grupo);
   const i = resultados.findIndex(r => r.id === registro.id);
@@ -7003,7 +7078,7 @@ function preencherSeletorGrupo(valor) {
     ...grupos.map(g => new Option(g.nome, g.id)),
     new Option('+ Novo grupo…', OPCAO_NOVO_GRUPO)
   );
-  elR.grupo.value = grupoPorId(valor) ? valor : GRUPO_ANTIGAS;
+  elR.grupo.value = grupoPorId(valor) ? valor : grupoPrincipal();
   elR.grupo.dataset.anterior = elR.grupo.value;
 }
 async function aoEscolherGrupoNoForm() {
@@ -7689,27 +7764,15 @@ document.querySelectorAll('#config-nav [role="tab"]').forEach(aba => {
   });
 });
 
-/** Lista de grupos nas Opções: renomear todos, apagar só os criados */
+/** Lista de grupos nas Configurações: mudar a ordem, renomear e apagar (sempre sobra um) */
 function renderGruposOpcoes() {
-  $('lista-grupos').replaceChildren(...grupos.map(g => {
-    const li = criar('li');
-    const n = resultados.filter(r => grupoDoResultado(r) === g.id).length;
-    const nome = criar('span', 'nome-grupo', g.nome);
-    nome.append(criar('span', 'item-meta', plural(n, 'prova', 'provas')));
-    const renomear = criar('button', 'btn btn-fantasma btn-pequeno', 'Renomear');
-    renomear.type = 'button';
-    renomear.setAttribute('aria-label', `Renomear o grupo ${g.nome}`);
-    renomear.addEventListener('click', () => renomearGrupo(g.id));
-    li.append(nome, renomear);
-    if (!IDS_GRUPOS_PADRAO.has(g.id)) {
-      const apagar = criar('button', 'btn btn-fantasma btn-pequeno', 'Apagar');
-      apagar.type = 'button';
-      apagar.setAttribute('aria-label', `Apagar o grupo ${g.nome}`);
-      apagar.addEventListener('click', () => apagarGrupo(g.id));
-      li.append(apagar);
-    }
-    return li;
-  }));
+  $('lista-grupos').replaceChildren(...grupos.map((g, i) => linhaDeGrupo({
+    g, i, total: grupos.length, rotulo: 'grupo',
+    contagem: plural(resultados.filter(r => grupoDoResultado(r) === g.id).length, 'prova', 'provas'),
+    aoMover: direcao => moverGrupo(g.id, direcao),
+    aoRenomear: () => renomearGrupo(g.id),
+    aoApagar: () => apagarGrupo(g.id)
+  })));
 }
 $('btn-novo-grupo').addEventListener('click', async () => {
   if (await criarGrupo()) renderTudoDosGrupos();
@@ -8178,23 +8241,22 @@ function limparMetasSegunda(m) {
   }
   return metas;
 }
-/* Grupos da 2ª fase: uma classe própria, separada dos grupos de provas. "2026" e "2027" são os padrão
-   (podem ser renomeados, não apagados); os criados pelo usuário vêm depois. */
+/* Grupos da 2ª fase: uma classe própria, separada dos grupos de provas. Começam com "2026" e "2027";
+   todos podem ser renomeados, movidos e apagados (sempre sobra um). */
 const GRUPOS_SEGUNDA_PADRAO = [{ id: '2026', nome: '2026' }, { id: '2027', nome: '2027' }];
-const IDS_GRUPOS_SEGUNDA_PADRAO = new Set(GRUPOS_SEGUNDA_PADRAO.map(g => g.id));
 function limparGruposSegunda(lista) {
   const vindos = Array.isArray(lista)
     ? lista.filter(g => g && typeof g.id === 'string' && g.id && typeof g.nome === 'string' && g.nome.trim())
         .map(g => ({ id: g.id.slice(0, 40), nome: g.nome.trim().slice(0, 30) }))
     : [];
-  const padrao = GRUPOS_SEGUNDA_PADRAO.map(p => vindos.find(g => g.id === p.id) || { ...p });
-  const ids = new Set(padrao.map(g => g.id));
-  const nomes = new Set(padrao.map(g => chaveMateria(g.nome)));
-  return [...padrao, ...vindos.filter(g => {
+  const ids = new Set();
+  const nomes = new Set();
+  const limpos = vindos.filter(g => {
     if (ids.has(g.id) || nomes.has(chaveMateria(g.nome))) return false;
     ids.add(g.id); nomes.add(chaveMateria(g.nome));
     return true;
-  })];
+  });
+  return limpos.length ? limpos : GRUPOS_SEGUNDA_PADRAO.map(p => ({ ...p }));
 }
 
 function limparSegunda(s) {
@@ -8242,11 +8304,11 @@ async function renomearGrupoSegunda(id) {
 }
 async function apagarGrupoSegunda(id) {
   const g = grupoSegundaPorId(id);
-  if (!g || IDS_GRUPOS_SEGUNDA_PADRAO.has(id)) return;
-  const deles = segunda.ciclos.filter(c => c.grupo === id);
-  const destino = segunda.grupos[0];
+  if (!g || segunda.grupos.length < 2) return; // sempre sobra pelo menos um grupo
+  const deles = segunda.ciclos.filter(c => grupoDoCiclo(c) === id);
+  const destino = segunda.grupos.find(x => x.id !== id); // o primeiro da lista que fica
   const ok = await confirmar(`Apagar o grupo da 2ª fase "${g.nome}"?` +
-    (deles.length ? ` ${plural(deles.length, 'ciclo dele vai', 'ciclos dele vão')} para "${destino.nome}". Nenhum ciclo é apagado.` : ''),
+    (deles.length ? ` ${plural(deles.length, 'ciclo dele vai', 'ciclos dele vão')} para "${destino.nome}" (o primeiro da lista). Nenhum ciclo é apagado.` : ''),
     'Apagar grupo');
   if (!ok) return;
   const agora = new Date().toISOString();
@@ -8264,26 +8326,26 @@ function renderTudoDosGruposSegunda() {
     if (!$('form-segunda').hidden) preencherSeletorGrupoSegunda($('seg-grupo').value);
   }
 }
+/** Sobe (-1) ou desce (+1) um grupo da 2ª fase; a ordem vale para as Configurações, a aba e o formulário */
+function moverGrupoSegunda(id, direcao) {
+  const lista = segunda.grupos;
+  const i = lista.findIndex(g => g.id === id);
+  const j = i + direcao;
+  if (i < 0 || j < 0 || j >= lista.length) return;
+  [lista[i], lista[j]] = [lista[j], lista[i]];
+  salvarSegunda();
+  renderTudoDosGruposSegunda();
+  focarMoverGrupo('lista-grupos-segunda', id, direcao);
+}
 function renderGruposSegundaOpcoes() {
-  $('lista-grupos-segunda').replaceChildren(...segunda.grupos.map(g => {
-    const li = criar('li');
-    const n = segunda.ciclos.filter(c => grupoDoCiclo(c) === g.id).length;
-    const nome = criar('span', 'nome-grupo', g.nome);
-    nome.append(criar('span', 'item-meta', plural(n, 'ciclo', 'ciclos')));
-    const renomear = criar('button', 'btn btn-fantasma btn-pequeno', 'Renomear');
-    renomear.type = 'button';
-    renomear.setAttribute('aria-label', `Renomear o grupo da 2ª fase ${g.nome}`);
-    renomear.addEventListener('click', () => renomearGrupoSegunda(g.id));
-    li.append(nome, renomear);
-    if (!IDS_GRUPOS_SEGUNDA_PADRAO.has(g.id)) {
-      const apagar = criar('button', 'btn btn-fantasma btn-pequeno', 'Apagar');
-      apagar.type = 'button';
-      apagar.setAttribute('aria-label', `Apagar o grupo da 2ª fase ${g.nome}`);
-      apagar.addEventListener('click', () => apagarGrupoSegunda(g.id));
-      li.append(apagar);
-    }
-    return li;
-  }));
+  const lista = segunda.grupos;
+  $('lista-grupos-segunda').replaceChildren(...lista.map((g, i) => linhaDeGrupo({
+    g, i, total: lista.length, rotulo: 'grupo da 2ª fase',
+    contagem: plural(segunda.ciclos.filter(c => grupoDoCiclo(c) === g.id).length, 'ciclo', 'ciclos'),
+    aoMover: direcao => moverGrupoSegunda(g.id, direcao),
+    aoRenomear: () => renomearGrupoSegunda(g.id),
+    aoApagar: () => apagarGrupoSegunda(g.id)
+  })));
 }
 
 /* Campo "Grupo" do formulário do ciclo */
