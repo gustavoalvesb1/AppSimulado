@@ -561,6 +561,44 @@
   .gabarito.marcando .gabarito-texto { color: var(--chip); font-weight: 600; }
   .gabarito.marcando #btn-gabarito { border-color: var(--chip); color: var(--texto); }
 
+  /* Fim da prova: botão para registrar o resultado */
+  .fim-acoes { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+  .fim-acoes .item-meta { margin: 0; }
+
+  /* Blocos de 4 questões: painel fixo no canto direito da tela da prova */
+  .painel-blocos {
+    position: fixed; right: 18px; top: 50%; transform: translateY(-50%); z-index: 5;
+    width: 172px; display: flex; flex-direction: column; align-items: stretch; gap: 8px;
+    padding: 14px; text-align: center;
+    background: var(--bg-2, var(--bg)); border: 1px solid var(--borda); border-radius: var(--raio, 12px);
+    box-shadow: 0 12px 30px -14px rgba(0, 0, 0, .5);
+  }
+  .blocos-titulo { margin: 0; font-size: .72rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--texto-suave); }
+  .btn-bloco { width: 100%; padding: 16px 10px; }
+  .btn-bloco.marcou { animation: blocoMarcado .5s ease-out; }
+  @keyframes blocoMarcado { 0% { transform: scale(1); } 40% { transform: scale(.94); } 100% { transform: scale(1); } }
+  .blocos-contagem { margin: 2px 0 0; font-size: .88rem; color: var(--texto-suave); line-height: 1.35; }
+  .blocos-contagem strong { color: var(--texto); font-variant-numeric: tabular-nums; }
+  .blocos-desfazer { align-self: center; }
+  /* Com o painel aberto, a cartela não passa por baixo dele */
+  #tela-prova.com-blocos .area-cartela { padding-right: 200px; }
+  @media (max-width: 720px) {
+    #tela-prova.com-blocos .area-cartela { padding-right: 0; }
+    #tela-prova.com-blocos { padding-bottom: 210px; }
+    /* Celular: painel embaixo, à direita, sem cobrir o botão principal */
+    .painel-blocos { top: auto; bottom: 64px; right: 10px; transform: none; width: 150px; padding: 10px; gap: 6px; }
+    .btn-bloco { padding: 12px 8px; }
+  }
+
+  /* Desempenho: tempo de cada bloco da prova escolhida */
+  .tempos-blocos { margin-top: 18px; }
+  .tempos-blocos h4 { margin: 0 0 4px; font-size: .95rem; }
+  .linha-bloco { display: grid; grid-template-columns: 82px 1fr 64px; align-items: center; gap: 10px; padding: 3px 0; font-size: .9rem; }
+  .linha-bloco .trilho { display: block; }
+  .linha-bloco .barra { display: block; height: 8px; border-radius: 4px; background: var(--chip); min-width: 2px; }
+  .linha-bloco.ingles .barra { background: var(--texto-suave); }
+  .linha-bloco .valor { text-align: right; font-variant-numeric: tabular-nums; }
+
   /* Formulário: marcação questão a questão */
   .q-abas {
     display: flex;
@@ -1278,6 +1316,8 @@
   }
   .sessao-estudo .btn-x:hover { color: var(--erro); background: color-mix(in srgb, var(--erro) 12%, transparent); }
   .gerencia-vazio { margin: 6px 0 4px; color: var(--texto-suave); }
+  .opcao-simulado { display: flex; align-items: flex-start; gap: 10px; margin: 14px 0 6px; font-size: .92rem; }
+  .opcao-simulado input { margin-top: 3px; }
   .gerencia-titulo { margin: 22px 0 2px; padding-top: 16px; border-top: 1px solid var(--borda); font-size: .98rem; }
   @media (max-width: 720px) {
     /* Telas estreitas: Matéria e Tempo numa linha, Dia e Adicionar na outra */
@@ -1817,7 +1857,7 @@
     font-family: var(--serifa); font-weight: 400; font-synthesis: none; font-size: 1.6rem; line-height: 1.1; letter-spacing: 0; color: var(--texto);
   }
   :root[data-tema^="editorial"] #tela-resultados #titulo-form { font: 600 .74rem/1.3 var(--fonte); letter-spacing: .22em; text-transform: uppercase; color: var(--texto-suave); }
-  :root[data-tema^="editorial"] #tela-resultados .campo,
+  :root[data-tema^="editorial"] :is(#tela-resultados, .janela) .campo,
   :root[data-tema^="editorial"] #tela-estudos .campo { border-radius: 6px; }
   :root[data-tema^="editorial"] #tela-resultados .segmento,
   :root[data-tema^="editorial"] #tela-estudos .segmento { background: none; border-radius: 999px; }
@@ -1874,18 +1914,18 @@
   :root[data-tema^="editorial"] #tela-resultados .tabela th { letter-spacing: .14em; font-weight: 600; }
 
   /* Histórico: provas como linhas de uma lista, separadas por linha fina */
-  :root[data-tema^="editorial"] #tela-resultados .item-resultado {
+  :root[data-tema^="editorial"] :is(#tela-resultados, .janela) .item-resultado {
     background: none; border: 0; border-bottom: 1px solid var(--borda); border-radius: 0; padding: 18px 2px;
   }
-  :root[data-tema^="editorial"] #tela-resultados .item-resultado:hover { border-color: var(--borda); }
-  :root[data-tema^="editorial"] #tela-resultados .item-resultado.selecionado {
+  :root[data-tema^="editorial"] :is(#tela-resultados, .janela) .item-resultado:hover { border-color: var(--borda); }
+  :root[data-tema^="editorial"] :is(#tela-resultados, .janela) .item-resultado.selecionado {
     border-color: var(--borda); box-shadow: inset 2px 0 0 var(--chip); background: color-mix(in srgb, var(--chip) 6%, transparent); padding-left: 14px;
   }
-  :root[data-tema^="editorial"] #tela-resultados .item-total {
+  :root[data-tema^="editorial"] :is(#tela-resultados, .janela) .item-total {
     font-family: var(--fonte-titulo); font-weight: 300; font-size: 1.7rem; letter-spacing: -.02em; color: var(--chip);
   }
-  :root[data-tema^="editorial"] #tela-resultados .pilula { background: none; border: 1px solid var(--borda); }
-  :root[data-tema^="editorial"] #tela-resultados .pilula-elim { border-style: dashed; }
+  :root[data-tema^="editorial"] :is(#tela-resultados, .janela) .pilula { background: none; border: 1px solid var(--borda); }
+  :root[data-tema^="editorial"] :is(#tela-resultados, .janela) .pilula-elim { border-style: dashed; }
 
   /* Registrar: abas das matérias sublinhadas, grade com cantos discretos */
   :root[data-tema^="editorial"] #tela-resultados .q-abas { background: none; border: 0; border-bottom: 1px solid var(--borda); border-radius: 0; padding: 0; }
@@ -1931,6 +1971,177 @@
     :root[data-tema^="editorial"] #tela-config .cartao { padding: 18px 0 6px; }
     :root[data-tema^="editorial"] #btn-ir-prova { box-shadow: 0 0 0 6px var(--bg), 0 -18px 30px 6px var(--bg); }
   }
+
+  /* ==========================================================
+     ORGANIZAÇÃO: menu da engrenagem, Configurações e Histórico
+     Vale para todos os temas (só usa as variáveis de cor).
+     ========================================================== */
+
+  /* ---------- Menu da engrenagem: ícone + nome + o que tem lá ---------- */
+  .menu-engrenagem { min-width: 280px; gap: 2px; padding: 6px; }
+  .menu-engrenagem button { display: flex; align-items: center; gap: 12px; padding: 10px 12px; }
+  .menu-icone {
+    width: 20px; height: 20px; flex: none; color: var(--texto-suave);
+    fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .menu-engrenagem button:hover .menu-icone, .menu-engrenagem button:focus-visible .menu-icone { color: var(--chip); }
+  .menu-texto { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .menu-nome { font-weight: 600; font-size: .95rem; color: var(--texto); }
+  .menu-dica { font-size: .8rem; color: var(--texto-suave); }
+  .menu-separador { height: 1px; margin: 4px 8px; background: var(--borda); }
+
+  /* ---------- Configurações: cabeçalho, seções ao lado e conteúdo rolando ---------- */
+  .modal-caixa.caixa-opcoes {
+    width: min(100%, 800px); height: min(660px, calc(100vh - 32px)); max-height: none;
+    padding: 0; overflow: hidden; display: flex; flex-direction: column;
+  }
+  .config-topo {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 16px 20px 16px 24px; border-bottom: 1px solid var(--borda);
+  }
+  .config-topo h2 { margin: 0; font-size: 1.15rem; }
+  .config-corpo { flex: 1; min-height: 0; display: grid; grid-template-columns: 196px minmax(0, 1fr); }
+  .config-nav { display: flex; flex-direction: column; gap: 2px; padding: 14px 10px; border-right: 1px solid var(--borda); }
+  .config-nav button {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    background: none; border: 0; border-radius: 8px; cursor: pointer; text-align: left;
+    font: inherit; font-size: .95rem; font-weight: 600; color: var(--texto-suave);
+  }
+  .config-nav svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .config-nav button:hover { color: var(--texto); background: color-mix(in srgb, var(--texto) 6%, transparent); }
+  .config-nav button[aria-selected="true"] { color: var(--texto); background: color-mix(in srgb, var(--chip) 16%, transparent); }
+  .config-nav button[aria-selected="true"] svg { color: var(--chip); }
+  .config-nav button:focus-visible { outline: 2px solid var(--foco); outline-offset: -2px; }
+  .config-paineis { overflow-y: auto; padding: 22px 26px 30px; }
+  .config-secao h3 { margin: 0 0 4px; font-size: 1.05rem; }
+  .config-secao .config-sub { margin-top: 30px; }
+  .config-dica { display: block; margin: 0 0 14px; color: var(--texto-suave); font-size: .86rem; line-height: 1.45; }
+
+  /* Lista de ajustes: linhas dentro de uma caixa, rótulo à esquerda e controle à direita */
+  .config-lista { list-style: none; margin: 0 0 12px; padding: 0; border: 1px solid var(--borda); border-radius: 12px; overflow: hidden; }
+  .config-linha { display: flex; align-items: center; gap: 16px; padding: 14px 16px; border-bottom: 1px solid var(--borda); }
+  label.config-linha { cursor: pointer; }
+  .config-lista > :last-child { border-bottom: 0; }
+  .config-rotulo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .config-nome { font-weight: 600; }
+  .config-rotulo .config-dica { margin: 0; }
+  .config-lista.lista-grupos li { gap: 8px; padding: 10px 12px 10px 16px; border-bottom: 1px solid var(--borda); }
+  .config-lista.lista-grupos li:last-child { border-bottom: 0; }
+  .config-lista.lista-grupos .nome-grupo { font-weight: 600; }
+  .config-lista.lista-grupos .nome-grupo .item-meta { font-weight: 400; margin-left: 8px; }
+  .config-lista:empty { display: none; }
+
+  /* Interruptor (liga/desliga) */
+  .interruptor {
+    -webkit-appearance: none; appearance: none; flex: none; position: relative;
+    width: 44px; height: 26px; margin: 0; border: 0; border-radius: 999px; cursor: pointer;
+    background: color-mix(in srgb, var(--texto-suave) 40%, transparent); transition: background .2s;
+  }
+  .interruptor::after {
+    content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .35); transition: transform .2s;
+  }
+  .interruptor:checked { background: var(--chip); }
+  .interruptor:checked::after { transform: translateX(18px); }
+  .interruptor:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+
+  /* Temas: cartões do mesmo tamanho, com a amostra larga em cima e ✓ no escolhido */
+  .temas { display: flex; flex-direction: column; gap: 20px; }
+  .temas-titulo { margin: 0 0 8px; font-size: .72rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--texto-suave); }
+  .temas-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 10px; }
+  .temas .opcao-tema {
+    position: relative; display: flex; flex-direction: column; align-items: stretch; gap: 8px;
+    padding: 8px 8px 10px; background: none; border: 1px solid var(--borda); border-radius: 12px;
+    color: var(--texto); font: inherit; font-size: .9rem; font-weight: 600; text-align: left; cursor: pointer;
+  }
+  .temas .opcao-tema:hover { border-color: color-mix(in srgb, var(--chip) 55%, var(--borda)); }
+  .temas .opcao-tema:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+  .temas .opcao-tema[aria-checked="true"] { border-color: var(--chip); box-shadow: inset 0 0 0 1px var(--chip); }
+  .temas .opcao-tema[aria-checked="true"]::after {
+    content: '✓'; position: absolute; top: 14px; right: 14px; width: 22px; height: 22px; border-radius: 50%;
+    display: grid; place-items: center; font-size: .78rem; font-weight: 700;
+    background: var(--texto); color: var(--bg); box-shadow: 0 1px 4px rgba(0, 0, 0, .35);
+  }
+  .temas .amostra { display: flex; width: 100%; height: 44px; border-radius: 8px; }
+  .temas .amostra span { flex: 1; width: auto; height: auto; }
+  .temas .nome-tema { padding: 0 4px; line-height: 1.25; }
+  .temas .selo-tema { padding: 0 4px; margin-top: -6px; font-size: .74rem; font-weight: 500; color: var(--texto-suave); }
+
+  @media (max-width: 640px) {
+    .modal-caixa.caixa-opcoes { height: calc(100vh - 24px); border-radius: 16px; }
+    .config-topo { padding: 14px 16px 14px 18px; }
+    /* Seções viram abas em cima */
+    .config-corpo { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+    .config-nav { flex-direction: row; padding: 8px; border-right: 0; border-bottom: 1px solid var(--borda); }
+    .config-nav button { flex: 1; justify-content: center; gap: 6px; padding: 9px 6px; font-size: .88rem; }
+    .config-nav svg { width: 16px; height: 16px; }
+    .config-paineis { padding: 18px 16px 24px; }
+    .temas-grade { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  /* ---------- Janelas da engrenagem (Histórico, Perfil e backup): mesmo formato das Configurações ---------- */
+  .modal-caixa.caixa-janela {
+    width: min(100%, 820px); height: min(780px, calc(100vh - 32px)); max-height: none;
+    padding: 0; overflow: hidden; display: flex; flex-direction: column;
+  }
+  .janela-corpo { flex: 1; min-height: 0; overflow-y: auto; padding: 20px 24px 28px; }
+  .janela .cartao { background: none; border: 0; border-radius: 0; box-shadow: none; padding: 0; margin: 0 0 22px; }
+  .janela .cartao + .cartao { border-top: 1px solid var(--borda); padding-top: 20px; }
+  .janela .cartao h2 { margin: 0 0 4px; font-size: 1.02rem; }
+  .janela-msg { margin: 0 0 12px; }
+  .janela-msg:empty { display: none; }
+  #janela-perfil .modal-caixa.caixa-janela { width: min(100%, 560px); height: auto; max-height: calc(100vh - 32px); }
+  @media (max-width: 640px) {
+    .modal-caixa.caixa-janela { height: calc(100vh - 24px); border-radius: 16px; }
+    .janela-corpo { padding: 16px 16px 24px; }
+  }
+
+  /* ---------- Histórico ---------- */
+  .hist-filtros { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 12px; margin-bottom: 6px; }
+  .hist-filtro .campo { width: 100%; }
+  .barra-historico {
+    gap: 8px 14px; margin: 0 0 14px; padding: 10px 0; min-height: 52px;
+    border-bottom: 1px solid var(--borda);
+  }
+  .barra-historico .marcar { font-weight: 600; }
+  .hist-contagem { font-variant-numeric: tabular-nums; }
+  .btn-perigo:not(:disabled) { color: var(--erro); border-color: color-mix(in srgb, var(--erro) 45%, transparent); }
+  @media (max-width: 560px) { .hist-filtros { grid-template-columns: minmax(0, 1fr); } }
+
+  /* Cartão de cada prova: título e nota no topo, matérias, detalhes com rótulo, ações no rodapé */
+  .item-resultado { padding: 16px 18px 6px; }
+  .item-topo { flex-wrap: nowrap; gap: 14px; }
+  .item-cabeca { flex: 1; min-width: 0; }
+  .item-titulo { min-width: 0; }
+  .item-nome { font-size: 1.05rem; }
+  .item-titulo .item-meta { margin-top: 2px; }
+  .item-lado { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .item-total { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; }
+  .item-nota { font-size: 1.45rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .item-pct { font-size: .85rem; font-weight: 600; color: var(--texto-suave); font-family: var(--fonte); letter-spacing: 0; }
+  .item-lado .eliminatoria { margin: 0; font-size: .78rem; white-space: nowrap; }
+  .item-resultado .pilulas { margin: 12px 0 10px; }
+  .item-detalhes { display: flex; flex-direction: column; gap: 4px; font-size: .86rem; color: var(--texto-suave); }
+  .item-detalhe { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px; line-height: 1.4; }
+  .item-detalhe-rotulo { padding-top: 2px; font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; opacity: .85; }
+  .item-resultado .item-obs { font-size: .9rem; margin-top: 10px; }
+  .item-resultado .item-acoes {
+    display: flex; flex-wrap: nowrap; align-items: center; gap: 2px;
+    margin: 12px -8px 0; padding-top: 6px; border-top: 1px solid var(--borda);
+  }
+  .btn-texto {
+    background: none; border: 0; border-radius: 8px; padding: 8px 10px; cursor: pointer;
+    font: inherit; font-size: .88rem; font-weight: 600; color: var(--texto-suave);
+  }
+  .btn-texto:hover { color: var(--texto); background: color-mix(in srgb, var(--texto) 7%, transparent); }
+  .btn-texto:focus-visible { outline: 2px solid var(--foco); outline-offset: 0; }
+  .btn-texto.perigo { margin-left: auto; }
+  .btn-texto.perigo:hover { color: var(--erro); background: color-mix(in srgb, var(--erro) 10%, transparent); }
+  .item-acoes .mover { margin-left: 6px; }
+  .item-acoes .mover .btn { min-width: 34px; padding: 4px 8px; }
+  @media (max-width: 720px) { .item-resultado .item-acoes .btn { flex: none; } }
+  :root[data-tema^="editorial"] :is(#tela-resultados, .janela) .item-nota { font-weight: 300; font-size: 1.9rem; letter-spacing: -.02em; }
+  :root[data-tema^="editorial"] :is(#tela-resultados, .janela) .item-resultado { padding-bottom: 6px; }
 </style>
 </head>
 <body>
@@ -1947,11 +2158,7 @@
       <button id="btn-estudos" class="btn btn-fantasma btn-pequeno" type="button">Estudos</button>
       <button id="btn-abrir-resultados" class="btn btn-fantasma btn-pequeno" type="button">Resultados →</button>
       <!-- Mesmo menu da engrenagem de Resultados -->
-      <div id="menu-inicio" class="menu-engrenagem" role="menu" aria-label="Mais opções" hidden>
-        <button type="button" role="menuitem" data-menu="historico">Histórico</button>
-        <button type="button" role="menuitem" data-menu="perfil">Perfil e backup</button>
-        <button type="button" role="menuitem" data-menu="aparencia">Aparência</button>
-      </div>
+      <div id="menu-inicio" class="menu-engrenagem" role="menu" aria-label="Mais opções" hidden></div>
       <button id="btn-opcoes" class="btn btn-fantasma btn-pequeno btn-icone" type="button" aria-label="Mais opções" title="Mais opções"
               aria-haspopup="menu" aria-expanded="false" aria-controls="menu-inicio">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -2100,6 +2307,20 @@
   </div>
 
   <p id="msg-fim" class="fim" hidden>Tempo esgotado — prova encerrada.</p>
+  <div id="fim-acoes" class="fim-acoes" hidden>
+    <button id="btn-registrar-prova" class="btn" type="button">Registrar resultado</button>
+    <span class="item-meta">Abre o Registrar com a prova, o tempo usado e o gabarito já preenchidos.</span>
+  </div>
+
+  <!-- Blocos de 4 questões (opcional, ligado nas Opções): marca o fim de cada bloco.
+       Os tempos não aparecem durante a prova, só depois de registrar o resultado. -->
+  <aside id="painel-blocos" class="painel-blocos" hidden aria-label="Blocos de 4 questões">
+    <p class="blocos-titulo">Blocos de 4</p>
+    <button id="btn-bloco" class="btn btn-bloco" type="button">Bloco concluído</button>
+    <button id="btn-bloco-ingles" class="btn btn-fantasma btn-pequeno" type="button">Inglês concluído</button>
+    <p id="blocos-contagem" class="blocos-contagem" aria-live="polite"></p>
+    <button id="btn-bloco-desfazer" class="btn btn-fantasma btn-pequeno blocos-desfazer" type="button">Desfazer último</button>
+  </aside>
 
   <div class="rodape">
     <img class="logo-pequena" src="data:image/png;base64,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" alt="Logo do ITA">
@@ -2149,6 +2370,11 @@
       </div>
     </div>
     <ul id="estudo-lista" class="estudo-lista" aria-label="Horas estudadas por matéria"></ul>
+    <!-- Integração com o cronômetro de prova -->
+    <label class="marcar opcao-simulado">
+      <input id="chk-simulado-estudos" type="checkbox">
+      <span>Somar aqui o tempo dos simulados feitos no cronômetro <span class="item-meta">(entra como "Simulado"; pausas não contam)</span></span>
+    </label>
 
     <details id="det-estudo-manual" class="dobra dobra-form">
       <summary>
@@ -2188,11 +2414,7 @@
     <!-- Engrenagem: menu com Histórico, Perfil e backup e Aparência (as Opções da tela inicial) -->
     <button id="btn-opcoes-resultados" class="btn btn-fantasma btn-pequeno btn-icone btn-opcoes-tela" type="button"
             aria-label="Mais opções" title="Mais opções" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-resultados"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
-    <div id="menu-resultados" class="menu-engrenagem" role="menu" aria-label="Mais opções" hidden>
-      <button type="button" role="menuitem" data-menu="historico">Histórico</button>
-      <button type="button" role="menuitem" data-menu="perfil">Perfil e backup</button>
-      <button type="button" role="menuitem" data-menu="aparencia">Aparência</button>
-    </div>
+    <div id="menu-resultados" class="menu-engrenagem" role="menu" aria-label="Mais opções" hidden></div>
   </div>
 
   <nav id="abas-tela" class="nav-abas" role="tablist" aria-label="Seções dos resultados">
@@ -2203,11 +2425,6 @@
     <button id="nav-segunda" class="nav-aba" type="button" role="tab" data-aba="segunda"
             aria-controls="painel-segunda" aria-selected="false" tabindex="-1">2ª fase</button>
   </nav>
-  <!-- Histórico e Perfil e backup abrem pela engrenagem: barra com "← Voltar" -->
-  <div id="barra-secundaria" class="barra-secundaria" hidden>
-    <button id="btn-secundaria-voltar" class="btn btn-fantasma btn-pequeno" type="button">← Voltar</button>
-    <h2 id="titulo-secundaria"></h2>
-  </div>
   <!-- Aparece só no perfil "Exemplo" -->
   <div id="aviso-exemplo" class="aviso-exemplo" hidden>
     <span>Você está vendo o <strong>exemplo</strong>: 8 provas antigas do ITA e 5 simulados Ciclos Poliedro, marcados questão a questão.</span>
@@ -2215,34 +2432,6 @@
   </div>
   <p id="msg-resultados" class="msg msg-ok" role="status"></p>
   <p id="erro-resultados" class="msg msg-erro" role="alert"></p>
-
-  <!-- ABA: PERFIL E BACKUP -->
-  <div id="painel-perfil" role="region" aria-labelledby="titulo-secundaria" hidden>
-    <!-- Perfis: cada um com suas provas, resultados e backup -->
-    <section class="cartao">
-      <h2><label for="sel-perfil">Perfil</label></h2>
-      <p class="dica">Cada perfil tem suas próprias provas, resultados e backup — ex.: um por pessoa ou por objetivo.</p>
-      <div class="linha">
-        <select id="sel-perfil" class="campo campo-largo"></select>
-      </div>
-      <div class="linha">
-        <button id="btn-perfil-novo" class="btn btn-fantasma btn-pequeno" type="button">+ Novo perfil…</button>
-        <button id="btn-perfil-renomear" class="btn btn-fantasma btn-pequeno" type="button">Renomear</button>
-        <button id="btn-perfil-excluir" class="btn btn-fantasma btn-pequeno" type="button">Excluir</button>
-      </div>
-      <p id="msg-perfil" class="msg msg-erro" role="alert"></p>
-      <input id="input-backup-perfil" type="file" hidden>
-    </section>
-
-    <section class="cartao">
-      <h2>Backup</h2>
-      <div class="linha">
-        <button id="btn-exportar" class="btn btn-pequeno" type="button">⬇ Exportar backup</button>
-        <button id="btn-importar" class="btn btn-fantasma btn-pequeno" type="button">⬆ Importar backup</button>
-        <input id="input-importar" type="file" hidden>
-      </div>
-    </section>
-  </div>
 
   <!-- ABA: 2ª FASE (ITA: Matemática, Física, Química dissertativas + Português e Redação) -->
   <div id="painel-segunda" role="tabpanel" aria-labelledby="nav-segunda" hidden>
@@ -2417,6 +2606,7 @@
         </div>
         <p id="questoes-meta" class="grafico-nota"></p>
         <div id="detalhe-colunas" class="detalhe-colunas"></div>
+        <div id="detalhe-blocos" class="tempos-blocos" hidden></div>
         <p id="detalhe-nota" class="item-meta detalhe-nota" hidden>* Eliminatória: não entra na nota.</p>
         <p id="detalhe-obs" class="item-obs" hidden></p>
       </section>
@@ -2452,32 +2642,6 @@
       </div>
       <p id="dica-motivos" class="grafico-nota" hidden>Dica: ao registrar, marque as questões (se sabia, se faltou tempo,
         chute certo, erro de conta). Aqui aparece o que mais te custa pontos.</p>
-    </section>
-  </div>
-
-  <!-- ABA: HISTÓRICO -->
-  <div id="painel-historico" role="region" aria-labelledby="titulo-secundaria" hidden>
-    <section class="cartao">
-      <div class="titulo-tela compacto">
-        <h2><label for="filtro-historico">Histórico</label></h2>
-        <select id="filtro-historico" class="campo campo-largo"></select>
-      </div>
-      <div id="barra-historico" class="barra-historico">
-        <label class="marcar"><input id="sel-todas" type="checkbox"> Selecionar todas</label>
-        <span class="ordenar">
-          <label for="ordenar-por" class="item-meta">Ordenar por</label>
-          <select id="ordenar-por" class="campo">
-            <option value="data-desc">Mais recentes primeiro</option>
-            <option value="data-asc">Mais antigas primeiro</option>
-            <option value="nota-desc">Maior aproveitamento</option>
-            <option value="nota-asc">Menor aproveitamento</option>
-            <option value="tipo">Prova (A–Z)</option>
-            <option value="manual">Minha ordem (mover ↑ ↓)</option>
-          </select>
-        </span>
-        <button id="btn-excluir-selecionadas" class="btn btn-fantasma btn-pequeno empurrar" type="button" disabled>Excluir selecionadas</button>
-      </div>
-      <ul id="lista-resultados" class="lista-resultados" aria-label="Provas registradas"></ul>
     </section>
   </div>
 
@@ -2574,30 +2738,146 @@
 <!-- Painel de opções (engrenagem da tela inicial) -->
 <div id="painel-opcoes" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="titulo-opcoes">
   <div class="modal-caixa caixa-opcoes">
-    <div class="opcoes-topo">
-      <h2 id="titulo-opcoes">Opções</h2>
+    <header class="config-topo">
+      <h2 id="titulo-opcoes">Configurações</h2>
       <button id="btn-fechar-opcoes" class="btn-x" type="button" aria-label="Fechar">×</button>
+    </header>
+    <div class="config-corpo">
+      <!-- Seções: barra lateral no computador, abas no celular -->
+      <nav id="config-nav" class="config-nav" role="tablist" aria-label="Seções das configurações">
+        <button type="button" role="tab" data-secao="aparencia" aria-controls="config-aparencia" aria-selected="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg>Aparência</button>
+        <button type="button" role="tab" data-secao="cronometro" aria-controls="config-cronometro" aria-selected="false" tabindex="-1">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>Cronômetro</button>
+        <button type="button" role="tab" data-secao="grupos" aria-controls="config-grupos" aria-selected="false" tabindex="-1">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="18" height="6" rx="1.5"/></svg>Grupos</button>
+      </nav>
+
+      <div class="config-paineis">
+        <section id="config-aparencia" class="config-secao" role="tabpanel" aria-labelledby="titulo-tema">
+          <h3 id="titulo-tema">Tema</h3>
+          <p class="config-dica">Cores e estilo do site. A escolha fica salva neste navegador.</p>
+          <!-- Cartões gerados pelo JavaScript a partir da lista TEMAS -->
+          <div id="opcoes-tema" class="temas" role="radiogroup" aria-labelledby="titulo-tema"></div>
+        </section>
+
+        <section id="config-cronometro" class="config-secao" role="tabpanel" aria-labelledby="titulo-cfg-cronometro" hidden>
+          <h3 id="titulo-cfg-cronometro">Cronômetro</h3>
+          <p class="config-dica">Como a tela da prova funciona.</p>
+          <div class="config-lista">
+            <label class="config-linha" for="chk-blocos">
+              <span class="config-rotulo">
+                <span class="config-nome">Blocos de 4 questões</span>
+                <span class="config-dica">Botões "Bloco concluído" e "Inglês concluído" no canto direito da prova. Os tempos de cada bloco só aparecem depois de registrar o resultado.</span>
+              </span>
+              <input id="chk-blocos" class="interruptor" type="checkbox" role="switch">
+            </label>
+            <div class="config-linha">
+              <span class="config-rotulo">
+                <span class="config-nome">Som dos adesivos</span>
+                <span class="config-dica">Toca o bipe dos adesivos de tempo, para conferir o volume antes da prova.</span>
+              </span>
+              <button id="btn-testar-som" class="btn btn-fantasma btn-pequeno" type="button">Testar som</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="config-grupos" class="config-secao" role="tabpanel" aria-labelledby="titulo-cfg-grupos" hidden>
+          <h3 id="titulo-cfg-grupos">Grupos de provas</h3>
+          <p class="config-dica">Separam as provas no Desempenho. Os dois primeiros só podem ser renomeados;
+            ao apagar um grupo seu, as provas dele vão para o segundo.</p>
+          <ul id="lista-grupos" class="lista-grupos config-lista"></ul>
+          <button id="btn-novo-grupo" class="btn btn-fantasma btn-pequeno config-adicionar" type="button">+ Novo grupo</button>
+
+          <h3 class="config-sub">Grupos da 2ª fase</h3>
+          <p class="config-dica">Separam os ciclos na aba "2ª fase". "2026" e "2027" só podem ser renomeados;
+            ao apagar um grupo seu, os ciclos dele vão para o primeiro.</p>
+          <ul id="lista-grupos-segunda" class="lista-grupos config-lista"></ul>
+          <button id="btn-novo-grupo-segunda" class="btn btn-fantasma btn-pequeno config-adicionar" type="button">+ Novo grupo da 2ª fase</button>
+        </section>
+      </div>
     </div>
-    <h3 id="titulo-tema">Cores do site</h3>
-    <p class="dica">A escolha fica salva neste navegador.</p>
-    <!-- Botões gerados pelo JavaScript a partir da lista TEMAS -->
-    <div id="opcoes-tema" class="temas" role="radiogroup" aria-labelledby="titulo-tema"></div>
+  </div>
+</div>
 
-    <h3 class="opcoes-secao">Grupos de provas</h3>
-    <p class="dica">Separam as provas no Desempenho. Os dois primeiros não podem ser apagados, só renomeados.
-      Ao apagar um grupo criado por você, as provas dele vão para o segundo grupo ("Ciclos").</p>
-    <ul id="lista-grupos" class="lista-grupos"></ul>
-    <button id="btn-novo-grupo" class="btn btn-fantasma btn-pequeno" type="button">+ Novo grupo</button>
+<!-- Histórico e Perfil e backup: janelas abertas pela engrenagem (como as Configurações) -->
+<div id="janela-historico" class="modal janela" hidden role="dialog" aria-modal="true" aria-labelledby="titulo-janela-historico">
+  <div class="modal-caixa caixa-janela">
+    <header class="config-topo">
+      <h2 id="titulo-janela-historico">Histórico</h2>
+      <button class="btn-x btn-fechar-janela" type="button" aria-label="Fechar">×</button>
+    </header>
+    <div class="janela-corpo">
+      <p class="msg msg-ok janela-msg" role="status"></p>
+  <div id="painel-historico">
+    <section class="cartao cartao-historico">
+      <!-- Filtros: qual prova e em que ordem -->
+      <div class="hist-filtros">
+        <div class="hist-filtro">
+          <label for="filtro-historico" class="rotulo">Prova</label>
+          <select id="filtro-historico" class="campo"></select>
+        </div>
+        <div class="hist-filtro">
+          <label for="ordenar-por" class="rotulo">Ordenar por</label>
+          <select id="ordenar-por" class="campo">
+            <option value="data-desc">Mais recentes primeiro</option>
+            <option value="data-asc">Mais antigas primeiro</option>
+            <option value="nota-desc">Maior aproveitamento</option>
+            <option value="nota-asc">Menor aproveitamento</option>
+            <option value="tipo">Prova (A–Z)</option>
+            <option value="manual">Minha ordem (mover ↑ ↓)</option>
+          </select>
+        </div>
+      </div>
+      <!-- Seleção: marcar várias e excluir de uma vez -->
+      <div id="barra-historico" class="barra-historico">
+        <label class="marcar"><input id="sel-todas" type="checkbox"> Selecionar todas</label>
+        <span id="hist-contagem" class="item-meta hist-contagem"></span>
+        <button id="btn-excluir-selecionadas" class="btn btn-fantasma btn-pequeno btn-perigo empurrar" type="button" disabled>Excluir selecionadas</button>
+      </div>
+      <ul id="lista-resultados" class="lista-resultados" aria-label="Provas registradas"></ul>
+    </section>
+  </div>
+    </div>
+  </div>
+</div>
 
-    <h3 class="opcoes-secao">Grupos da 2ª fase</h3>
-    <p class="dica">Separam os ciclos na aba "2ª fase". "2026" e "2027" não podem ser apagados, só renomeados.
-      Ao apagar um grupo criado por você, os ciclos dele vão para o primeiro grupo.</p>
-    <ul id="lista-grupos-segunda" class="lista-grupos"></ul>
-    <button id="btn-novo-grupo-segunda" class="btn btn-fantasma btn-pequeno" type="button">+ Novo grupo da 2ª fase</button>
+<div id="janela-perfil" class="modal janela" hidden role="dialog" aria-modal="true" aria-labelledby="titulo-janela-perfil">
+  <div class="modal-caixa caixa-janela">
+    <header class="config-topo">
+      <h2 id="titulo-janela-perfil">Perfil e backup</h2>
+      <button class="btn-x btn-fechar-janela" type="button" aria-label="Fechar">×</button>
+    </header>
+    <div class="janela-corpo">
+      <p class="msg msg-ok janela-msg" role="status"></p>
+  <div id="painel-perfil">
+    <!-- Perfis: cada um com suas provas, resultados e backup -->
+    <section class="cartao">
+      <h2><label for="sel-perfil">Perfil</label></h2>
+      <p class="dica">Cada perfil tem suas próprias provas, resultados e backup — ex.: um por pessoa ou por objetivo.</p>
+      <div class="linha">
+        <select id="sel-perfil" class="campo campo-largo"></select>
+      </div>
+      <div class="linha">
+        <button id="btn-perfil-novo" class="btn btn-fantasma btn-pequeno" type="button">+ Novo perfil…</button>
+        <button id="btn-perfil-renomear" class="btn btn-fantasma btn-pequeno" type="button">Renomear</button>
+        <button id="btn-perfil-excluir" class="btn btn-fantasma btn-pequeno" type="button">Excluir</button>
+      </div>
+      <p id="msg-perfil" class="msg msg-erro" role="alert"></p>
+      <input id="input-backup-perfil" type="file" hidden>
+    </section>
 
-    <h3 class="opcoes-secao">Som</h3>
-    <p class="dica">Toca o bipe dos adesivos de tempo, para conferir o volume antes da prova.</p>
-    <button id="btn-testar-som" class="btn btn-fantasma btn-pequeno" type="button">🔊 Testar som</button>
+    <section class="cartao">
+      <h2>Backup</h2>
+      <p class="dica">Exportar baixa um arquivo com tudo deste perfil. Importar junta esse arquivo com o que já existe aqui — nada é apagado.</p>
+      <div class="linha">
+        <button id="btn-exportar" class="btn btn-pequeno" type="button">⬇ Exportar backup</button>
+        <button id="btn-importar" class="btn btn-fantasma btn-pequeno" type="button">⬆ Importar backup</button>
+        <input id="input-importar" type="file" hidden>
+      </div>
+    </section>
+  </div>
+    </div>
   </div>
 </div>
 
@@ -2634,7 +2914,7 @@ const CHAVE_TEMA   = 'cronometro-simulado:tema';   // esquema de cores (todos os
 const DADOS_DO_PERFIL = ['v1', 'tipos', 'resultados', 'ultimo-backup', 'ordenacao', 'ordem-manual', 'versao', 'filtro',
                          'excluidos', 'filtro-historico', 'ultimo-gabarito', 'estudos', 'estudo-ativo', 'estudos-retirados',
                          'grupos', 'filtro-grupo', 'ultimo-grupo', 'segunda-fase', 'grupos-ciclos',
-                         'filtro-grupo-segunda', 'ultimo-grupo-segunda'];
+                         'filtro-grupo-segunda', 'ultimo-grupo-segunda', 'estudos-simulado', 'blocos-de-4'];
 
 function chaveDoPerfil(idPerfil, nome) {
   return idPerfil === 'principal'
@@ -3081,6 +3361,10 @@ function prepararProva() {
   prova.acumuladoMs = 0;
   prova.gabInicioMs = null;
   prova.gabaritoMs = null;
+  prova.comecouEm = null;          // hora em que a prova começou (para a sessão em Estudos)
+  prova.foiParaEstudos = false;    // o tempo desta prova já foi somado em Estudos
+  prova.blocos = [];               // blocos de 4: { ingles, fimMs } (tempo de prova no fim de cada bloco)
+  prova.encerradaAntes = false;    // "Encerrar" antes do tempo acabar
 }
 
 function iniciarProva() {
@@ -3088,6 +3372,8 @@ function iniciarProva() {
   prova.fase = 'rodando';
   prova.inicioMs = Date.now();
   prova.acumuladoMs = 0;
+  prova.comecouEm = new Date().toISOString();
+  prova.foiParaEstudos = false;
   renderProva();
   verificarTempo(); // o marco igual à duração já nasce "passado" e toca o bip
 }
@@ -3140,6 +3426,7 @@ function finalizarProva(recentes = []) {
   prova.acumuladoMs = prova.duracaoMs;
   prova.passados = prova.passados.map(() => true);
   prova.fase = 'finalizado';
+  registrarSimuladoEmEstudos(prova.duracaoMs); // tempo de prova vai para a aba Estudos
   somFinal();
   renderProva(recentes);
 }
@@ -3698,7 +3985,25 @@ function aplicarTema(id) {
 
 /** Cria um botão por tema, com amostra das cores */
 function renderOpcoesTema() {
-  $('opcoes-tema').replaceChildren(...TEMAS.map(tema => {
+  // Dois grupos de cartões: os estilos completos (com amostra própria) e as cores sobre fundo preto
+  const grupo = (titulo, temas) => {
+    const caixa = criar('div', 'temas-grupo');
+    const grade = criar('div', 'temas-grade');
+    grade.append(...temas.map(cartaoTema));
+    caixa.append(criar('p', 'temas-titulo', titulo), grade);
+    return caixa;
+  };
+  $('opcoes-tema').replaceChildren(
+    grupo('Estilos', TEMAS.filter(t => !t.acento)),
+    grupo('Cores sobre fundo preto', TEMAS.filter(t => t.acento)));
+  const atual = lerTexto(CHAVE_TEMA);
+  document.querySelectorAll('.opcao-tema').forEach(botao => {
+    botao.setAttribute('aria-checked', String(botao.dataset.tema === (TEMAS.some(t => t.id === atual) ? atual : TEMAS[0].id)));
+  });
+}
+
+function cartaoTema(tema) {
+  {
     const botao = criar('button', 'opcao-tema');
     botao.type = 'button';
     botao.setAttribute('role', 'radio');
@@ -3712,10 +4017,11 @@ function renderOpcoesTema() {
       faixa.style.background = cor;
       amostra.append(faixa);
     });
-    botao.append(amostra, document.createTextNode(tema.nome));
+    botao.append(amostra, criar('span', 'nome-tema', tema.nome.replace(' (original)', '')));
+    if (tema.id === TEMAS[0].id) botao.append(criar('span', 'selo-tema', 'original'));
     botao.addEventListener('click', () => aplicarTema(tema.id));
     return botao;
-  }));
+  }
 }
 
 
@@ -4005,11 +4311,109 @@ function renderProva(recentes = []) {
   el.status.dataset.fase = fase;
   el.statusTexto.textContent = textos.status;
   el.msgFim.hidden = fase !== 'finalizado';
+  el.msgFim.textContent = prova.encerradaAntes ? 'Prova encerrada antes do fim.' : 'Tempo esgotado — prova encerrada.';
+  $('fim-acoes').hidden = fase !== 'finalizado';
   el.telaProva.classList.toggle('finalizada', fase === 'finalizado');
   el.btnVoltar.textContent = emAndamento ? 'Encerrar' : 'Voltar';
   document.title = prova.nome && fase !== 'pronto' ? `${textos.titulo} · ${prova.nome}` : textos.titulo;
   renderGabarito();
+  renderBlocos();
   atualizarTravaTela();
+}
+
+/* ---------- Blocos de 4 questões (opcional) ----------
+   "Bloco concluído" anota o tempo de prova (sem pausas) naquele momento; o tempo do bloco é a
+   diferença para a marcação anterior. "Inglês concluído" faz o mesmo, mas vira o bloco de Inglês.
+   Durante a prova só aparece a contagem: os tempos ficam para depois de registrar o resultado. */
+const CHAVE_BLOCOS = chaveDoPerfil(PERFIL_ATIVO, 'blocos-de-4'); // '1' = ligado
+function blocosLigados() { return lerTexto(CHAVE_BLOCOS) === '1'; }
+
+function marcarBloco(ingles) {
+  if (!(prova.fase === 'rodando' || prova.fase === 'pausado')) return;
+  if (ingles && prova.blocos.some(b => b.ingles)) return;
+  prova.blocos.push({ ingles, fimMs: Math.min(tempoDecorridoMs(), prova.duracaoMs) });
+  const botao = ingles ? $('btn-bloco-ingles') : $('btn-bloco');
+  botao.classList.remove('marcou');
+  void botao.offsetWidth; // reinicia a animação
+  botao.classList.add('marcou');
+  renderBlocos();
+}
+
+function desfazerBloco() {
+  if (!(prova.fase === 'rodando' || prova.fase === 'pausado') || !prova.blocos.length) return;
+  prova.blocos.pop();
+  renderBlocos();
+}
+
+function renderBlocos() {
+  const emAndamento = prova.fase === 'rodando' || prova.fase === 'pausado';
+  const blocos = prova.blocos || [];
+  $('painel-blocos').hidden = !blocosLigados() || !(emAndamento || (prova.fase === 'finalizado' && blocos.length));
+  el.telaProva.classList.toggle('com-blocos', !$('painel-blocos').hidden);
+  $('btn-bloco').hidden = !emAndamento;
+  const fezIngles = blocos.some(b => b.ingles);
+  $('btn-bloco-ingles').hidden = !emAndamento;
+  $('btn-bloco-ingles').disabled = fezIngles;
+  $('btn-bloco-ingles').textContent = fezIngles ? '✓ Inglês concluído' : 'Inglês concluído';
+  $('btn-bloco-desfazer').hidden = !emAndamento || !blocos.length;
+  const n = blocos.filter(b => !b.ingles).length;
+  const partes = [];
+  partes.push(n ? `<strong>${n}</strong> ${n === 1 ? 'bloco feito' : 'blocos feitos'}` : 'Nenhum bloco marcado');
+  if (fezIngles) partes.push('Inglês feito');
+  $('blocos-contagem').innerHTML = partes.join('<br>') +
+    (prova.fase === 'finalizado' ? '<br>Os tempos aparecem depois de registrar.' : '');
+}
+
+/** Tempo de cada bloco, em segundos, na ordem em que foram feitos */
+function duracoesDosBlocos(blocos) {
+  let anterior = 0;
+  return blocos.map(b => {
+    const seg = Math.max(0, Math.round((b.fimMs - anterior) / 1000));
+    anterior = b.fimMs;
+    return b.ingles ? { seg, ingles: true } : { seg };
+  });
+}
+
+/** Fim do cronômetro → abre o Registrar com a prova, o tempo usado, o gabarito e os blocos */
+function registrarProvaDoCronometro() {
+  if (prova.fase !== 'finalizado') return;
+  const usadoMs = Math.min(prova.acumuladoMs, prova.duracaoMs);
+  const blocos = duracoesDosBlocos(prova.blocos || []);
+  edicao = null;
+  abrirResultados('registrar');
+  abrirFormulario({ novo: {
+    data: prova.comecouEm || new Date().toISOString(),
+    tipo: prova.nome || '',
+    duracaoMin: Math.round(prova.duracaoMs / 60000),
+    tempoUsadoMin: Math.round(usadoMs / 60000),
+    gabaritoMin: prova.gabaritoMs !== null ? Math.round(prova.gabaritoMs / 60000) : null,
+    pausas: 0, pausaMin: 0, concluida: !prova.encerradaAntes, fonte: '',
+    ...(blocos.length ? { blocos } : {})
+  } });
+  window.scrollTo(0, 0);
+}
+
+/** 1470 → "24:30" · 3725 → "1:02:05" */
+function formatarSegundosBloco(seg) {
+  const h = Math.floor(seg / 3600), m = Math.floor(seg % 3600 / 60), s = seg % 60;
+  const ss = String(s).padStart(2, '0');
+  return h ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`;
+}
+
+/** Nomes dos blocos: "Bloco 1", "Bloco 2"… e "Inglês" */
+function blocosComNome(blocos) {
+  let n = 0;
+  return blocos.map(b => ({ ...b, nome: b.ingles ? 'Inglês' : `Bloco ${++n}` }));
+}
+
+/** Valida os blocos de um resultado (do localStorage ou de um backup). Sem blocos → null */
+function limparBlocos(lista) {
+  if (!Array.isArray(lista)) return null;
+  const blocos = lista
+    .filter(b => b && inteiroNaoNegativo(b.seg) && b.seg <= 24 * 3600)
+    .slice(0, 60)
+    .map(b => (b.ingles === true ? { seg: b.seg, ingles: true } : { seg: b.seg }));
+  return blocos.length ? blocos : null;
 }
 
 /** Botão do gabarito: aparece com a prova em andamento; depois mostra quanto levou */
@@ -4110,11 +4514,19 @@ async function voltarParaConfig() {
   if (emAndamento) {
     // A prova continua contando enquanto a pergunta está aberta
     const ok = await confirmar(
-      'A prova está em andamento. Deseja encerrá-la e voltar à configuração?',
+      'A prova está em andamento. Deseja encerrá-la? Depois você pode registrar o resultado ou voltar à configuração.',
       'Encerrar prova'
     );
     if (!ok) return;
+    if (!(prova.fase === 'rodando' || prova.fase === 'pausado')) return; // o tempo acabou enquanto a pergunta estava aberta
     terminarGabarito(); // se estava marcando o gabarito, guarda até aqui
+    // Encerrada antes do fim: para o relógio no tempo feito e fica na tela da prova, com "Registrar resultado"
+    prova.acumuladoMs = Math.min(tempoDecorridoMs(), prova.duracaoMs);
+    prova.fase = 'finalizado';
+    prova.encerradaAntes = true;
+    registrarSimuladoEmEstudos(prova.acumuladoMs); // o tempo feito vai para Estudos
+    renderProva();
+    return;
   }
   prova.fase = 'configurando';
   atualizarTravaTela(); // libera a tela para apagar normalmente
@@ -4332,7 +4744,9 @@ function limparResultado(r) {
     materias,
     observacoes: typeof r.observacoes === 'string' ? r.observacoes.slice(0, 2000) : '',
     // Grupo (Provas antigas, Ciclos ou criado pelo usuário). Resultados de antes dos grupos: Provas antigas
-    grupo: typeof r.grupo === 'string' && r.grupo.trim() ? r.grupo.trim().slice(0, 40) : GRUPO_ANTIGAS
+    grupo: typeof r.grupo === 'string' && r.grupo.trim() ? r.grupo.trim().slice(0, 40) : GRUPO_ANTIGAS,
+    // Blocos de 4 (só nas provas feitas com essa opção ligada no cronômetro)
+    ...(limparBlocos(r.blocos) ? { blocos: limparBlocos(r.blocos) } : {})
   };
 }
 
@@ -4514,8 +4928,13 @@ let temporizadorMsgResultados = null;
 function avisarResultados(texto) {
   elR.erro.textContent = '';
   elR.msg.textContent = texto;
+  // Com o Histórico ou o Perfil aberto, o aviso aparece também dentro da janela
+  document.querySelectorAll('.janela-msg').forEach(m => { m.textContent = texto; });
   clearTimeout(temporizadorMsgResultados);
-  temporizadorMsgResultados = setTimeout(() => { elR.msg.textContent = ''; }, 6000);
+  temporizadorMsgResultados = setTimeout(() => {
+    elR.msg.textContent = '';
+    document.querySelectorAll('.janela-msg').forEach(m => { m.textContent = ''; });
+  }, 6000);
 }
 
 /** (O aviso laranja de backup pendente foi retirado; a data do último backup continua sendo guardada.) */
@@ -4541,22 +4960,28 @@ function itemResultado(r, posicao = {}) {
   caixa.checked = selecionados.has(r.id);
   caixa.setAttribute('aria-label', `Selecionar a prova ${r.tipo || 'sem nome'} de ${formatarData(r.data)}`);
   caixa.addEventListener('change', () => marcarResultado(r.id, caixa.checked));
-  const titulo = criar('div');
-  const nome = criar('strong', '', r.tipo || '(sem prova)');
-  titulo.append(nome);
-  if (r.fonte) titulo.append(criar('span', 'item-fonte', ` · ${r.fonte}`));
-  const meta = criar('div', 'item-meta', formatarData(r.data));
+  // Título: a edição (ex.: "ITA 2024"), que é o que diferencia as provas; embaixo, a prova, a data e o grupo
+  const titulo = criar('div', 'item-titulo');
+  titulo.append(criar('strong', 'item-nome', r.fonte || r.tipo || '(sem prova)'));
+  const meta = criar('div', 'item-meta');
+  meta.textContent = [r.fonte ? r.tipo : '', new Date(r.data).toLocaleDateString('pt-BR')].filter(Boolean).join(' · ');
   meta.append(criar('span', 'item-grupo', ` · ${nomeDoGrupo(grupoDoResultado(r))}`));
   titulo.append(meta);
   cabeca.append(caixa, titulo);
-  const total = criar('div', 'item-total',
-    soma.total ? `${soma.acertos}/${soma.total} · ${porcentagem(soma.pct)}` : 'sem notas');
+  const total = criar('div', 'item-total');
+  if (soma.total) {
+    total.append(criar('span', 'item-nota', `${soma.acertos}/${soma.total}`), criar('span', 'item-pct', porcentagem(soma.pct)));
+  } else {
+    total.append(criar('span', 'item-pct', 'sem notas'));
+  }
   const lado = criar('div', 'item-lado');
   lado.append(total);
   // Eliminatórias (Inglês): ícone + texto, nunca só a cor
   situacaoEliminatorias(r.materias).forEach(e => {
-    lado.append(criar('div', `eliminatoria ${e.ok ? 'ok' : 'falhou'}`,
-      `${e.ok ? '✓' : '✗'} ${e.nome} ${e.acertos}/${e.total} · ${e.ok ? 'passou' : 'eliminado'} (mín. ${e.minimo})`));
+    const situacao = criar('div', `eliminatoria ${e.ok ? 'ok' : 'falhou'}`,
+      e.ok ? `✓ ${e.nome}: passou` : `✗ ${e.nome}: eliminado`);
+    situacao.title = `${e.nome} ${e.acertos}/${e.total} (mínimo ${e.minimo})`;
+    lado.append(situacao);
   });
   topo.append(cabeca, lado);
   li.append(topo);
@@ -4580,22 +5005,37 @@ function itemResultado(r, posicao = {}) {
   if (r.gabaritoMin !== null) detalhes.push(`gabarito ${textoMinutos(r.gabaritoMin)}`);
   if (r.pausas) detalhes.push(`${plural(r.pausas, 'pausa', 'pausas')} (${r.pausaMin} min)`);
   if (!r.concluida) detalhes.push('encerrada antes do fim');
-  if (detalhes.length) li.append(criar('div', 'item-meta', detalhes.join(' · ')));
+  // Detalhes em linhas curtas, cada uma com um rótulo: Tempo · Erros · Blocos
+  const linhaDetalhe = (rotulo, texto) => {
+    const linha = criar('div', 'item-detalhe');
+    linha.append(criar('span', 'item-detalhe-rotulo', rotulo), criar('span', '', texto));
+    return linha;
+  };
+  const caixaDetalhes = criar('div', 'item-detalhes');
+  if (detalhes.length) caixaDetalhes.append(linhaDetalhe('Tempo', detalhes.join(' · ')));
   const motivos = textoMotivos(r.materias);
-  if (motivos) li.append(criar('div', 'item-meta', `Erros: ${motivos}`));
+  if (motivos) caixaDetalhes.append(linhaDetalhe('Erros', motivos));
+  if (r.blocos) {
+    caixaDetalhes.append(linhaDetalhe('Blocos',
+      blocosComNome(r.blocos).map(b => `${b.nome} ${formatarSegundosBloco(b.seg)}`).join(' · ')));
+  }
+  if (caixaDetalhes.childElementCount) li.append(caixaDetalhes);
   if (r.observacoes) li.append(criar('p', 'item-obs', r.observacoes));
 
+  // Ações discretas no rodapé do cartão; "Excluir" fica separado, à direita, em vermelho
   const acoes = criar('div', 'item-acoes');
-  const ver = criar('button', 'btn btn-fantasma btn-pequeno', 'Ver questões');
-  ver.type = 'button';
-  ver.addEventListener('click', () => verQuestoesNoDesempenho(r)); // abre no Desempenho
-  const editar = criar('button', 'btn btn-fantasma btn-pequeno', 'Editar');
-  editar.type = 'button';
-  editar.addEventListener('click', () => abrirFormulario({ existente: r }));
-  const excluir = criar('button', 'btn btn-fantasma btn-pequeno', 'Excluir');
-  excluir.type = 'button';
-  excluir.addEventListener('click', () => excluirResultado(r));
-  acoes.append(ver, editar, excluir);
+  const nomeProva = r.fonte || r.tipo || 'prova';
+  const botaoAcao = (texto, classe, acao, rotulo) => {
+    const b = criar('button', `btn-texto ${classe}`, texto);
+    b.type = 'button';
+    b.setAttribute('aria-label', `${rotulo} — ${nomeProva}`);
+    b.addEventListener('click', acao);
+    return b;
+  };
+  acoes.append(
+    botaoAcao('Ver questões', '', () => verQuestoesNoDesempenho(r), 'Ver questões'), // abre no Desempenho
+    botaoAcao('Editar', '', () => abrirFormulario({ existente: r }), 'Editar'),
+    botaoAcao('Excluir', 'perigo', () => excluirResultado(r), 'Excluir'));
 
   // Na "Minha ordem", botões para subir/descer a prova na lista
   if (posicao.manual) {
@@ -4692,8 +5132,36 @@ function renderQuestoesProva(r) {
   $('detalhe-colunas').replaceChildren(...(colunas.length ? colunas
     : [criar('p', 'vazio', 'Esta prova foi registrada sem matérias.')]));
   $('detalhe-nota').hidden = !r.materias.some(m => minimoEliminatoria(m.nome) !== null);
+  renderTemposBlocos(r);
   $('detalhe-obs').hidden = !r.observacoes;
   $('detalhe-obs').textContent = r.observacoes ? `Observações: ${r.observacoes}` : '';
+}
+
+/** Desempenho (uma prova escolhida): tempo de cada bloco de 4, com barras proporcionais */
+function renderTemposBlocos(r) {
+  const caixa = $('detalhe-blocos');
+  caixa.hidden = !r.blocos;
+  if (!r.blocos) { caixa.replaceChildren(); return; }
+  const blocos = blocosComNome(r.blocos);
+  const maior = Math.max(...blocos.map(b => b.seg), 1);
+  const numerados = blocos.filter(b => !b.ingles);
+  const soma = blocos.reduce((s, b) => s + b.seg, 0);
+  const resumo = [];
+  if (numerados.length) {
+    resumo.push(`média por bloco ${formatarSegundosBloco(Math.round(numerados.reduce((s, b) => s + b.seg, 0) / numerados.length))}`);
+  }
+  resumo.push(`total marcado ${formatarSegundosBloco(soma)}`);
+  const linhas = blocos.map(b => {
+    const linha = criar('div', b.ingles ? 'linha-bloco ingles' : 'linha-bloco');
+    const barra = criar('span', 'barra');
+    barra.style.width = `${(b.seg / maior) * 100}%`;
+    const trilho = criar('span');
+    trilho.append(barra);
+    linha.append(criar('span', '', b.nome), trilho, criar('span', 'valor', formatarSegundosBloco(b.seg)));
+    return linha;
+  });
+  caixa.replaceChildren(criar('h4', '', 'Tempo por bloco de 4'),
+    criar('p', 'item-meta', `${resumo.join(' · ')} (min:s, sem pausas)`), ...linhas);
 }
 
 $('btn-questoes-editar').addEventListener('click', () => {
@@ -4804,7 +5272,10 @@ function atualizarSelecao() {
   const n = selecionados.size;
   const total = elR.lista.querySelectorAll('.item-resultado').length;
   elR.btnExcluirSel.disabled = n === 0;
-  elR.btnExcluirSel.textContent = n ? `Excluir selecionadas (${n})` : 'Excluir selecionadas';
+  elR.btnExcluirSel.hidden = n === 0; // só aparece com alguma prova marcada
+  elR.btnExcluirSel.textContent = n ? `Excluir (${n})` : 'Excluir selecionadas';
+  $('hist-contagem').textContent = n ? `${plural(n, 'selecionada', 'selecionadas')} de ${total}`
+    : plural(total, 'prova', 'provas');
   elR.selTodas.checked = total > 0 && n === total;
   elR.selTodas.indeterminate = n > 0 && n < total;
 }
@@ -5251,26 +5722,55 @@ function renderDesempenho() {
 }
 
 /* ---------- Abas da tela de Resultados ---------- */
-const ABAS_TELA = ['registrar', 'desempenho', 'segunda', 'historico', 'perfil'];
-// Histórico e Perfil e backup não ficam nas abas: abrem pela engrenagem, com "← Voltar"
-const ABAS_SECUNDARIAS = { historico: 'Histórico', perfil: 'Perfil e backup' };
+// Abas de Resultados. Histórico e Perfil e backup não são abas: abrem em janelas, como as Configurações
+const ABAS_TELA = ['registrar', 'desempenho', 'segunda'];
+const JANELAS = ['historico', 'perfil'];
 let abaTela = 'desempenho';
-let ultimaAbaPrincipal = 'desempenho'; // para onde o "← Voltar" leva
+let abriuJanela = null; // botão que abriu a janela (o foco volta para ele ao fechar)
+
+/** Abre a janela do Histórico ou do Perfil e backup, por cima da tela em que você está */
+function abrirJanela(nome) {
+  fecharMenusEngrenagem();
+  fecharOpcoes();
+  JANELAS.forEach(j => { $(`janela-${j}`).hidden = j !== nome; });
+  if (nome === 'historico') renderHistoricoAba();
+  if (nome === 'perfil') renderPerfis();
+  const janela = $(`janela-${nome}`);
+  janela.querySelector('.janela-corpo').scrollTop = 0;
+  janela.querySelector('.btn-fechar-janela').focus();
+}
+
+function janelaAberta() { return JANELAS.find(j => !$(`janela-${j}`).hidden) || null; }
+
+function fecharJanelas() {
+  if (!janelaAberta()) return;
+  JANELAS.forEach(j => { $(`janela-${j}`).hidden = true; });
+  const alvo = abriuJanela && document.contains(abriuJanela) && abriuJanela.offsetParent ? abriuJanela : null;
+  abriuJanela = null;
+  if (alvo) alvo.focus();
+}
+document.querySelectorAll('.janela').forEach(janela => {
+  janela.querySelector('.btn-fechar-janela').addEventListener('click', fecharJanelas);
+  janela.addEventListener('click', e => { if (e.target === e.currentTarget) fecharJanelas(); });
+});
+// (Esc numa pergunta aberta por cima só fecha a pergunta)
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !e.defaultPrevented && el.modal.hidden) fecharJanelas(); });
 
 function trocarAbaTela(aba) {
+  // Histórico e Perfil: abre a janela e deixa a aba como estava
+  if (JANELAS.includes(aba)) { abrirJanela(aba); return; }
   if (!ABAS_TELA.includes(aba)) aba = 'desempenho';
   cancelarAvanco();
   fecharMenuResultados();
+  fecharJanelas(); // ex.: "Ver questões" e "Editar" no Histórico levam para uma aba
+  // Vindo de uma janela aberta na tela inicial: mostra a tela de Resultados
+  if (el.telaResultados.hidden) { mostrarTela('resultados'); renderResultados(); }
   abaTela = aba;
-  const secundaria = ABAS_SECUNDARIAS[aba];
-  if (!secundaria) ultimaAbaPrincipal = aba;
   document.querySelectorAll('#abas-tela .nav-aba').forEach(botao => {
     const ativa = botao.dataset.aba === aba;
     botao.setAttribute('aria-selected', String(ativa));
-    botao.tabIndex = ativa || (secundaria && botao.dataset.aba === ultimaAbaPrincipal) ? 0 : -1;
+    botao.tabIndex = ativa ? 0 : -1;
   });
-  $('barra-secundaria').hidden = !secundaria;
-  $('titulo-secundaria').textContent = secundaria || '';
   ABAS_TELA.forEach(a => { $(`painel-${a}`).hidden = a !== aba; });
   // Registrar sem nada em andamento: abre um formulário novo
   if (aba === 'registrar' && !edicao) abrirFormulario();
@@ -5284,6 +5784,24 @@ const MENUS_ENGRENAGEM = [
   { botao: 'btn-opcoes-resultados', menu: 'menu-resultados' },
   { botao: 'btn-opcoes', menu: 'menu-inicio' }
 ];
+// Itens do menu (os dois menus são iguais): ícone, nome e uma linha dizendo o que tem lá
+const ITENS_MENU_ENGRENAGEM = [
+  { id: 'historico', nome: 'Histórico', dica: 'Todas as provas registradas',
+    icone: '<path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/>' },
+  { id: 'perfil', nome: 'Perfil e backup', dica: 'Trocar de perfil, exportar e importar',
+    icone: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>' },
+  { separador: true },
+  { id: 'aparencia', nome: 'Configurações', dica: 'Tema, cronômetro e grupos',
+    icone: '<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>' }
+];
+MENUS_ENGRENAGEM.forEach(({ menu }) => {
+  $(menu).innerHTML = ITENS_MENU_ENGRENAGEM.map(item => item.separador
+    ? '<div class="menu-separador" role="separator"></div>'
+    : `<button type="button" role="menuitem" data-menu="${item.id}">` +
+      `<svg class="menu-icone" viewBox="0 0 24 24" aria-hidden="true">${item.icone}</svg>` +
+      `<span class="menu-texto"><span class="menu-nome">${item.nome}</span><span class="menu-dica">${item.dica}</span></span></button>`
+  ).join('');
+});
 function fecharMenusEngrenagem(devolverFoco = false) {
   MENUS_ENGRENAGEM.forEach(({ botao, menu }) => {
     if ($(menu).hidden) return;
@@ -5309,10 +5827,9 @@ MENUS_ENGRENAGEM.forEach(({ botao, menu }) => {
     if (!item) return;
     fecharMenusEngrenagem();
     if (item.dataset.menu === 'aparencia') { abrirOpcoes({ currentTarget: $(botao) }); return; }
-    // Na tela inicial, abre Resultados direto em Histórico ou Perfil e backup
-    if ($('tela-resultados').hidden) abrirResultados(item.dataset.menu);
-    else trocarAbaTela(item.dataset.menu);
-    window.scrollTo(0, 0);
+    // Histórico e Perfil e backup: janela por cima da tela atual (igual às Configurações)
+    abrirJanela(item.dataset.menu);
+    abriuJanela = $(botao);
   });
   $(menu).addEventListener('keydown', e => {
     const itens = [...$(menu).querySelectorAll('button')];
@@ -5326,12 +5843,12 @@ MENUS_ENGRENAGEM.forEach(({ botao, menu }) => {
 document.addEventListener('click', e => {
   if (!e.target.closest('.menu-engrenagem')) fecharMenusEngrenagem();
 });
-$('btn-secundaria-voltar').addEventListener('click', () => trocarAbaTela(ultimaAbaPrincipal));
 
-/** Abre a tela de Resultados numa aba */
+/** Abre a tela de Resultados numa aba (Histórico/Perfil: na aba de antes, com a janela por cima) */
 function abrirResultados(aba = abaTela) {
   mostrarTela('resultados'); // antes de desenhar, para o gráfico medir a largura certa
   renderResultados();
+  if (JANELAS.includes(aba)) { trocarAbaTela(abaTela); abrirJanela(aba); return; }
   trocarAbaTela(aba);
 }
 
@@ -6290,9 +6807,10 @@ elR.qAcertos.addEventListener('input', () => {
  * Prepara o formulário: em branco (resultado novo) ou com um resultado para editar.
  * O registro é sempre feito à mão, depois da prova.
  */
-function abrirFormulario({ existente = null } = {}) {
+function abrirFormulario({ existente = null, novo = null } = {}) {
   const ativo = tipoAtivo();
-  const base = existente || {
+  // "novo": resultado vindo do fim do cronômetro (prova, tempo usado, gabarito e blocos já preenchidos)
+  const base = existente || novo || {
     data: new Date().toISOString(),
     // Novo resultado: a prova vista no Desempenho; senão, a prova escolhida na tela inicial
     tipo: filtroTipo || (ativo ? ativo.nome : ''),
@@ -6319,6 +6837,14 @@ function abrirFormulario({ existente = null } = {}) {
   const info = [];
   if (base.pausas) info.push(`${plural(base.pausas, 'pausa', 'pausas')} (${base.pausaMin} min)`);
   if (!base.concluida) info.push('encerrada antes do fim');
+  if (novo) {
+    if (base.tempoUsadoMin !== null) info.unshift(`do cronômetro: tempo usado ${formatarChip(base.tempoUsadoMin)}`);
+    if (base.gabaritoMin !== null) info.push(`gabarito ${textoMinutos(base.gabaritoMin)}`);
+    if (base.blocos) {
+      const n = base.blocos.filter(b => !b.ingles).length;
+      info.push(`${plural(n, 'bloco de 4', 'blocos de 4')}${base.blocos.some(b => b.ingles) ? ' + Inglês' : ''} (os tempos aparecem depois de salvar)`);
+    }
+  }
   elR.info.textContent = info.join(' · ');
   elR.info.hidden = info.length === 0;
 
@@ -6531,8 +7057,8 @@ function aoEscolherProvaNoForm() {
 function cancelarFormulario() {
   const editando = !!(edicao && edicao.id);
   edicao = null;
-  if (editando) trocarAbaTela('historico');
-  else abrirFormulario();
+  abrirFormulario(); // o Registrar volta a ficar em branco
+  if (editando) abrirJanela('historico');
 }
 
 /* ---------- Backup ---------- */
@@ -6589,16 +7115,17 @@ async function importarBackup() {
   if (!arquivo) return;
   elR.erro.textContent = '';
   elR.msg.textContent = '';
+  $('msg-perfil').textContent = '';
 
   let dados;
   try {
     dados = JSON.parse(await arquivo.text());
   } catch (e) {
-    elR.erro.textContent = `"${arquivo.name}" não é um arquivo de backup válido.`;
+    elR.erro.textContent = $('msg-perfil').textContent = `"${arquivo.name}" não é um arquivo de backup válido.`;
     return;
   }
   if (!dados || dados.app !== ID_APP_BACKUP || !Array.isArray(dados.resultados)) {
-    elR.erro.textContent = `"${arquivo.name}" não parece um backup do Cronômetro de Simulado.`;
+    elR.erro.textContent = $('msg-perfil').textContent = `"${arquivo.name}" não parece um backup do Cronômetro de Simulado.`;
     return;
   }
 
@@ -7139,6 +7666,29 @@ function abrirOpcoes(evento) {
   $('btn-fechar-opcoes').focus();
 }
 
+/* Seções das Configurações (Aparência · Cronômetro · Grupos): uma por vez, setas trocam */
+function trocarSecaoConfig(secao, focar = false) {
+  document.querySelectorAll('#config-nav [role="tab"]').forEach(aba => {
+    const ativa = aba.dataset.secao === secao;
+    aba.setAttribute('aria-selected', String(ativa));
+    aba.tabIndex = ativa ? 0 : -1;
+    $(aba.getAttribute('aria-controls')).hidden = !ativa;
+    if (ativa && focar) aba.focus();
+  });
+  document.querySelector('.config-paineis').scrollTop = 0;
+}
+document.querySelectorAll('#config-nav [role="tab"]').forEach(aba => {
+  aba.addEventListener('click', () => trocarSecaoConfig(aba.dataset.secao));
+  aba.addEventListener('keydown', e => {
+    const teclas = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 };
+    if (!(e.key in teclas)) return;
+    e.preventDefault();
+    const abas = [...document.querySelectorAll('#config-nav [role="tab"]')];
+    const prox = abas[(abas.indexOf(aba) + teclas[e.key] + abas.length) % abas.length];
+    trocarSecaoConfig(prox.dataset.secao, true);
+  });
+});
+
 /** Lista de grupos nas Opções: renomear todos, apagar só os criados */
 function renderGruposOpcoes() {
   $('lista-grupos').replaceChildren(...grupos.map(g => {
@@ -7195,6 +7745,15 @@ el.btnRestaurar.addEventListener('click', restaurarPadrao);
 el.btnIrProva.addEventListener('click', irParaProva);
 el.btnPrincipal.addEventListener('click', acaoPrincipal);
 el.btnVoltar.addEventListener('click', voltarParaConfig);
+$('btn-registrar-prova').addEventListener('click', registrarProvaDoCronometro);
+$('btn-bloco').addEventListener('click', () => marcarBloco(false));
+$('btn-bloco-ingles').addEventListener('click', () => marcarBloco(true));
+$('btn-bloco-desfazer').addEventListener('click', desfazerBloco);
+$('chk-blocos').checked = blocosLigados();
+$('chk-blocos').addEventListener('change', e => {
+  gravar(CHAVE_BLOCOS, e.target.checked ? '1' : '0');
+  renderBlocos();
+});
 
 
 // Barra de espaço: começar / pausar / retomar (só na tela da prova)
@@ -7242,6 +7801,21 @@ function limparEstudos(lista) { return Array.isArray(lista) ? lista.map(limparEs
 
 const estudos = limparEstudos(lerJSON(CHAVE_ESTUDOS));
 function salvarEstudos() { gravar(CHAVE_ESTUDOS, estudos); }
+
+/* Simulado feito no cronômetro → sessão "Simulado" em Estudos (pode ser desligado na própria aba Estudos).
+   Conta o tempo de prova de verdade: pausas ficam de fora; encerrada antes do fim, só o que foi feito. */
+const MATERIA_SIMULADO = 'Simulado';
+const CHAVE_SIMULADO_EM_ESTUDOS = chaveDoPerfil(PERFIL_ATIVO, 'estudos-simulado'); // '0' = desligado
+function simuladoVaiParaEstudos() { return lerTexto(CHAVE_SIMULADO_EM_ESTUDOS) !== '0'; }
+function registrarSimuladoEmEstudos(ms) {
+  if (prova.foiParaEstudos || !simuladoVaiParaEstudos()) return;
+  prova.foiParaEstudos = true;
+  const segundos = Math.min(Math.round(ms / 1000), 24 * 3600);
+  if (segundos < 60) return; // menos de 1 minuto não conta (como no cronômetro de estudo)
+  estudos.push({ id: novoId(), materia: MATERIA_SIMULADO, inicio: prova.comecouEm || new Date(Date.now() - ms).toISOString(),
+                 segundos, manual: false });
+  salvarEstudos();
+}
 
 /* Ids das sessões apagadas por "Retirar": um backup antigo não as traz de volta */
 const CHAVE_ESTUDOS_RETIRADOS = chaveDoPerfil(PERFIL_ATIVO, 'estudos-retirados');
@@ -7508,7 +8082,7 @@ async function excluirSessaoEstudo(id) {
 
 /* ----- Adicionar tempo à mão ----- */
 function prepararFormEstudoManual() {
-  $('manual-materia').replaceChildren(...MATERIAS_ESTUDO.map(m => new Option(m, m)));
+  $('manual-materia').replaceChildren(...[...MATERIAS_ESTUDO, MATERIA_SIMULADO].map(m => new Option(m, m)));
   $('manual-dia').value = paraCampoData(new Date().toISOString()).slice(0, 10);
 }
 
@@ -7551,6 +8125,11 @@ document.querySelectorAll('#estudo-periodos button').forEach(b => b.addEventList
   renderEstudos();
 }));
 $('form-estudo-manual').addEventListener('submit', enviarEstudoManual);
+$('chk-simulado-estudos').checked = simuladoVaiParaEstudos();
+$('chk-simulado-estudos').addEventListener('change', e => {
+  gravar(CHAVE_SIMULADO_EM_ESTUDOS, e.target.checked ? '1' : '0');
+  avisarEstudos(e.target.checked ? 'O tempo dos simulados vai entrar aqui como "Simulado".' : 'O tempo dos simulados não vai mais entrar aqui.');
+});
 criarCampoTempo($('manual-tempo'), 15); // horas + minutos, de 15 em 15 min
 prepararFormEstudoManual();
 renderBotaoEstudosTopo();
