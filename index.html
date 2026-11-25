@@ -742,7 +742,7 @@
   .q-detalhes { grid-area: detalhes; background: transparent; padding: 0; gap: 6px; }
   /* Cada linha só mostra o que combina com o resultado:
      sem resultado → nada além de Acertou/Errou · Acertou → só "Chute certo" ·
-     Errou → Sabia/Não sabia, Sem tempo e Erro de conta */
+     Errou → Sabia/Não sabia, Sem tempo, Erro de conta e Erro de atenção */
   .q-linha[data-r=""] .q-sabia, .q-linha[data-r=""] .q-detalhes,
   .q-linha[data-r="a"] .q-sabia { display: none; }
   .q-linha[data-r="a"] .q-detalhes button:not([data-valor="c"]),
@@ -2658,7 +2658,7 @@
         </div>
       </div>
       <p id="dica-motivos" class="grafico-nota" hidden>Dica: ao registrar, marque as questões (se sabia, se faltou tempo,
-        chute certo, erro de conta). Aqui aparece o que mais te custa pontos.</p>
+        chute certo, erro de conta, erro de atenção). Aqui aparece o que mais te custa pontos.</p>
     </section>
   </div>
 
@@ -2695,7 +2695,7 @@
 
       <h3 class="subtitulo-form">Questões</h3>
       <p class="dica">Marque Acertou ou Errou em cada questão — ou, se preferir, só digite o total de acertos da matéria.
-        Nas certas, marque se foi chute; nas erradas, se sabia e o motivo (sem tempo, erro de conta).
+        Nas certas, marque se foi chute; nas erradas, se sabia e o motivo (sem tempo, erro de conta, erro de atenção).
         Isso aparece em "Por que você errou", no Desempenho.</p>
 
       <!-- Abas das matérias -->
@@ -4568,7 +4568,8 @@ const OPCAO_OUTRA_PROVA = '__outra';
  * Os quatro primeiros dividem os ERROS; "chute certo" conta ACERTOS que vieram no chute.
  */
 const MOTIVOS = [
-  { id: 'conta', nome: 'Erro de conta', dica: 'Sabia resolver, mas errou conta, sinal ou leitura do enunciado' },
+  { id: 'conta', nome: 'Erro de conta', dica: 'Sabia resolver, mas errou uma conta ou um sinal' },
+  { id: 'atencao', nome: 'Erro de atenção', dica: 'Sabia resolver, mas leu o enunciado errado, esqueceu um detalhe ou marcou a alternativa errada' },
   { id: 'conteudo', nome: 'Não sabia', dica: 'Faltou o conteúdo ou a ideia para resolver' },
   { id: 'tempo', nome: 'Faltou tempo', dica: 'Não deu tempo de fazer direito (ou chutou no fim por falta de tempo)' },
   { id: 'branco', nome: 'Em branco', dica: 'Deixou a questão sem marcar' }
@@ -4600,13 +4601,13 @@ function limparMotivos(motivos, acertos, total) {
  */
 function limparQuestoes(lista, acertos, total) {
   if (!Array.isArray(lista) || lista.length !== total) return null;
-  if (!lista.every(t => typeof t === 'string' && /^[AEB]\*?[sn]?t?c?k?$/.test(t))) return null;
+  if (!lista.every(t => typeof t === 'string' && /^[AEB]\*?[sn]?t?c?k?d?$/.test(t))) return null;
   return lista.filter(t => t[0] === 'A').length === acertos ? [...lista] : null;
 }
 
 /** Soma os motivos de várias matérias (null se nenhuma tem motivos) */
 function somarMotivos(materias) {
-  const soma = { conta: 0, conteudo: 0, tempo: 0, branco: 0, chute: 0 };
+  const soma = { conta: 0, atencao: 0, conteudo: 0, tempo: 0, branco: 0, chute: 0 };
   let tem = false;
   materias.forEach(m => {
     if (!m.motivos) return;
@@ -5155,6 +5156,7 @@ function etiquetasDaQuestao(q) {
   if (q.r === 'a' && q.c) { const d = cor(DETALHES_Q, 'c'); lista.push({ texto: d.nome, cor: d.cor, tipo: 'detalhe' }); }
   if (q.t) { const d = cor(DETALHES_Q, 't'); lista.push({ texto: d.nome, cor: d.cor, tipo: 'detalhe' }); }
   if (q.r === 'e' && q.k) { const d = cor(DETALHES_Q, 'k'); lista.push({ texto: d.nome, cor: d.cor, tipo: 'detalhe' }); }
+  if (q.r === 'e' && q.d) { const d = cor(DETALHES_Q, 'd'); lista.push({ texto: d.nome, cor: d.cor, tipo: 'detalhe' }); }
   return lista;
 }
 
@@ -5486,7 +5488,7 @@ function renderMotivos(lista, ordem) {
       teve = true;
       const chave = chaveMateria(m.nome);
       const acc = porMateria.get(chave) ||
-        { chave, nome: m.nome, erros: 0, acertos: 0, conta: 0, conteudo: 0, tempo: 0, branco: 0, chute: 0 };
+        { chave, nome: m.nome, erros: 0, acertos: 0, conta: 0, atencao: 0, conteudo: 0, tempo: 0, branco: 0, chute: 0 };
       acc.erros += m.total - m.acertos;
       acc.acertos += m.acertos;
       [...MOTIVOS, MOTIVO_CHUTE].forEach(x => { acc[x.id] += m.motivos[x.id] || 0; });
@@ -5525,7 +5527,7 @@ function renderMotivos(lista, ordem) {
 
   // Total (sem as eliminatórias, como no resto do Desempenho)
   const contam = linhas.filter(acc => minimoEliminatoria(acc.nome) === null);
-  const total = { erros: 0, acertos: 0, conta: 0, conteudo: 0, tempo: 0, branco: 0, chute: 0 };
+  const total = { erros: 0, acertos: 0, conta: 0, atencao: 0, conteudo: 0, tempo: 0, branco: 0, chute: 0 };
   contam.forEach(acc => Object.keys(total).forEach(k => { total[k] += acc[k]; }));
   const temEliminatoria = contam.length < linhas.length;
   if (contam.length > 1 || temEliminatoria) {
@@ -5563,6 +5565,8 @@ function renderMotivos(lista, ordem) {
 const DICAS_MOTIVO = [
   { id: 'conta', titulo: 'Você deve focar em erros de conta', recupera: true,
     acao: 'Refaça as contas antes de marcar, confira sinal e unidade, e treine cálculo à mão, sem calculadora.' },
+  { id: 'atencao', titulo: 'Você deve focar em erros de atenção', recupera: true,
+    acao: 'Sublinhe o que o enunciado pede (unidade, "incorreta", "aproximadamente"), releia a pergunta antes de marcar e confira se a alternativa marcada é a que você calculou.' },
   { id: 'tempo', titulo: 'Você deve treinar a gestão do tempo', recupera: true,
     acao: 'Pule as questões longas e volte no fim; use os adesivos do cronômetro para saber se está no ritmo e faça simulados cronometrados.' },
   { id: 'conteudo', titulo: 'Você deve estudar mais teoria e fazer exercícios', recupera: false,
@@ -5581,8 +5585,8 @@ function renderNotasEDicas(provas) {
   let acertos = 0, questoes = 0;
   let garantidos = 0;  // acertos que não foram chute
   let sabiaErrou = 0;  // questões erradas marcadas como "Sabia"
-  const soma = { conta: 0, tempo: 0, conteudo: 0, chute: 0 };
-  const porMateria = { conta: new Map(), tempo: new Map(), conteudo: new Map() };
+  const soma = { conta: 0, atencao: 0, tempo: 0, conteudo: 0, chute: 0 };
+  const porMateria = { conta: new Map(), atencao: new Map(), tempo: new Map(), conteudo: new Map() };
   provas.forEach(r => {
     const s = somar(r.materias);
     acertos += s.acertos;
@@ -5594,12 +5598,12 @@ function renderNotasEDicas(provas) {
         m.questoes.map(textoParaQuestao).forEach(q => {
           if (!q) return;
           if (q.r === 'a' && !q.c) garantidos++;
-          else if (q.r === 'e' && q.s === 's') sabiaErrou++;
+          else if (q.r === 'e' && (q.s === 's' || q.d)) sabiaErrou++; // erro de atenção: você sabia
         });
       } else {
         // Sem marcação por questão: acertos − chutes; "sabia e errou" ≈ erros de conta
         garantidos += m.acertos - ((m.motivos && m.motivos.chute) || 0);
-        sabiaErrou += (m.motivos && m.motivos.conta) || 0;
+        sabiaErrou += ((m.motivos && m.motivos.conta) || 0) + ((m.motivos && m.motivos.atencao) || 0);
       }
       if (!m.motivos) return;
       Object.keys(soma).forEach(k => { soma[k] += m.motivos[k] || 0; });
@@ -6334,28 +6338,31 @@ const SABIA_Q = [
 const DETALHES_Q = [
   { id: 't', nome: 'Sem tempo', cor: 'var(--nivel-ok)' },
   { id: 'c', nome: 'Chute certo', cor: 'var(--serie-7)', exige: 'a' },
-  { id: 'k', nome: 'Erro de conta', cor: 'var(--serie-5)', exige: 'e' }
+  { id: 'k', nome: 'Erro de conta', cor: 'var(--serie-5)', exige: 'e' },
+  { id: 'd', nome: 'Erro de atenção', cor: 'var(--serie-2)', exige: 'e' }
 ];
 
-/** Questão: { r: 'a'|'e'|null, s: 's'|'n'|null, t, c, k: booleanos } */
-function questaoVazia(q) { return !q || (!q.r && !q.s && !q.t && !q.c && !q.k); }
+/** Questão: { r: 'a'|'e'|null, s: 's'|'n'|null, t, c, k, d: booleanos } */
+function questaoVazia(q) { return !q || (!q.r && !q.s && !q.t && !q.c && !q.k && !q.d); }
 
 /** { r:'a', s:'s', t:true, c:true } → "Astc" (vazia → "-") */
 function questaoParaTexto(q) {
   if (questaoVazia(q)) return '-';
-  return (q.r ? q.r.toUpperCase() : '-') + (q.s || '') + (q.t ? 't' : '') + (q.c ? 'c' : '') + (q.k ? 'k' : '');
+  return (q.r ? q.r.toUpperCase() : '-') + (q.s || '') + (q.t ? 't' : '') + (q.c ? 'c' : '') + (q.k ? 'k' : '') +
+    (q.d ? 'd' : '');
 }
 /**
  * "Astc" → { r:'a', s:'s', t:true, c:true, k:false } · "-" → null · inválido → undefined.
  * Também lê o formato antigo: "E*n" (* = chutou) e "Et" / "Ac" / "Ek" (um detalhe só).
  */
 function textoParaQuestao(t) {
-  const m = /^([aeb-])(\*)?([sn])?(t)?(c)?(k)?$/i.exec(String(t).trim());
+  const m = /^([aeb-])(\*)?([sn])?(t)?(c)?(k)?(d)?$/i.exec(String(t).trim());
   if (!m) return undefined;
   const r = m[1] === '-' ? null : m[1].toLowerCase();
-  const q = { r, s: m[3] ? m[3].toLowerCase() : null, t: !!m[4], c: !!m[5] || (!!m[2] && r === 'a'), k: !!m[6] };
+  const q = { r, s: m[3] ? m[3].toLowerCase() : null, t: !!m[4], c: !!m[5] || (!!m[2] && r === 'a'), k: !!m[6], d: !!m[7] };
   if (q.c && r && r !== 'a') q.c = false; // chute certo só com Acertou
   if (q.k && r && r !== 'e') q.k = false; // erro de conta só com Errou
+  if (q.d && r && r !== 'e') q.d = false; // erro de atenção só com Errou
   return questaoVazia(q) ? null : q;
 }
 /** Texto colado → lista de questões. Aceita "A E* Ek" ou só "AAEEA". Inválido → null */
@@ -6375,11 +6382,12 @@ function contagemMateria(m) {
 
 /** Motivos dos erros tirados das marcações (cada erro entra em um motivo só) */
 function motivosDasQuestoes(questoes) {
-  const m = { conta: 0, conteudo: 0, tempo: 0, branco: 0, chute: 0 };
+  const m = { conta: 0, atencao: 0, conteudo: 0, tempo: 0, branco: 0, chute: 0 };
   questoes.forEach(q => {
     if (!q || !q.r) return;
     if (q.r === 'a') { if (q.c) m.chute++; return; } // acertou chutando
     if (q.k) m.conta++;                              // erro de conta
+    else if (q.d) m.atencao++;                       // erro de atenção
     else if (q.t) m.tempo++;                         // faltou tempo
     else if (q.r === 'b') m.branco++;                // (resultados antigos)
     else if (q.s === 'n') m.conteudo++;              // não sabia
@@ -6629,7 +6637,7 @@ function alvosQ() {
 function aplicarQ(indices, acao, valor) {
   const m = materiaAtual();
   if (!m) return;
-  const base = i => m.questoes[i] || { r: null, s: null, t: false, c: false, k: false };
+  const base = i => m.questoes[i] || { r: null, s: null, t: false, c: false, k: false, d: false };
   if (acao === 'r' || acao === 's') {
     const jaTodas = indices.every(i => m.questoes[i] && m.questoes[i][acao] === valor);
     indices.forEach(i => {
@@ -6638,7 +6646,7 @@ function aplicarQ(indices, acao, valor) {
       // Trocou ou tirou o resultado: tira o detalhe que não combina com ele
       if (acao === 'r') DETALHES_Q.forEach(d => { if (d.exige && q.r !== d.exige) q[d.id] = false; });
       // Acertou (ou sem resultado): "sabia" e os motivos de erro não valem → limpa
-      if (acao === 'r' && q.r !== 'e') { q.s = null; q.t = false; q.k = false; }
+      if (acao === 'r' && q.r !== 'e') { q.s = null; q.t = false; q.k = false; q.d = false; }
       m.questoes[i] = questaoVazia(q) ? null : q;
     });
   } else if (acao === 'd') {
