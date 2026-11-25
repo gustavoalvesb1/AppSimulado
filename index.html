@@ -63,6 +63,7 @@
     --serie-6: #0ca30c; /* verde */
     --serie-7: #9085e9; /* violeta */
     --serie-8: #e66767; /* vermelho */
+    --estrela: #f5c518; /* estrela das questões favoritas */
     /* Cores dos níveis de desempenho (fixas em todos os temas, legíveis no fundo escuro) */
     --nivel-excelente: #3ddc84;
     --nivel-bom: #5ab0ff;
@@ -678,8 +679,8 @@
   .q-grade { border: 1px solid var(--borda); border-radius: 14px; overflow: hidden; background: var(--bg); }
   .q-linha, .q-cabeca {
     display: grid;
-    grid-template-columns: 40px 28px 132px 146px minmax(0, 1fr); /* larguras fixas: cabeçalho e linhas alinhados */
-    grid-template-areas: "num status resultado sabia detalhes";
+    grid-template-columns: 40px 28px 132px 146px minmax(0, 1fr) 34px; /* larguras fixas: cabeçalho e linhas alinhados */
+    grid-template-areas: "num status resultado sabia detalhes estrela";
     column-gap: 14px;
     align-items: center;
     gap: 8px;
@@ -714,6 +715,19 @@
   .q-status[data-r="a"] { border: 0; opacity: 1; background: var(--nivel-excelente); }
   .q-status[data-r="e"] { border: 0; opacity: 1; background: var(--nivel-ruim); }
   .q-status[data-r="b"] { border: 0; opacity: 1; background: var(--texto-suave); }
+  /* Estrela no fim da linha: contorno discreto; marcada, fica amarela e cheia */
+  .q-estrela {
+    grid-area: estrela; justify-self: end; width: 34px; height: 34px; padding: 0; margin: 0;
+    display: grid; place-items: center; background: none; border: 0; border-radius: 8px; cursor: pointer;
+    transition: transform .12s, background .12s;
+  }
+  .q-estrela .estrela { display: block; width: 22px; height: 22px; }
+  .q-estrela .estrela path { fill: none; stroke: var(--texto-suave); stroke-width: 1.6; stroke-linejoin: round; opacity: .55; }
+  .q-estrela:hover { background: color-mix(in srgb, var(--texto) 7%, transparent); }
+  .q-estrela:hover .estrela path { stroke: var(--estrela); opacity: 1; }
+  .q-estrela:focus-visible { outline: 2px solid var(--foco); outline-offset: 0; }
+  .q-estrela[aria-pressed="true"] .estrela path { fill: var(--estrela); stroke: var(--estrela); opacity: 1; }
+  .q-estrela:active { transform: scale(.88); }
   .q-seg {
     display: inline-flex;
     flex-wrap: wrap;
@@ -779,8 +793,8 @@
   .bloco-motivos h3 { margin: 0; font-size: .98rem; }
   .titulo-motivos { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-bottom: 6px; }
   .titulo-motivos .campo { font-size: .92rem; padding: 8px 12px; }
-  .escolha-prova { display: inline-flex; align-items: center; gap: 10px; flex-wrap: nowrap; min-width: 0; }
-  .escolha-prova .campo { width: auto; min-width: 0; max-width: 260px; }
+  .escolha-prova { display: inline-flex; align-items: center; gap: 10px; flex-wrap: nowrap; min-width: 0; max-width: 100%; }
+  .escolha-prova .campo { width: auto; min-width: 0; max-width: 260px; flex: 0 1 auto; }
   .escolha-prova label { color: var(--texto-suave); font-size: .9rem; font-weight: 600; white-space: nowrap; }
 
   /* Nota em 3 cenários */
@@ -1057,15 +1071,15 @@
     .linha-cfg-materia { grid-template-columns: minmax(0, 1fr) 58px 70px 32px; gap: 6px; }
     .nav-aba { font-size: .82rem; padding: 9px 4px; }
     /* Grade de questões: "Sabia a questão?" desce para a segunda linha */
-    /* (o círculo de status some: o botão marcado já mostra o resultado) */
+    /* (o círculo de status some: o botão marcado já mostra o resultado; a estrela fica no fim da 1ª linha) */
     .q-linha, .q-cabeca {
-      grid-template-columns: 22px 108px minmax(0, 1fr);
-      grid-template-areas: "num resultado sabia" "detalhes detalhes detalhes";
+      grid-template-columns: 22px 108px minmax(0, 1fr) 34px;
+      grid-template-areas: "num resultado sabia estrela" "detalhes detalhes detalhes detalhes";
       column-gap: 6px;
       row-gap: 8px;
       padding: 9px 8px;
     }
-    .q-cabeca { grid-template-areas: "num resultado sabia"; font-size: .7rem; letter-spacing: .03em; }
+    .q-cabeca { grid-template-areas: "num resultado sabia estrela"; font-size: .7rem; letter-spacing: .03em; }
     .q-status, .q-cabeca .c-status, .q-cabeca .c-detalhes { display: none; }
     .cenarios { gap: 6px; }
     .cenario { padding: 8px 7px; }
@@ -1089,6 +1103,22 @@
     .acoes { flex-direction: column; align-items: stretch; }
     .acoes .grupo { justify-content: center; }
     #resumo-config { text-align: center; }
+  }
+  /* Larguras médias (tablet / janela estreita): os detalhes descem para uma segunda linha,
+     embaixo de Resultado e Sabia, para não ficarem espremidos nem passarem por cima da estrela */
+  @media (min-width: 521px) and (max-width: 760px) {
+    .q-linha, .q-cabeca {
+      grid-template-columns: 34px 24px 132px auto minmax(0, 1fr) 34px;
+      grid-template-areas: "num status resultado sabia . estrela" ". . detalhes detalhes detalhes detalhes";
+      column-gap: 10px;
+    }
+    .q-cabeca { grid-template-areas: "num status resultado sabia . estrela"; }
+    .q-cabeca .c-detalhes { display: none; }
+  }
+  /* Telas bem estreitas (< 375 px): "Sabia / Não sabia" desce para a linha de baixo, para não passar por cima da estrela */
+  @media (max-width: 374px) {
+    .q-linha { grid-template-areas: "num resultado . estrela"; }
+    .q-linha .q-sabia, .q-linha .q-detalhes { grid-area: auto; grid-column: 1 / -1; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1238,9 +1268,9 @@
   .bloco-escolha-prova .campo { font-size: .92rem; padding: 8px 36px 8px 12px; min-height: 38px; }
 
   /* Questões da prova escolhida: uma coluna por matéria, como uma folha de gabarito */
-  .questoes-prova { margin-top: 18px; }
-  .titulo-questoes { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-  .titulo-questoes h3 { margin: 0; font-size: 1rem; font-weight: 650; }
+  .titulo-questoes { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px; }
+  .titulo-questoes .grafico-nota { margin: 0; min-width: 0; }
+  .titulo-questoes .btn { flex: none; }
   .detalhe-colunas { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-top: 12px; }
   .coluna-q { border: 1px solid var(--borda); border-radius: 12px; padding: 10px 10px 8px; min-width: 0; }
   .coluna-q h4 { display: flex; justify-content: space-between; gap: 8px; margin: 0 0 8px; padding: 0 2px; font-size: .92rem; }
@@ -1260,8 +1290,113 @@
   .etiqueta-q.sabia { border-radius: 6px; }
   .etiqueta-q.detalhe { border-radius: 999px; border: 1px solid color-mix(in srgb, var(--cor) 60%, transparent); padding: 3px 7px; }
   .coluna-q .so-total { margin: 4px 0 0; color: var(--texto-suave); font-size: .86rem; }
+  .estrela-q { width: 16px; height: 16px; flex: none; align-self: center; }
+  .estrela-q path, .estrela-titulo path, .btn-estrela .estrela path { fill: var(--estrela); stroke: var(--estrela); stroke-width: 1; stroke-linejoin: round; }
+
+  /* Abas que abrem e fecham no Desempenho: "Questões favoritas" e "Questões" (da prova escolhida) */
+  .aba-dobra { margin-top: 18px; padding-top: 10px; border-top: 1px solid var(--borda); }
+  .aba-dobra + .aba-dobra { margin-top: 0; }
+  .aba-dobra > summary {
+    display: flex; align-items: center; gap: 9px; cursor: pointer; list-style: none;
+    margin: 0 -10px; padding: 9px 10px; border-radius: 10px; font-size: 1rem; font-weight: 650;
+    transition: background .15s;
+  }
+  .aba-dobra > summary::-webkit-details-marker { display: none; }
+  .aba-dobra > summary:hover { background: color-mix(in srgb, var(--texto) 4%, transparent); }
+  .aba-dobra > summary:focus-visible { outline: 2px solid var(--foco); outline-offset: 0; }
+  .aba-dobra > summary::after {  /* seta à direita: gira quando abre */
+    content: ''; width: 8px; height: 8px; margin-left: auto; flex: none;
+    border-right: 2px solid var(--texto-suave); border-bottom: 2px solid var(--texto-suave);
+    transform: rotate(45deg); margin-bottom: 4px; transition: transform .2s;
+  }
+  .aba-dobra[open] > summary::after { transform: rotate(-135deg); margin-bottom: -3px; }
+  .aba-dobra[open] { padding-bottom: 10px; }
+  .resumo-aba-dobra { font-size: .82rem; font-weight: 600; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
+  .estrela-titulo { width: 20px; height: 20px; flex: none; }
+  .conta-favoritas {
+    font-size: .76rem; font-weight: 700; font-variant-numeric: tabular-nums; padding: 2px 9px; border-radius: 999px;
+    background: color-mix(in srgb, var(--estrela) 18%, transparent); color: var(--texto);
+  }
+  .bloco-favoritas #nota-favoritas { margin-top: 6px; }
+  .lista-favoritas { display: flex; flex-direction: column; gap: 16px; margin-top: 12px; }
+  .cabeca-favoritas { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+  .cabeca-favoritas h4 { margin: 0; font-size: .9rem; font-weight: 650; min-width: 0; }
+  .cabeca-favoritas .btn-texto { padding: 6px 8px; flex: none; }
+  .prova-favoritas ul { list-style: none; margin: 0; padding: 0; border: 1px solid var(--borda); border-radius: 12px; }
+  .item-favorita {
+    display: grid; grid-template-columns: 20px minmax(110px, auto) minmax(0, 1fr) 36px; align-items: center;
+    gap: 10px; padding: 8px 6px 8px 12px; border-bottom: 1px solid var(--borda);
+  }
+  .item-favorita:last-child { border-bottom: 0; }
+  /* Média por prova: um cartão por matéria (nome em destaque com a cor dela) + o total embaixo */
+  .bloco-materias { margin-top: 18px; }
+  .rotulo-materias {
+    margin: 0 0 10px; font-size: .74rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+  .cartoes-materias { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+  .cartao-materia {
+    display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 12px 14px 12px;
+    border: 1px solid var(--borda); border-top: 3px solid var(--cor); border-radius: 12px;
+    background: color-mix(in srgb, var(--cor) 6%, transparent);
+  }
+  .nome-cartao-materia {
+    align-self: flex-start; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-size: .8rem; font-weight: 700; letter-spacing: .03em; color: var(--cor);
+    padding: 3px 9px; border-radius: 999px; background: color-mix(in srgb, var(--cor) 16%, transparent);
+  }
+  .valor-materia { font-size: 1.9rem; font-weight: 700; line-height: 1.05; font-variant-numeric: tabular-nums; margin-top: 4px; }
+  .valor-materia small { font-size: .55em; font-weight: 600; color: var(--texto-suave); }
+  .cartao-materia .item-meta { font-size: .76rem; }
+  .cartao-materia.eliminatoria { border-style: dashed; border-top-style: solid; }
+  .total-materias {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px;
+    padding: 12px 16px; border: 1px solid var(--borda); border-radius: 12px;
+    background: color-mix(in srgb, var(--texto) 4%, transparent);
+  }
+  .nome-total { display: flex; flex-direction: column; gap: 2px; }
+  .nome-total strong { font-size: 1rem; }
+  .valor-total { display: flex; align-items: baseline; gap: 10px; }
+  .valor-total .valor-materia { margin: 0; }
+  @media (max-width: 520px) {
+    .cartoes-materias { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .cartao-materia { padding: 10px 11px; }
+    .valor-materia { font-size: 1.6rem; }
+  }
+
+  /* Matéria das favoritas: faixa com a cor da matéria */
+  .materia-favoritas {
+    display: flex; align-items: center; gap: 8px; padding: 7px 12px;
+    background: color-mix(in srgb, var(--cor) 12%, transparent);
+    border-bottom: 1px solid var(--borda); box-shadow: inset 3px 0 0 var(--cor);
+  }
+  .materia-favoritas:first-child { border-radius: 11px 11px 0 0; }
+  .materia-favoritas strong { font-size: .86rem; color: var(--cor); letter-spacing: .02em; }
+  .materia-favoritas .item-meta { font-size: .76rem; margin-left: auto; }
+  .materia-favoritas .ponto-materia { width: 8px; height: 8px; border-radius: 50%; background: var(--cor); flex: none; }
+  .item-favorita.certa .marca-q { background: var(--nivel-excelente); }
+  .item-favorita.errada .marca-q { background: var(--nivel-ruim); }
+  .item-favorita.branco .marca-q { border: 1.5px solid var(--borda); }
+  .nome-favorita { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+  .nome-favorita strong { font-size: .9rem; }
+  .nome-favorita .item-meta { font-size: .78rem; }
+  .btn-estrela {
+    width: 36px; height: 36px; padding: 0; display: grid; place-items: center; cursor: pointer;
+    background: none; border: 0; border-radius: 8px;
+  }
+  .btn-estrela .estrela { display: block; width: 20px; height: 20px; }
+  .btn-estrela:hover { background: color-mix(in srgb, var(--texto) 7%, transparent); }
+  .btn-estrela:hover .estrela path { fill: none; }  /* mostra como fica sem a estrela */
+  .btn-estrela:focus-visible { outline: 2px solid var(--foco); outline-offset: 0; }
+  @media (max-width: 520px) {
+    .item-favorita { grid-template-columns: 20px minmax(0, 1fr) 36px; row-gap: 4px; padding-left: 10px; }
+    .item-favorita .etiquetas-q { grid-column: 2; grid-row: 2; }
+    .item-favorita .btn-estrela { grid-column: 3; grid-row: 1 / span 2; }
+  }
   .detalhe-nota { margin: 10px 0 0; }
   @media (max-width: 420px) { .detalhe-colunas { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .coluna-q { padding: 8px 6px; } }
+  /* Etiqueta mais longa que a coluna (ex.: "Erro de atenção" no celular): quebra a linha em vez de vazar */
+  .etiqueta-q { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
   /* Lista vertical de horas por matéria */
   .estudo-lista { list-style: none; margin: 4px 0 0; padding: 0; }
   .estudo-lista li {
@@ -1676,6 +1811,7 @@
     /* Cores de dados mais escuras, para ler sobre o papel claro */
     --serie-1: #1f6fc5; --serie-2: #b8461a; --serie-3: #0e7f5a; --serie-4: #946600;
     --serie-5: #b53a6b; --serie-6: #2e7d1f; --serie-7: #6b5fd0; --serie-8: #c24545;
+    --estrela: #d99a00;
     --nivel-excelente: #1c7c54; --nivel-bom: #2366a8; --nivel-ok: #8c6d00; --nivel-mal: #b05a12; --nivel-ruim: #b3261e;
   }
 
@@ -2435,10 +2571,10 @@
   </div>
 
   <nav id="abas-tela" class="nav-abas" role="tablist" aria-label="Seções dos resultados">
-    <button id="nav-registrar" class="nav-aba" type="button" role="tab" data-aba="registrar"
-            aria-controls="painel-registrar" aria-selected="false" tabindex="-1">Registrar</button>
     <button id="nav-desempenho" class="nav-aba" type="button" role="tab" data-aba="desempenho"
             aria-controls="painel-desempenho" aria-selected="true">Desempenho</button>
+    <button id="nav-registrar" class="nav-aba" type="button" role="tab" data-aba="registrar"
+            aria-controls="painel-registrar" aria-selected="false" tabindex="-1">Registrar</button>
     <button id="nav-segunda" class="nav-aba" type="button" role="tab" data-aba="segunda"
             aria-controls="painel-segunda" aria-selected="false" tabindex="-1">2ª fase</button>
   </nav>
@@ -2594,17 +2730,11 @@
         <p id="nota-grafico" class="grafico-nota"></p>
       </div>
 
-      <div id="bloco-materias" hidden>
-        <table class="tabela">
-          <thead>
-            <tr>
-              <th>Matéria</th>
-              <th class="num">Provas</th>
-              <th class="num" title="Média de acertos / média de questões por prova, arredondadas para inteiro">Acertos/Total (média)</th>
-            </tr>
-          </thead>
-          <tbody id="corpo-materias"></tbody>
-        </table>
+      <!-- Média por prova de cada matéria (cartões) e o total -->
+      <div id="bloco-materias" class="bloco-materias" hidden>
+        <p class="rotulo-materias" title="Média de acertos / média de questões por prova, arredondadas para inteiro">Acertos por prova (média)</p>
+        <div id="corpo-materias" class="cartoes-materias"></div>
+        <div id="total-materias" class="total-materias" hidden></div>
       </div>
 
       <!-- Prova escolhida: vale para as questões e para "Por que você errou" -->
@@ -2615,18 +2745,40 @@
         </span>
       </div>
 
-      <!-- Questões da prova escolhida (só com uma prova; com "Todas as provas" fica escondido) -->
-      <section id="questoes-prova" class="questoes-prova" hidden aria-labelledby="questoes-titulo">
+      <!-- Nota em 3 cenários (sem chutes · real · potencial): a primeira coisa abaixo da prova escolhida -->
+      <div id="bloco-notas" class="bloco-notas" hidden>
+        <h3>Sua nota em 3 cenários</h3>
+        <p id="nota-cenarios" class="grafico-nota"></p>
+        <div id="cenarios" class="cenarios"></div>
+        <p id="ganhos-cenarios" class="frase-motivos"></p>
+      </div>
+
+      <!-- Questões marcadas com estrela no registro (abre e fecha) -->
+      <details id="bloco-favoritas" class="aba-dobra bloco-favoritas" hidden>
+        <summary>
+          <svg class="estrela-titulo" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.83 5.73 6.32.92-4.57 4.46 1.08 6.3L12 17.24l-5.66 2.97 1.08-6.3L2.85 9.45l6.32-.92z"/></svg>
+          <span class="titulo-aba-dobra">Questões favoritas</span>
+          <span id="conta-favoritas" class="conta-favoritas"></span>
+        </summary>
+        <p id="nota-favoritas" class="grafico-nota"></p>
+        <div id="lista-favoritas" class="lista-favoritas"></div>
+      </details>
+
+      <!-- Questões da prova escolhida (só com uma prova; com "Todas as provas" fica escondido). Abre e fecha. -->
+      <details id="questoes-prova" class="aba-dobra questoes-prova" hidden>
+        <summary>
+          <span class="titulo-aba-dobra">Questões</span>
+          <span id="questoes-resumo" class="resumo-aba-dobra"></span>
+        </summary>
         <div class="titulo-questoes">
-          <h3 id="questoes-titulo">Questões</h3>
+          <p id="questoes-meta" class="grafico-nota"></p>
           <button id="btn-questoes-editar" class="btn btn-fantasma btn-pequeno" type="button">Editar</button>
         </div>
-        <p id="questoes-meta" class="grafico-nota"></p>
         <div id="detalhe-colunas" class="detalhe-colunas"></div>
         <div id="detalhe-blocos" class="tempos-blocos" hidden></div>
         <p id="detalhe-nota" class="item-meta detalhe-nota" hidden>* Eliminatória: não entra na nota.</p>
         <p id="detalhe-obs" class="item-obs" hidden></p>
-      </section>
+      </details>
 
       <!-- Motivos dos erros (só aparece quando há provas com motivos marcados) -->
       <div id="bloco-motivos" class="bloco-motivos" hidden>
@@ -2642,13 +2794,7 @@
         </div>
         <p id="frase-motivos" class="frase-motivos"></p>
 
-        <!-- Nota em 3 cenários: sem chutes · real · potencial -->
-        <div id="bloco-notas" class="bloco-notas" hidden>
-          <h3>Sua nota em 3 cenários</h3>
-          <p id="nota-cenarios" class="grafico-nota"></p>
-          <div id="cenarios" class="cenarios"></div>
-          <p id="ganhos-cenarios" class="frase-motivos"></p>
-        </div>
+
 
         <!-- Dicas priorizadas pelos pontos que recuperam -->
         <div id="bloco-dicas" class="bloco-dicas" hidden>
@@ -4601,7 +4747,7 @@ function limparMotivos(motivos, acertos, total) {
  */
 function limparQuestoes(lista, acertos, total) {
   if (!Array.isArray(lista) || lista.length !== total) return null;
-  if (!lista.every(t => typeof t === 'string' && /^[AEB]\*?[sn]?t?c?k?d?$/.test(t))) return null;
+  if (!lista.every(t => typeof t === 'string' && /^[AEB]\*?[sn]?t?c?k?d?f?$/.test(t))) return null;
   return lista.filter(t => t[0] === 'A').length === acertos ? [...lista] : null;
 }
 
@@ -5147,6 +5293,19 @@ function iconeQuestao(certa) {
   return svg;
 }
 
+/** Estrela desenhada (SVG): amarela e cheia quando a questão é favorita */
+function iconeEstrela() {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.classList.add('estrela');
+  const p = document.createElementNS(ns, 'path');
+  p.setAttribute('d', 'M12 2.8l2.83 5.73 6.32.92-4.57 4.46 1.08 6.3L12 17.24l-5.66 2.97 1.08-6.3L2.85 9.45l6.32-.92z');
+  svg.append(p);
+  return svg;
+}
+
 /** Etiquetas de uma questão, com as mesmas cores e nomes do Registrar */
 function etiquetasDaQuestao(q) {
   const cor = (lista, id) => lista.find(x => x.id === id);
@@ -5172,6 +5331,7 @@ function renderQuestoesProva(r) {
     nomeDoGrupo(grupoDoResultado(r)),
     soma.total ? `${soma.acertos}/${soma.total} (${porcentagem(soma.pct)})` : 'sem notas'
   ].join(' · ');
+  $('questoes-resumo').textContent = soma.total ? `${soma.acertos}/${soma.total}` : '';
 
   const colunas = r.materias.map(m => {
     const col = criar('section', 'coluna-q');
@@ -5198,6 +5358,7 @@ function renderQuestoesProva(r) {
         tag.style.setProperty('--cor', e.cor);
         caixa.append(tag);
       });
+      if (q.f) { const estrela = iconeEstrela(); estrela.classList.add('estrela-q'); caixa.append(estrela); }
       li.append(criar('span', 'num', String(i + 1)), marca, caixa);
       li.setAttribute('aria-label', `Questão ${i + 1}: ${q.r === 'a' ? 'acertou' : q.r === 'e' ? 'errou' : 'em branco'}` +
         (etiquetas.length ? `, ${etiquetas.map(e => e.texto.toLocaleLowerCase('pt-BR')).join(', ')}` : ''));
@@ -5256,6 +5417,7 @@ function verQuestoesNoDesempenho(r) {
   }
   filtroMotivos = r.id;
   renderDesempenho();
+  $('questoes-prova').open = true; // veio de "Ver questões": já mostra as questões
   trocarAbaTela('desempenho');
   $('bloco-escolha-prova').scrollIntoView({ block: 'start' });
 }
@@ -5478,6 +5640,8 @@ function renderMotivos(lista, ordem) {
   $('bloco-escolha-prova').hidden = lista.length === 0;
   renderQuestoesProva(filtroMotivos === '__todas' ? null : lista.find(r => r.id === filtroMotivos));
   const escolhidas = filtroMotivos === '__todas' ? comMotivos : comMotivos.filter(r => r.id === filtroMotivos);
+  // Questões favoritas: todas as provas do grupo (ou só a escolhida), com ou sem motivos marcados
+  renderFavoritas(filtroMotivos === '__todas' ? lista : lista.filter(r => r.id === filtroMotivos));
 
   const porMateria = new Map();
   let provasComMotivos = 0;
@@ -5498,7 +5662,7 @@ function renderMotivos(lista, ordem) {
   });
   bloco.hidden = porMateria.size === 0;
   $('dica-motivos').hidden = porMateria.size > 0 || lista.length === 0;
-  if (!porMateria.size) return;
+  if (!porMateria.size) { $('bloco-notas').hidden = true; return; } // (a nota em 3 cenários fica fora deste bloco)
 
   // "Em branco" só aparece se algum resultado antigo tiver questões em branco
   const temBranco = [...porMateria.values()].some(acc => acc.branco > 0);
@@ -5554,6 +5718,102 @@ function renderMotivos(lista, ordem) {
     (total.erros > classificados ? ` (de ${total.erros} erros no total)` : '') + '.' +
     (total.chute ? ` Chutes certos: ${total.chute} de ${total.acertos} acertos.` : '')
   );
+}
+
+/* ---------- Questões favoritas ----------
+   As marcadas com a estrela no Registrar ("questão importante / quero voltar nela").
+   Agrupadas por prova, da mais recente para a mais antiga. */
+function favoritasDe(provas) {
+  const porProva = [];
+  provas.forEach(r => {
+    const itens = [];
+    r.materias.forEach((m, mi) => (m.questoes || []).forEach((t, qi) => {
+      const q = textoParaQuestao(t);
+      if (q && q.f) itens.push({ m, mi, qi, q });
+    }));
+    if (itens.length) porProva.push({ r, itens });
+  });
+  return porProva;
+}
+
+/** Monta a lista de favoritas; devolve quantas são */
+function renderFavoritas(provas) {
+  const bloco = $('bloco-favoritas');
+  const grupos = favoritasDe(provas);
+  const total = grupos.reduce((s, g) => s + g.itens.length, 0);
+  bloco.hidden = total === 0;
+  $('conta-favoritas').textContent = String(total);
+  if (!total) { $('lista-favoritas').replaceChildren(); return 0; }
+  const umaProva = filtroMotivos !== '__todas';
+  $('nota-favoritas').textContent = (umaProva ? 'Desta prova. ' : `${plural(grupos.length, 'prova', 'provas')} com estrelas. `) +
+    'Para marcar outras, clique na estrela no fim da linha da questão, ao registrar ou editar a prova.';
+  $('lista-favoritas').replaceChildren(...grupos.map(({ r, itens }) => {
+    const caixa = criar('section', 'prova-favoritas');
+    const cabeca = criar('div', 'cabeca-favoritas');
+    cabeca.append(criar('h4', '', `${r.fonte || r.tipo || '(sem prova)'} · ${new Date(r.data).toLocaleDateString('pt-BR')}`));
+    if (!umaProva) {
+      const ver = criar('button', 'btn-texto', 'Ver prova');
+      ver.type = 'button';
+      ver.addEventListener('click', () => {
+        filtroMotivos = r.id;
+        renderMotivos(ultimaListaMotivos, ultimaOrdemMotivos);
+        $('questoes-prova').open = true;
+        $('questoes-prova').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      cabeca.append(ver);
+    }
+    const ul = criar('ul');
+    const ordem = ultimaOrdemMotivos.length ? ultimaOrdemMotivos : ordemDasMaterias();
+    let materiaAnterior = -1;
+    itens.forEach(({ m, mi, qi, q }) => {
+      // Cabeçalho da matéria (com a cor dela) sempre que a matéria muda
+      if (mi !== materiaAnterior) {
+        materiaAnterior = mi;
+        const cabecaMateria = criar('li', 'materia-favoritas');
+        cabecaMateria.style.setProperty('--cor', corDaMateria(chaveMateria(m.nome), ordem) || 'var(--texto-suave)');
+        const qtd = itens.filter(x => x.mi === mi).length;
+        cabecaMateria.append(criar('span', 'ponto-materia'), criar('strong', '', m.nome),
+          criar('span', 'item-meta', plural(qtd, 'questão', 'questões')));
+        ul.append(cabecaMateria);
+      }
+      const li = criar('li', `item-favorita ${q.r === 'a' ? 'certa' : q.r === 'e' ? 'errada' : 'branco'}`);
+      const marca = criar('span', 'marca-q');
+      if (q.r === 'a' || q.r === 'e') marca.append(iconeQuestao(q.r === 'a'));
+      const nome = criar('span', 'nome-favorita');
+      nome.append(criar('strong', '', `Questão ${qi + 1}`));
+      const etiquetas = criar('span', 'etiquetas-q');
+      etiquetasDaQuestao(q).forEach(e => {
+        const tag = criar('span', `etiqueta-q ${e.tipo}`, e.texto);
+        tag.style.setProperty('--cor', e.cor);
+        etiquetas.append(tag);
+      });
+      const tirar = criar('button', 'btn-estrela');
+      tirar.type = 'button';
+      tirar.title = 'Tirar a estrela';
+      tirar.setAttribute('aria-label', `Tirar a estrela da questão ${qi + 1} de ${m.nome}`);
+      tirar.append(iconeEstrela());
+      tirar.addEventListener('click', () => tirarEstrela(r, mi, qi));
+      li.append(marca, nome, etiquetas, tirar);
+      ul.append(li);
+    });
+    caixa.append(cabeca, ul);
+    return caixa;
+  }));
+  return total;
+}
+
+/** Tira a estrela de uma questão já salva (direto na lista de favoritas) */
+function tirarEstrela(r, mi, qi) {
+  const m = r.materias[mi];
+  const q = m && Array.isArray(m.questoes) ? textoParaQuestao(m.questoes[qi]) : null;
+  if (!q) return;
+  q.f = false;
+  m.questoes[qi] = questaoParaTexto(q);
+  r.atualizadoEm = new Date().toISOString();
+  salvarResultados();
+  renderMotivos(ultimaListaMotivos, ultimaOrdemMotivos);
+  const primeiro = $('lista-favoritas').querySelector('.btn-estrela');
+  ($('bloco-favoritas').hidden ? null : primeiro || $('bloco-favoritas').querySelector('summary'))?.focus();
 }
 
 /* ---------- Nota em 3 cenários + dicas ----------
@@ -5751,42 +6011,50 @@ function renderDesempenho() {
   }));
   const linhasTabela = [...porMateria.values()].sort((a, b) => posicao(a.chave) - posicao(b.chave));
   elR.blocoMaterias.hidden = linhasTabela.length === 0;
+  // Um cartão por matéria: nome em destaque (com a cor dela) e a média por prova embaixo
+  const fracao = (acertos, total) => {
+    const valor = criar('strong', 'valor-materia', String(acertos));
+    valor.append(criar('small', '', `/${total}`));
+    return valor;
+  };
   elR.corpoMaterias.replaceChildren(...linhasTabela.map(m => {
-    const tr = criar('tr');
-    const celulaNome = criar('td');
-    const cor = corDaMateria(m.chave, ordem);
-    if (cor) {
-      const chaveCor = criar('span', 'chave-linha');
-      chaveCor.style.background = cor;
-      celulaNome.append(chaveCor);
-    }
-    celulaNome.append(document.createTextNode(m.nome));
+    const cartao = criar('div', 'cartao-materia');
+    cartao.style.setProperty('--cor', corDaMateria(m.chave, ordem) || 'var(--texto-suave)');
     const minimo = minimoEliminatoria(m.nome);
-    if (minimo !== null) celulaNome.append(criar('span', 'item-meta', ` · eliminatória (mín. ${minimo})`));
-    tr.append(
-      celulaNome,
-      criar('td', 'num', String(m.provas)),
-      // Média por prova, arredondada: ex.: 55 acertos em 7 provas → 8/12
-      criar('td', 'num', `${Math.round(m.acertos / m.provas)}/${Math.round(m.total / m.provas)}`)
+    // Média por prova, arredondada: ex.: 55 acertos em 7 provas → 8/12
+    const acertos = Math.round(m.acertos / m.provas);
+    const total = Math.round(m.total / m.provas);
+    cartao.append(
+      criar('span', 'nome-cartao-materia', m.nome),
+      fracao(acertos, total),
+      // Nota de 0 a 10 com 4 casas, feita com os números mostrados no cartão (ex.: 10/12 → 8,3333)
+      criar('span', 'item-meta', formatarNotaSegunda(total ? (acertos / total) * 10 : null, 4) +
+        (minimo !== null ? ` · eliminatória (mín. ${minimo})` : ''))
     );
-    return tr;
+    if (minimo !== null) cartao.classList.add('eliminatoria');
+    return cartao;
   }));
 
-  // Linha "Total": média de acertos numa prova inteira (eliminatórias de fora;
+  // "Total": média de acertos numa prova inteira (eliminatórias de fora;
   // no ITA, de 36 questões), com o número de questões sempre inteiro
   const notasDasProvas = lista.map(r => somar(r.materias)).filter(s => s.total > 0);
+  const caixaTotal = $('total-materias');
+  caixaTotal.hidden = !notasDasProvas.length;
   if (notasDasProvas.length) {
     const n = notasDasProvas.length;
     const mediaAcertos = notasDasProvas.reduce((s, x) => s + x.acertos, 0) / n;
     const mediaQuestoes = notasDasProvas.reduce((s, x) => s + x.total, 0) / n;
-    const linhaTotal = criar('tr', 'linha-total');
-    linhaTotal.append(
-      criar('td', '', eliminatorias.length ? `Total (sem ${eliminatorias[0].nome})` : 'Total'),
-      criar('td', 'num', String(n)),
-      criar('td', 'num', `${Math.round(mediaAcertos)}/${Math.round(mediaQuestoes)}`)
-    );
-    elR.corpoMaterias.append(linhaTotal);
-  }
+    const texto = criar('span', 'nome-total');
+    texto.append(criar('strong', '', 'Total'),
+      criar('span', 'item-meta', eliminatorias.length ? `sem ${eliminatorias[0].nome}` : 'todas as matérias'));
+    const direita = criar('span', 'valor-total');
+    // Nota com os números mostrados (ex.: 28/36 → 7,7778)
+    const acertosTotal = Math.round(mediaAcertos);
+    const questoesTotal = Math.round(mediaQuestoes);
+    direita.append(fracao(acertosTotal, questoesTotal),
+      criar('span', 'item-meta', formatarNotaSegunda(questoesTotal ? (acertosTotal / questoesTotal) * 10 : null, 4)));
+    caixaTotal.replaceChildren(texto, direita);
+  } else caixaTotal.replaceChildren();
   // (A coluna "Desempenho" e a legenda das faixas foram retiradas da tabela;
   //  as faixas continuam no gráfico e na "nota em 3 cenários".)
 
@@ -5802,7 +6070,7 @@ function renderDesempenho() {
 
 /* ---------- Abas da tela de Resultados ---------- */
 // Abas de Resultados. Histórico e Perfil e backup não são abas: abrem em janelas, como as Configurações
-const ABAS_TELA = ['registrar', 'desempenho', 'segunda'];
+const ABAS_TELA = ['desempenho', 'registrar', 'segunda'];
 const JANELAS = ['historico', 'perfil'];
 let abaTela = 'desempenho';
 let abriuJanela = null; // botão que abriu a janela (o foco volta para ele ao fechar)
@@ -6342,24 +6610,25 @@ const DETALHES_Q = [
   { id: 'd', nome: 'Erro de atenção', cor: 'var(--serie-2)', exige: 'e' }
 ];
 
-/** Questão: { r: 'a'|'e'|null, s: 's'|'n'|null, t, c, k, d: booleanos } */
-function questaoVazia(q) { return !q || (!q.r && !q.s && !q.t && !q.c && !q.k && !q.d); }
+/** Questão: { r: 'a'|'e'|null, s: 's'|'n'|null, t, c, k, d, f: booleanos } (f = favorita, a estrela) */
+function questaoVazia(q) { return !q || (!q.r && !q.s && !q.t && !q.c && !q.k && !q.d && !q.f); }
 
 /** { r:'a', s:'s', t:true, c:true } → "Astc" (vazia → "-") */
 function questaoParaTexto(q) {
   if (questaoVazia(q)) return '-';
   return (q.r ? q.r.toUpperCase() : '-') + (q.s || '') + (q.t ? 't' : '') + (q.c ? 'c' : '') + (q.k ? 'k' : '') +
-    (q.d ? 'd' : '');
+    (q.d ? 'd' : '') + (q.f ? 'f' : '');
 }
 /**
  * "Astc" → { r:'a', s:'s', t:true, c:true, k:false } · "-" → null · inválido → undefined.
  * Também lê o formato antigo: "E*n" (* = chutou) e "Et" / "Ac" / "Ek" (um detalhe só).
  */
 function textoParaQuestao(t) {
-  const m = /^([aeb-])(\*)?([sn])?(t)?(c)?(k)?(d)?$/i.exec(String(t).trim());
+  const m = /^([aeb-])(\*)?([sn])?(t)?(c)?(k)?(d)?(f)?$/i.exec(String(t).trim());
   if (!m) return undefined;
   const r = m[1] === '-' ? null : m[1].toLowerCase();
-  const q = { r, s: m[3] ? m[3].toLowerCase() : null, t: !!m[4], c: !!m[5] || (!!m[2] && r === 'a'), k: !!m[6], d: !!m[7] };
+  const q = { r, s: m[3] ? m[3].toLowerCase() : null, t: !!m[4], c: !!m[5] || (!!m[2] && r === 'a'), k: !!m[6], d: !!m[7],
+    f: !!m[8] };
   if (q.c && r && r !== 'a') q.c = false; // chute certo só com Acertou
   if (q.k && r && r !== 'e') q.k = false; // erro de conta só com Errou
   if (q.d && r && r !== 'e') q.d = false; // erro de atenção só com Errou
@@ -6571,12 +6840,19 @@ function criarLinhaQ(i) {
   linha.dataset.i = String(i);
   linha.setAttribute('role', 'row');
   const status = criar('span', 'q-status');
+  // Estrela no fim da linha: questão importante / para voltar nela depois
+  const estrela = criar('button', 'q-estrela');
+  estrela.type = 'button';
+  estrela.dataset.acao = 'f';
+  estrela.dataset.valor = 'f';
+  estrela.append(iconeEstrela());
   linha.append(
     criar('span', 'q-num', String(i + 1)),
     status,
     criarSegmento('q-resultado', RESULTADOS_Q, 'r', i),
     criarSegmento('q-sabia', SABIA_Q, 's', i),
-    criarSegmento('q-detalhes', DETALHES_Q, 'd', i)
+    criarSegmento('q-detalhes', DETALHES_Q, 'd', i),
+    estrela
   );
   pintarLinhaQ(linha, i);
   return linha;
@@ -6593,8 +6869,13 @@ function pintarLinhaQ(linha, i) {
   linha.dataset.r = q && q.r ? q.r : ''; // o CSS mostra só as opções que combinam com o resultado
   status.textContent = resultado ? resultado.simbolo : '';
   status.setAttribute('aria-label', resultado ? resultado.nome : 'sem resultado');
+  const favorita = !!q && !!q.f;
+  const estrela = linha.querySelector('.q-estrela');
+  estrela.setAttribute('aria-label', `${favorita ? 'Tirar a estrela da' : 'Marcar com estrela a'} questão ${i + 1}`);
+  estrela.title = favorita ? 'Questão favorita — clique para tirar a estrela' : 'Marcar como importante (para voltar nela depois)';
   linha.querySelectorAll('[data-acao]').forEach(b => {
-    const marcado = !!q && (b.dataset.acao === 'd' ? !!q[b.dataset.valor] : q[b.dataset.acao] === b.dataset.valor);
+    const marcado = !!q && (b.dataset.acao === 'd' || b.dataset.acao === 'f'
+      ? !!q[b.dataset.valor] : q[b.dataset.acao] === b.dataset.valor);
     b.setAttribute('aria-pressed', String(marcado));
   });
   const selecionada = selecaoQ.has(i);
@@ -6637,8 +6918,15 @@ function alvosQ() {
 function aplicarQ(indices, acao, valor) {
   const m = materiaAtual();
   if (!m) return;
-  const base = i => m.questoes[i] || { r: null, s: null, t: false, c: false, k: false, d: false };
-  if (acao === 'r' || acao === 's') {
+  const base = i => m.questoes[i] || { r: null, s: null, t: false, c: false, k: false, d: false, f: false };
+  if (acao === 'f') {
+    // Estrela: questão importante / para voltar depois (não mexe no resultado)
+    const jaTodas = indices.every(i => m.questoes[i] && m.questoes[i].f);
+    indices.forEach(i => {
+      const q = { ...base(i), f: !jaTodas };
+      m.questoes[i] = questaoVazia(q) ? null : q;
+    });
+  } else if (acao === 'r' || acao === 's') {
     const jaTodas = indices.every(i => m.questoes[i] && m.questoes[i][acao] === valor);
     indices.forEach(i => {
       const q = { ...base(i) };
@@ -6847,7 +7135,8 @@ elR.qGrade.addEventListener('click', e => {
   const controle = e.target.closest('[data-acao]');
   if (controle) {
     // Clicou num botão: vale para a seleção inteira se a questão faz parte dela
-    const alvos = selecaoQ.has(i) && selecaoQ.size > 1 ? alvosQ() : [i];
+    // (a estrela vale só para a questão clicada)
+    const alvos = controle.dataset.acao !== 'f' && selecaoQ.has(i) && selecaoQ.size > 1 ? alvosQ() : [i];
     if (alvos.length === 1) { selecaoQ = new Set([i]); ancoraQ = i; repintarSelecaoQ(); }
     aplicarQ(alvos, controle.dataset.acao, controle.dataset.valor);
     focarLinhaQ(i);
@@ -7361,6 +7650,7 @@ elR.filtro.addEventListener('change', () => {
 });
 $('filtro-motivos').addEventListener('change', () => {
   filtroMotivos = $('filtro-motivos').value;
+  $('questoes-prova').open = false; // trocou de prova: "Questões" começa fechada
   renderMotivos(ultimaListaMotivos, ultimaOrdemMotivos);
 });
 elR.filtroHist.addEventListener('change', () => {
