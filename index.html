@@ -2406,6 +2406,45 @@
   .modo-dia .txt-plano { min-height: 46px; padding: 12px 44px 12px 12px; }
   .modo-dia .check-plano { width: 28px; height: 28px; top: 9px; right: 9px; }
 
+  /* Matérias do planejamento (embaixo da grade): chips com × e "+ Nova matéria" */
+  .materias-plano { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .rotulo-materias-plano { color: var(--texto-suave); font-size: .7rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; margin-right: 2px; }
+  .lista-materias-plano { display: contents; list-style: none; margin: 0; padding: 0; }
+  .chip-materia-plano {
+    display: inline-flex; align-items: center; gap: 6px; padding: 3px 4px 3px 10px; border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--cor) 35%, var(--borda)); background: color-mix(in srgb, var(--cor) 10%, transparent);
+    font-size: .84rem; line-height: 1.3;
+  }
+  .chip-materia-plano b { color: var(--cor); font-size: .72rem; letter-spacing: .04em; }
+  .x-materia-plano {
+    width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--texto-suave);
+    font-size: 1.05rem; line-height: 1; cursor: pointer;
+  }
+  .x-materia-plano:hover:not(:disabled) { color: var(--erro); background: color-mix(in srgb, var(--erro) 12%, transparent); }
+  .x-materia-plano:disabled { opacity: .35; cursor: default; }
+  .x-materia-plano:focus-visible { outline: 2px solid var(--foco); }
+  .materias-plano .btn-hoje { --hoje-linha: var(--borda); --hoje-painel: var(--bg-2); --hoje-sombra-leve: none; }
+  .form-materia-plano {
+    display: grid; grid-template-columns: minmax(140px, 1fr) 90px auto; align-items: end; gap: 12px; margin-top: 12px;
+    padding: 14px; border: 1px solid var(--borda); border-radius: 14px; background: color-mix(in srgb, var(--texto) 3%, transparent);
+  }
+  .form-materia-plano .campo { width: 100%; }
+  .campo-sigla { text-transform: uppercase; }
+  .cores-materia-plano { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 0; }
+  .cor-materia-plano {
+    width: 26px; height: 26px; padding: 0; border: 0; border-radius: 50%; background: var(--cor); cursor: pointer;
+    box-shadow: 0 0 0 2px var(--bg-2), 0 0 0 3px transparent; transition: box-shadow .15s, transform .1s;
+  }
+  .cor-materia-plano[aria-checked="true"] { box-shadow: 0 0 0 2px var(--bg-2), 0 0 0 4px var(--texto); }
+  .cor-materia-plano:focus-visible { outline: 2px solid var(--foco); outline-offset: 3px; }
+  .acoes-form-materia { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; }
+  .form-materia-plano .msg { grid-column: 1 / -1; margin: 0; }
+  .form-materia-plano .msg:empty { display: none; }
+  @media (max-width: 600px) {
+    .form-materia-plano { grid-template-columns: minmax(0, 1fr) 90px; }
+    .form-materia-plano > div:nth-child(3) { grid-column: 1 / -1; }
+  }
+
   /* Tela inicial: "Hoje" (o plano do dia) à esquerda do "Começar Prova" */
   #tela-config .acoes {
     display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 14px 24px;
@@ -3373,6 +3412,32 @@
         <div class="grade-plano-caixa">
           <table id="tabela-plano" class="tabela-plano"></table>
         </div>
+
+        <!-- Matérias das linhas da grade: criar novas e remover -->
+        <div class="materias-plano">
+          <span class="rotulo-materias-plano">Matérias</span>
+          <ul id="lista-materias-plano" class="lista-materias-plano" aria-label="Matérias do planejamento"></ul>
+          <button id="btn-nova-materia-plano" class="btn-hoje" type="button" aria-expanded="false" aria-controls="form-materia-plano">+ Nova matéria</button>
+        </div>
+        <form id="form-materia-plano" class="form-materia-plano" hidden novalidate>
+          <div>
+            <label class="rotulo" for="nome-materia-plano">Nome</label>
+            <input id="nome-materia-plano" class="campo" type="text" maxlength="40" autocomplete="off" placeholder="ex.: Redação">
+          </div>
+          <div>
+            <label class="rotulo" for="sigla-materia-plano">Sigla</label>
+            <input id="sigla-materia-plano" class="campo campo-sigla" type="text" maxlength="4" autocomplete="off" placeholder="RED">
+          </div>
+          <div>
+            <span class="rotulo" id="rotulo-cor-materia-plano">Cor</span>
+            <div id="cores-materia-plano" class="cores-materia-plano" role="radiogroup" aria-labelledby="rotulo-cor-materia-plano"></div>
+          </div>
+          <div class="acoes-form-materia">
+            <button id="cancelar-materia-plano" class="btn btn-fantasma btn-pequeno" type="button">Cancelar</button>
+            <button class="btn btn-pequeno" type="submit">Adicionar</button>
+          </div>
+          <p id="erro-materia-plano" class="msg msg-erro" role="alert"></p>
+        </form>
       </div>
 
       <!-- Todas as semanas já planejadas, da mais recente para a mais antiga -->
@@ -8491,9 +8556,13 @@ async function importarBackup() {
   const planoLa = limparPlano(dados.planejamento);
   const diasPlanoNovos = Object.entries(planoLa.dias)
     .filter(([data, d]) => !plano.dias[data] || d.em > (plano.dias[data].em || ''));
+  // Matérias do planejamento criadas no outro aparelho (as removidas aqui não voltam)
+  const materiasPlanoNovas = planoLa.materias.filter(m =>
+    !plano.materias.some(x => x.id === m.id || chaveMateria(x.nome) === chaveMateria(m.nome)) && !plano.removidas.includes(m.id))
+    .slice(0, Math.max(0, MAX_MATERIAS_PLANO - plano.materias.length));
 
   const temMudancas = novos.length || maisRecentes.length || tiposNovos.length || removidos.length || estudosNovos.length ||
-    gruposNovos.length || ciclosNovos.length || gruposSegundaNovos.length || diasPlanoNovos.length;
+    gruposNovos.length || ciclosNovos.length || gruposSegundaNovos.length || diasPlanoNovos.length || materiasPlanoNovas.length;
   if (!temMudancas && !voltariam.length) {
     guardarExclusoes();
     avisarResultados('Tudo o que está nesse backup já está aqui. Nada foi alterado.');
@@ -8511,6 +8580,7 @@ async function importarBackup() {
     if (ciclosNovos.length) partes.push(plural(ciclosNovos.length, 'ciclo de 2ª fase', 'ciclos de 2ª fase'));
     if (gruposSegundaNovos.length) partes.push(plural(gruposSegundaNovos.length, 'grupo novo da 2ª fase', 'grupos novos da 2ª fase'));
     if (diasPlanoNovos.length) partes.push(plural(diasPlanoNovos.length, 'dia de planejamento', 'dias de planejamento'));
+    if (materiasPlanoNovas.length) partes.push(plural(materiasPlanoNovas.length, 'matéria nova no planejamento', 'matérias novas no planejamento'));
     const ok = await confirmar(
       `Importar de "${arquivo.name}" para o perfil "${perfilAtivo().nome}": ${partes.join(', ')}? ` +
       (typeof dados.perfil === 'string' && dados.perfil !== perfilAtivo().nome
@@ -8544,7 +8614,8 @@ async function importarBackup() {
       segunda.excluidos = [...excluidosSegunda].slice(-500);
       salvarSegunda();
     }
-    if (diasPlanoNovos.length) {
+    if (diasPlanoNovos.length || materiasPlanoNovas.length) {
+      plano.materias.push(...materiasPlanoNovas);
       diasPlanoNovos.forEach(([data, d]) => { plano.dias[data] = d; });
       salvarPlano();
       if (!$('painel-planejamento').hidden) renderPlano();
@@ -9962,13 +10033,23 @@ $('form-metas').addEventListener('submit', e => e.preventDefault());
    Semana de segunda a domingo. Cada dia: { em, manha: { mat: { t, f } … }, tarde: { … } }
    (t = o que estudar, f = feito). "em" = última mudança do dia (o backup fica com a mais recente).
    ================================================================ */
-const CHAVE_PLANO = chaveDoPerfil(PERFIL_ATIVO, 'planejamento'); // { dias: { 'AAAA-MM-DD': dia } }
-const MATERIAS_PLANO = [
+const CHAVE_PLANO = chaveDoPerfil(PERFIL_ATIVO, 'planejamento'); // { materias, removidas, dias: { 'AAAA-MM-DD': dia } }
+// Matérias das linhas da grade: estas 4 de início; dá para criar outras e remover (plano.materias)
+const MATERIAS_PLANO_PADRAO = [
   { id: 'mat', sigla: 'MAT', nome: 'Matemática', cor: 'var(--serie-1)' },
   { id: 'fis', sigla: 'FIS', nome: 'Física', cor: 'var(--serie-2)' },
   { id: 'qui', sigla: 'QUI', nome: 'Química', cor: 'var(--serie-3)' },
   { id: 'port', sigla: 'PORT', nome: 'Português', cor: 'var(--serie-4)' }
 ];
+const CORES_PLANO = Array.from({ length: 8 }, (_, i) => `var(--serie-${i + 1})`);
+const MAX_MATERIAS_PLANO = 12;
+function limparMateriaPlano(m) {
+  if (!m || typeof m.id !== 'string' || !/^[a-z0-9]{1,24}$/.test(m.id)) return null;
+  const nome = typeof m.nome === 'string' ? m.nome.trim().slice(0, 40) : '';
+  if (!nome) return null;
+  const sigla = (typeof m.sigla === 'string' && m.sigla.trim() ? m.sigla : nome).trim().slice(0, 4).toLocaleUpperCase('pt-BR');
+  return { id: m.id, sigla, nome, cor: CORES_PLANO.includes(m.cor) ? m.cor : CORES_PLANO[0] };
+}
 const PERIODOS_PLANO = [{ id: 'manha', nome: 'Manhã' }, { id: 'tarde', nome: 'Tarde' }];
 const DIAS_CURTOS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 const DIAS_LONGOS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
@@ -9978,6 +10059,13 @@ const MESES_PLANO_CURTOS = ['jan.', 'fev.', 'mar.', 'abr.', 'maio', 'jun.', 'jul
 
 function limparPlano(p) {
   const fonte = p && typeof p === 'object' && p.dias && typeof p.dias === 'object' ? p.dias : {};
+  // Matérias: as salvas (sem repetir id); sem nenhuma salva (versão anterior), as 4 padrão
+  const vistas = new Set();
+  const salvas = p && Array.isArray(p.materias)
+    ? p.materias.map(limparMateriaPlano).filter(m => m && !vistas.has(m.id) && vistas.add(m.id)).slice(0, MAX_MATERIAS_PLANO)
+    : null;
+  const MATERIAS_PLANO = salvas && salvas.length ? salvas : MATERIAS_PLANO_PADRAO.map(m => ({ ...m }));
+  const removidas = p && Array.isArray(p.removidas) ? p.removidas.filter(id => typeof id === 'string').slice(-100) : [];
   const dias = {};
   Object.keys(fonte).forEach(data => {
     const d = fonte[data];
@@ -9994,7 +10082,7 @@ function limparPlano(p) {
     });
     dias[data] = dia;
   });
-  return { dias };
+  return { materias: MATERIAS_PLANO, removidas, dias };
 }
 
 const plano = limparPlano(lerJSON(CHAVE_PLANO));
@@ -10037,7 +10125,8 @@ function diaMesPlano(d) { return `${d.getDate()}/${String(d.getMonth() + 1).padS
 function itemPlano(data, per, mat) { const dia = plano.dias[data]; return (dia && dia[per][mat]) || null; }
 function itensDoDia(data) {
   const dia = plano.dias[data];
-  return dia ? PERIODOS_PLANO.flatMap(per => Object.values(dia[per.id])) : [];
+  // (só as matérias que existem: item de uma matéria removida não aparece nem conta)
+  return dia ? PERIODOS_PLANO.flatMap(per => plano.materias.map(m => dia[per.id][m.id]).filter(Boolean)) : [];
 }
 function contagemPlano(datas) {
   const itens = datas.flatMap(itensDoDia);
@@ -10071,7 +10160,7 @@ function renderPlano() {
   $('plano-semana').hidden = modoPlano === 'todas';
   $('plano-semana').classList.toggle('modo-dia', modoPlano === 'dia'); // Dia = a mesma grade, um dia por vez
   $('plano-todas').hidden = modoPlano !== 'todas';
-  if (modoPlano === 'todas') renderTodasSemanas(); else renderSemanaPlano();
+  if (modoPlano === 'todas') renderTodasSemanas(); else { renderSemanaPlano(); renderMateriasPlano(); }
 }
 
 function ajustarAlturaPlano(txt) {
@@ -10125,7 +10214,7 @@ function renderSemanaPlano() {
     thPer.scope = 'colgroup';
     linhaPer.append(thPer);
     corpo.append(linhaPer);
-    MATERIAS_PLANO.forEach(m => {
+    plano.materias.forEach(m => {
       const tr = criar('tr');
       const th = criar('th', 'mat-plano', m.sigla);
       th.scope = 'row';
@@ -10289,7 +10378,7 @@ function renderTodasSemanas() {
       titulo.append(criar('small', '', diaMesPlano(d)));
       dia.append(titulo);
       PERIODOS_PLANO.forEach(per => {
-        const doPeriodo = MATERIAS_PLANO.filter(m => itemPlano(datas[i], per.id, m.id));
+        const doPeriodo = plano.materias.filter(m => itemPlano(datas[i], per.id, m.id));
         if (!doPeriodo.length) return;
         const ul = criar('ul');
         doPeriodo.forEach(m => {
@@ -10348,6 +10437,123 @@ $('plano-dias').addEventListener('keydown', e => {
   mostrarDiaPlano((diaPlanoCelular + passo + 7) % 7, true);
 });
 $('plano-mes').addEventListener('change', () => { mesPlano = $('plano-mes').value; renderTodasSemanas(); });
+
+/* ----- Matérias do planejamento: criar e remover ----- */
+function renderMateriasPlano() {
+  const unica = plano.materias.length <= 1;
+  $('lista-materias-plano').replaceChildren(...plano.materias.map(m => {
+    const li = criar('li', 'chip-materia-plano');
+    li.style.setProperty('--cor', m.cor);
+    li.title = m.nome;
+    li.append(criar('b', '', m.sigla), criar('span', '', m.nome));
+    const x = criar('button', 'x-materia-plano', '×');
+    x.type = 'button';
+    x.disabled = unica;
+    x.setAttribute('aria-label', `Remover ${m.nome}`);
+    x.title = unica ? 'O planejamento precisa de pelo menos uma matéria' : `Remover ${m.nome}`;
+    x.addEventListener('click', () => removerMateriaPlano(m));
+    li.append(x);
+    return li;
+  }));
+  $('btn-nova-materia-plano').hidden = plano.materias.length >= MAX_MATERIAS_PLANO;
+}
+
+/** Sigla sugerida: 3 primeiras letras do nome, sem acento (ex.: "Redação" → "RED") */
+function siglaSugerida(nome) {
+  return nome.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/gi, '').slice(0, 3).toUpperCase();
+}
+let siglaEditada = false;
+let corEscolhida = CORES_PLANO[0];
+function abrirFormMateriaPlano() {
+  const form = $('form-materia-plano');
+  form.hidden = false;
+  $('btn-nova-materia-plano').setAttribute('aria-expanded', 'true');
+  $('nome-materia-plano').value = '';
+  $('sigla-materia-plano').value = '';
+  $('erro-materia-plano').textContent = '';
+  siglaEditada = false;
+  // Cor: a primeira que nenhuma matéria usa ainda
+  const usadas = new Set(plano.materias.map(m => m.cor));
+  corEscolhida = CORES_PLANO.find(c => !usadas.has(c)) || CORES_PLANO[plano.materias.length % CORES_PLANO.length];
+  $('cores-materia-plano').replaceChildren(...CORES_PLANO.map((cor, i) => {
+    const b = criar('button', 'cor-materia-plano');
+    b.type = 'button';
+    b.setAttribute('role', 'radio');
+    b.setAttribute('aria-label', `Cor ${i + 1}`);
+    b.style.setProperty('--cor', cor);
+    const marcar = () => $('cores-materia-plano').querySelectorAll('button').forEach(x => {
+      const sim = x === b;
+      x.setAttribute('aria-checked', String(sim));
+      x.tabIndex = sim ? 0 : -1;
+    });
+    b.addEventListener('click', () => { corEscolhida = cor; marcar(); });
+    if (cor === corEscolhida) { b.setAttribute('aria-checked', 'true'); b.tabIndex = 0; } else { b.setAttribute('aria-checked', 'false'); b.tabIndex = -1; }
+    return b;
+  }));
+  $('nome-materia-plano').focus();
+}
+function fecharFormMateriaPlano() {
+  $('form-materia-plano').hidden = true;
+  $('btn-nova-materia-plano').setAttribute('aria-expanded', 'false');
+}
+$('btn-nova-materia-plano').addEventListener('click', () => {
+  if ($('form-materia-plano').hidden) abrirFormMateriaPlano(); else fecharFormMateriaPlano();
+});
+$('cancelar-materia-plano').addEventListener('click', () => { fecharFormMateriaPlano(); $('btn-nova-materia-plano').focus(); });
+$('nome-materia-plano').addEventListener('input', () => {
+  if (!siglaEditada) $('sigla-materia-plano').value = siglaSugerida($('nome-materia-plano').value);
+});
+$('sigla-materia-plano').addEventListener('input', () => { siglaEditada = $('sigla-materia-plano').value.trim() !== ''; });
+// Setas ← → andam pelas cores
+$('cores-materia-plano').addEventListener('keydown', e => {
+  const passo = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -1, ArrowDown: 1 }[e.key];
+  if (!passo) return;
+  e.preventDefault();
+  const botoes = [...$('cores-materia-plano').querySelectorAll('button')];
+  const i = botoes.findIndex(b => b.getAttribute('aria-checked') === 'true');
+  const proximo = botoes[(i + passo + botoes.length) % botoes.length];
+  proximo.click();
+  proximo.focus();
+});
+$('form-materia-plano').addEventListener('submit', e => {
+  e.preventDefault();
+  const nome = $('nome-materia-plano').value.trim().replace(/\s+/g, ' ');
+  const sigla = ($('sigla-materia-plano').value.trim() || siglaSugerida(nome)).slice(0, 4).toLocaleUpperCase('pt-BR');
+  const erro = $('erro-materia-plano');
+  if (!nome) { erro.textContent = 'Escreva o nome da matéria.'; $('nome-materia-plano').focus(); return; }
+  if (plano.materias.some(m => chaveMateria(m.nome) === chaveMateria(nome))) {
+    erro.textContent = `"${nome}" já está no planejamento.`; $('nome-materia-plano').focus(); return;
+  }
+  if (plano.materias.length >= MAX_MATERIAS_PLANO) { erro.textContent = `No máximo ${MAX_MATERIAS_PLANO} matérias.`; return; }
+  let id;
+  do { id = 'm' + Math.random().toString(36).slice(2, 9); } while (plano.materias.some(m => m.id === id));
+  plano.materias.push({ id, sigla: sigla || nome.slice(0, 3).toUpperCase(), nome, cor: corEscolhida });
+  salvarPlano();
+  fecharFormMateriaPlano();
+  renderPlano();
+  $('btn-nova-materia-plano').focus();
+});
+
+/** Remove a matéria (e o que estava planejado nela, depois de perguntar) */
+async function removerMateriaPlano(m) {
+  if (plano.materias.length <= 1) return;
+  let itens = 0;
+  Object.values(plano.dias).forEach(dia => PERIODOS_PLANO.forEach(per => { if (dia[per.id][m.id]) itens++; }));
+  const ok = await confirmar(itens
+    ? `Remover ${m.nome} do planejamento? ${plural(itens, 'item planejado', 'itens planejados')} com ela também ${itens === 1 ? 'será apagado' : 'serão apagados'}.`
+    : `Remover ${m.nome} do planejamento?`, 'Remover');
+  if (!ok) return;
+  const agora = new Date().toISOString();
+  Object.values(plano.dias).forEach(dia => {
+    let mudou = false;
+    PERIODOS_PLANO.forEach(per => { if (dia[per.id][m.id]) { delete dia[per.id][m.id]; mudou = true; } });
+    if (mudou) dia.em = agora; // o backup leva a mudança para o outro aparelho
+  });
+  plano.materias = plano.materias.filter(x => x.id !== m.id);
+  plano.removidas = [...plano.removidas.filter(id => id !== m.id), m.id].slice(-100);
+  salvarPlano();
+  renderPlano();
+}
 // Mudou a largura da grade (girou o celular, janela redimensionada, aba que estava escondida):
 // as caixas de texto refazem a altura. Só a largura conta (a altura muda com o próprio ajuste).
 let larguraGradePlano = 0;
@@ -10412,7 +10618,7 @@ function renderHojePlano() {
   textoBotaoHoje('Abrir planejamento');
   const partes = [];
   PERIODOS_PLANO.forEach(per => {
-    const doPeriodo = MATERIAS_PLANO.filter(m => itemPlano(data, per.id, m.id));
+    const doPeriodo = plano.materias.filter(m => itemPlano(data, per.id, m.id));
     if (!doPeriodo.length) return;
     const ul = criar('ul');
     doPeriodo.forEach(m => {
