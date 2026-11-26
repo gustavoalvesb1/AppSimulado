@@ -1860,10 +1860,10 @@
   :root[data-tema^="editorial"] #tela-config .cabecalho {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas: "titulo acoes" "sub sub";
-    row-gap: 34px;
+    row-gap: 6px;
     border-bottom: 0;
     padding-bottom: 0;
-    margin-bottom: 34px;
+    margin-bottom: 26px;
   }
   :root[data-tema^="editorial"] #tela-config .logo-grande { display: none; }
   :root[data-tema^="editorial"] #tela-config h1 {
@@ -1873,15 +1873,10 @@
     text-transform: uppercase;
     color: var(--chip);
   }
+  /* "Escolha a prova e comece." no tamanho normal (como nos outros temas) */
   :root[data-tema^="editorial"] #tela-config .subtitulo {
-    font-family: var(--serifa);
-    font-weight: 400;
-    font-synthesis: none;
-    font-size: clamp(2.9rem, 9vw, 4.8rem);
-    line-height: .98;
-    letter-spacing: -.005em;
-    color: var(--chip);
-    max-width: 8em; /* "Escolha a prova / e comece." em duas linhas */
+    font: 400 .9rem/1.4 var(--fonte);
+    color: var(--texto-suave);
   }
   /* Estudos · Resultados viram links de texto, como um menu */
   :root[data-tema^="editorial"] #tela-config .barra-topo { gap: 4px; }
@@ -1907,23 +1902,11 @@
   }
   :root[data-tema^="editorial"] #tela-config .boas-vindas h2 { color: var(--chip); }
 
-  /* Provas: cartões planos, nome em serifa */
-  :root[data-tema^="editorial"] #tela-config .provas-cartoes { gap: 12px; margin-top: 14px; }
-  :root[data-tema^="editorial"] #tela-config .cartao-prova {
-    background: none; border: 1px solid var(--borda); border-radius: 6px; padding: 16px 18px 14px; gap: 6px;
-    transition: border-color .15s, background .15s;
-  }
+  /* Provas: o cartão é o mesmo dos outros temas (visual "painel", no fim do CSS); aqui só o nome em serifa */
   :root[data-tema^="editorial"] #tela-config .cartao-prova strong {
-    font-family: var(--serifa); font-weight: 400; font-synthesis: none; font-size: 1.75rem; line-height: 1; color: var(--texto);
-  }
-  :root[data-tema^="editorial"] #tela-config .cartao-prova .item-meta { font-size: .78rem; letter-spacing: .02em; }
-  :root[data-tema^="editorial"] #tela-config .cartao-prova:hover { border-color: var(--chip); }
-  :root[data-tema^="editorial"] #tela-config .cartao-prova[aria-checked="true"] {
-    border-color: var(--chip); box-shadow: inset 0 0 0 1px var(--chip); background: color-mix(in srgb, var(--chip) 7%, transparent);
+    font-family: var(--serifa); font-weight: 400; font-synthesis: none; font-size: 1.6rem; line-height: 1.05; letter-spacing: 0;
   }
   :root[data-tema^="editorial"] #tela-config .cartao-prova[aria-checked="true"] strong { color: var(--chip); }
-  :root[data-tema^="editorial"] #tela-config .cartao-criar { border-style: dashed; color: var(--texto-suave); }
-  :root[data-tema^="editorial"] #tela-config .cartao-criar[aria-pressed="true"] { border-style: solid; background: color-mix(in srgb, var(--chip) 7%, transparent); }
   :root[data-tema^="editorial"] #tela-config .painel-criar { border-radius: 6px; background: none; border-color: var(--borda); border-left: 2px solid var(--chip); }
 
   /* Ações no fim: secundário como link discreto, "Começar Prova" em pílula */
@@ -2097,7 +2080,7 @@
     :root[data-tema^="editorial"] #tela-config .cabecalho {
       grid-template-columns: minmax(0, 1fr);
       grid-template-areas: "titulo" "sub" "acoes";
-      row-gap: 18px;
+      row-gap: 8px;
       margin-bottom: 26px;
     }
     :root[data-tema^="editorial"] #tela-config .cabecalho .barra-topo { margin-top: 0; margin-left: -10px; justify-content: flex-start; }
@@ -2457,7 +2440,7 @@
   #tela-config .acoes #btn-ir-prova { grid-area: botao; }
   /* Cartão em duas camadas: a moldura (título + botão) e, dentro dela, o painel elevado (número + lista) */
   /* Cores e sombras do visual "painel" (quadro Hoje e tela de Estudos) */
-  .hoje-plano, .dash, .lateral, .cartoes-materias, .total-materias, .menu-temas {
+  .hoje-plano, .dash, .lateral, .cartoes-materias, .total-materias, .menu-temas, .provas-cartoes, .bloco-escolha-prova {
     --hoje-moldura: color-mix(in srgb, var(--texto) 3%, var(--bg));
     --hoje-painel: color-mix(in srgb, var(--texto) 2%, var(--bg-2));
     --hoje-linha: color-mix(in srgb, var(--borda) 70%, transparent);
@@ -2550,7 +2533,7 @@
   .check-hoje:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
   .hoje-plano .vazio-hoje { margin: 0; padding: 10px 0 6px; color: var(--texto-suave); font-size: .88rem; }
   /* Temas claros: sombras mais suaves */
-  :root[data-tema="editorial-claro"] :is(.hoje-plano, .dash, .lateral, .cartoes-materias, .total-materias, .menu-temas) {
+  :root[data-tema="editorial-claro"] :is(.hoje-plano, .dash, .lateral, .cartoes-materias, .total-materias, .menu-temas, .provas-cartoes, .bloco-escolha-prova) {
     --hoje-moldura: color-mix(in srgb, var(--texto) 3%, var(--bg));
     --hoje-painel: color-mix(in srgb, #fff 70%, var(--bg));
     --hoje-sombra: 0 1px 2px rgba(16, 24, 40, .05), 0 12px 32px -10px rgba(16, 24, 40, .14);
@@ -2782,6 +2765,114 @@
   .opcao-menu-tema[aria-checked="true"]::after { content: "✓"; margin-left: auto; color: var(--chip); font-weight: 700; }
   .amostra-menu-tema { flex: none; display: inline-flex; width: 26px; height: 18px; overflow: hidden; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(127, 127, 127, .35); }
   .amostra-menu-tema span { flex: 1; }
+
+  /* ==========================================================
+     TELA INICIAL: cartões das provas no visual "painel" (todos os temas)
+     Cartão elevado; a escolhida ganha contorno na cor do tema e um ✓ no canto.
+     ========================================================== */
+  #tela-config .provas-cartoes { grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 12px; margin-top: 12px; }
+  #tela-config .cartao-prova {
+    position: relative; gap: 8px; min-height: 148px; padding: 16px 18px 15px;
+    border: 1px solid var(--hoje-linha); border-radius: 18px;
+    background: var(--hoje-painel); box-shadow: var(--hoje-sombra-leve);
+    transition: transform .18s, box-shadow .18s, border-color .18s, background .18s;
+  }
+  #tela-config .cartao-prova:hover {
+    transform: translateY(-2px); border-color: color-mix(in srgb, var(--chip) 45%, var(--hoje-linha)); box-shadow: var(--hoje-sombra);
+  }
+  #tela-config .cartao-prova:focus-visible { outline: 2px solid var(--foco); outline-offset: 3px; }
+  #tela-config .cartao-prova[aria-checked="true"] {
+    border-color: var(--chip);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--chip) 10%, var(--hoje-painel)), var(--hoje-painel) 70%);
+    box-shadow: 0 0 0 1px var(--chip), 0 10px 26px -10px color-mix(in srgb, var(--chip) 55%, transparent);
+  }
+  #tela-config .cartao-prova .logo-prova { height: 42px; max-width: calc(100% - 28px); margin: 0 0 4px; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .18)); }
+  #tela-config .cartao-prova strong { font-size: 1.08rem; font-weight: 650; letter-spacing: -.01em; }
+  .info-prova { display: flex; flex-wrap: wrap; gap: 5px; margin-top: auto; }
+  .pilula-prova {
+    padding: 2px 8px; border-radius: 999px; font-size: .74rem; font-weight: 500; font-variant-numeric: tabular-nums;
+    color: var(--texto-suave); background: color-mix(in srgb, var(--texto) 7%, transparent);
+  }
+  #tela-config .cartao-prova[aria-checked="true"] .pilula-prova { color: var(--texto); background: color-mix(in srgb, var(--chip) 16%, transparent); }
+  .marca-prova {
+    position: absolute; top: 12px; right: 12px; width: 22px; height: 22px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1.5px solid var(--hoje-linha); color: transparent; transition: background .18s, border-color .18s, transform .18s;
+  }
+  .marca-prova svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  #tela-config .cartao-prova[aria-checked="true"] .marca-prova { background: var(--chip); border-color: var(--chip); color: var(--chip-texto); transform: scale(1.05); }
+  /* "Criar prova": tracejado, com um + redondo no meio */
+  #tela-config .cartao-criar {
+    align-items: center; justify-content: center; gap: 10px; text-align: center;
+    border: 1.5px dashed color-mix(in srgb, var(--texto) 22%, transparent); background: transparent; box-shadow: none;
+    color: var(--texto-suave); font-weight: 600; font-size: .92rem;
+  }
+  #tela-config .cartao-criar:hover { border-color: var(--chip); color: var(--texto); background: color-mix(in srgb, var(--chip) 5%, transparent); box-shadow: none; }
+  #tela-config .cartao-criar[aria-pressed="true"] { border-style: solid; border-color: var(--chip); color: var(--texto); background: color-mix(in srgb, var(--chip) 8%, transparent); }
+  .mais-criar {
+    width: 38px; height: 38px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    background: color-mix(in srgb, var(--chip) 14%, transparent); color: var(--chip); transition: background .18s, color .18s;
+  }
+  .mais-criar svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
+  #tela-config .cartao-criar:hover .mais-criar { background: var(--chip); color: var(--chip-texto); }
+  /* PC com janela estreita (a barra lateral ocupa espaço): "Começar Prova" em cima, o quadro Hoje embaixo, na largura toda */
+  @media (min-width: 521px) and (max-width: 820px) {
+    body.com-lateral:not(.modo-gaveta) #tela-config .acoes { grid-template-columns: minmax(0, 1fr); grid-template-areas: "botao" "hoje" "grupo"; }
+    body.com-lateral:not(.modo-gaveta) #tela-config .hoje-plano { max-width: none; }
+    body.com-lateral:not(.modo-gaveta) #tela-config #btn-ir-prova { width: 100%; }
+  }
+  @media (max-width: 520px) {
+    #tela-config .provas-cartoes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    #tela-config .cartao-prova { min-height: 132px; padding: 14px 14px 13px; border-radius: 16px; }
+  }
+
+  /* ==========================================================
+     DESEMPENHO: escolha da prova (acima dos quadros) — barra elevada com ‹ seletor › e a posição na lista
+     ========================================================== */
+  #tela-resultados .bloco-escolha-prova { margin-top: 26px; padding-top: 0; border-top: 0; }
+  /* Bordas em destaque: contorno na cor do tema, brilho por dentro no alto e um halo suave por fora */
+  .escolha-prova-caixa {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; padding: 10px 12px 10px 16px;
+    border: 1px solid color-mix(in srgb, var(--chip) 45%, var(--borda)); border-radius: 18px;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--chip) 7%, transparent), transparent 60%),
+      var(--hoje-painel);
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, #fff 10%, transparent),
+      0 0 0 4px color-mix(in srgb, var(--chip) 10%, transparent),
+      0 10px 26px -12px color-mix(in srgb, var(--chip) 45%, transparent);
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .escolha-prova-caixa:hover, .escolha-prova-caixa:focus-within {
+    border-color: color-mix(in srgb, var(--chip) 75%, var(--borda));
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, #fff 12%, transparent),
+      0 0 0 4px color-mix(in srgb, var(--chip) 16%, transparent),
+      0 12px 30px -12px color-mix(in srgb, var(--chip) 55%, transparent);
+  }
+  .rotulo-escolha-prova { color: var(--texto-suave); font-size: .7rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+  #tela-resultados .escolha-prova { display: flex; align-items: center; gap: 4px; flex: 1 1 260px; min-width: 0; }
+  .escolha-prova .seta-hoje:disabled { opacity: .3; cursor: default; background: none; }
+  .select-prova { position: relative; flex: 1; min-width: 0; }
+  #tela-resultados .select-prova select.campo {
+    -webkit-appearance: none; appearance: none; width: 100%; max-width: none; min-height: 42px; margin: 0;
+    padding: 9px 40px 9px 14px; border: 1px solid color-mix(in srgb, var(--texto) 18%, transparent); border-radius: 12px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, .18);
+    background: var(--hoje-moldura); color: var(--texto); font: inherit; font-size: .95rem; font-weight: 600;
+    text-overflow: ellipsis; cursor: pointer; transition: border-color .15s, box-shadow .15s;
+  }
+  #tela-resultados .select-prova select.campo:hover { border-color: color-mix(in srgb, var(--chip) 45%, var(--hoje-linha)); }
+  #tela-resultados .select-prova select.campo:focus-visible { outline: none; border-color: var(--chip); box-shadow: 0 0 0 3px color-mix(in srgb, var(--chip) 25%, transparent); }
+  .select-prova svg {
+    position: absolute; right: 13px; top: 50%; width: 16px; height: 16px; translate: 0 -50%; pointer-events: none;
+    fill: none; stroke: var(--texto-suave); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .resumo-escolha-prova {
+    padding: 3px 10px; border-radius: 999px; font-size: .76rem; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums;
+    color: var(--texto-suave); background: color-mix(in srgb, var(--texto) 7%, transparent);
+  }
+  .resumo-escolha-prova:empty { display: none; }
+  #tela-resultados .bloco-escolha-prova + .bloco-materias { margin-top: 16px; }
 
   /* ==========================================================
      DESEMPENHO: quadros das matérias e Total no visual "painel"
@@ -3489,19 +3580,29 @@
         <p id="nota-grafico" class="grafico-nota"></p>
       </div>
 
-      <!-- Média por prova de cada matéria (cartões) e o total -->
-      <div id="bloco-materias" class="bloco-materias" hidden>
-        <p class="rotulo-materias" title="Média de acertos / média de questões por prova, arredondadas para inteiro">Acertos por prova (média)</p>
-        <div id="corpo-materias" class="cartoes-materias"></div>
-        <div id="total-materias" class="total-materias" hidden></div>
+      <!-- Prova escolhida: vale para os quadros das matérias, a nota em 3 cenários, as questões e "Por que você errou" -->
+      <div id="bloco-escolha-prova" class="bloco-escolha-prova" hidden>
+        <div class="escolha-prova-caixa">
+          <label class="rotulo-escolha-prova" for="filtro-motivos">Prova</label>
+          <div class="escolha-prova">
+            <button id="prova-anterior" class="seta-hoje" type="button" aria-label="Prova anterior na lista" title="Prova anterior">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <span class="select-prova">
+              <select id="filtro-motivos" class="campo"></select>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </span>
+            <button id="prova-proxima" class="seta-hoje" type="button" aria-label="Próxima prova na lista" title="Próxima prova">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+          </div>
+          <span id="resumo-escolha-prova" class="resumo-escolha-prova"></span>
+        </div>
       </div>
 
-      <!-- Prova escolhida: vale para as questões e para "Por que você errou" -->
-      <div id="bloco-escolha-prova" class="bloco-escolha-prova" hidden>
-        <span class="escolha-prova">
-          <label for="filtro-motivos">Selecionar prova</label>
-          <select id="filtro-motivos" class="campo campo-largo"></select>
-        </span>
+      <!-- Cada matéria (cartões) e o total: da prova escolhida, ou a média de todas -->
+      <div id="bloco-materias" class="bloco-materias" hidden>
+        <p id="rotulo-materias" class="rotulo-materias" title="Média de acertos / média de questões por prova, arredondadas para inteiro">Acertos por prova (média)</p>
+        <div id="corpo-materias" class="cartoes-materias"></div>
+        <div id="total-materias" class="total-materias" hidden></div>
       </div>
 
       <!-- Nota em 3 cenários (sem chutes · real · potencial): a primeira coisa abaixo da prova escolhida -->
@@ -5104,16 +5205,23 @@ function renderTipos() {
       botao.append(img);
       botao.classList.add('com-logo');
     }
-    botao.append(
-      criar('strong', '', tipo.nome),
-      criar('span', 'item-meta', [formatarChip(tipo.duracao), questoes ? plural(questoes, 'questão', 'questões') : '']
-        .filter(Boolean).join(' · '))
-    );
+    // Duração e nº de questões como pílulas; o ✓ no canto marca a prova escolhida
+    const info = criar('span', 'info-prova');
+    info.append(...[formatarChip(tipo.duracao), questoes ? plural(questoes, 'questão', 'questões') : '']
+      .filter(Boolean).map(t => criar('span', 'pilula-prova', t)));
+    const marca = criar('span', 'marca-prova');
+    marca.setAttribute('aria-hidden', 'true');
+    marca.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+    botao.append(criar('strong', '', tipo.nome), info, marca);
     botao.addEventListener('click', () => { if (!ativo || tipo.id !== ativo.id) aoEscolherTipo(tipo.id); });
     return botao;
   });
-  const criarBtn = criar('button', 'cartao-prova cartao-criar', '+ Criar prova');
+  const criarBtn = criar('button', 'cartao-prova cartao-criar');
   criarBtn.type = 'button';
+  const mais = criar('span', 'mais-criar');
+  mais.setAttribute('aria-hidden', 'true');
+  mais.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg>';
+  criarBtn.append(mais, criar('span', '', 'Criar prova'));
   criarBtn.setAttribute('aria-pressed', String(modo === 'criando'));
   criarBtn.addEventListener('click', iniciarCriacao);
   $('provas-cartoes').replaceChildren(...cartoes, criarBtn);
@@ -6401,6 +6509,15 @@ function renderMotivos(lista, ordem) {
   seletor.value = filtroMotivos;
   seletor.disabled = false; // abre mesmo com uma prova só
   $('bloco-escolha-prova').hidden = lista.length === 0;
+  // ‹ ›: andam pelas opções do seletor; ao lado, onde se está na lista
+  const iSeletor = seletor.selectedIndex;
+  $('prova-anterior').disabled = iSeletor <= 0;
+  $('prova-proxima').disabled = iSeletor >= seletor.options.length - 1;
+  $('resumo-escolha-prova').textContent = filtroMotivos === '__todas'
+    ? (lista.length ? `média de ${plural(lista.length, 'prova', 'provas')}` : '')
+    : `${iSeletor} de ${lista.length}`;
+  // Quadros das matérias: da prova escolhida (ou a média de todas)
+  renderCartoesMaterias(lista, ordem);
   renderQuestoesProva(filtroMotivos === '__todas' ? null : lista.find(r => r.id === filtroMotivos));
   const escolhidas = filtroMotivos === '__todas' ? comMotivos : comMotivos.filter(r => r.id === filtroMotivos);
   // Questões favoritas: todas as provas do grupo (ou só a escolhida), com ou sem motivos marcados
@@ -6755,16 +6872,32 @@ function renderDesempenho() {
   elR.resumoNumeros.hidden = lista.length === 0;
 
   // Números gerais: quantidade de provas
-  const eliminatorias = lista.flatMap(r => situacaoEliminatorias(r.materias));
   elR.resumoNumeros.replaceChildren(
     caixaNumero(String(lista.length), lista.length === 1 ? 'prova registrada' : 'provas registradas')
   );
 
-  // Por matéria: média por prova arredondada (acertos/total) e média de acertos com 4 casas decimais
+  // Quadros das matérias: desenhados em renderMotivos (seguem a prova escolhida no seletor)
   const ordem = ordemDasMaterias();
+
+  // Motivos dos erros (e, antes, o seletor de prova e os quadros das matérias)
+  renderMotivos(lista, ordem);
+  desenharGraficoDesempenho(lista, ordem, fx);
+}
+
+/**
+ * Quadros das matérias + Total. Com uma prova escolhida no seletor: os números dela.
+ * Com "Todas as provas": a média por prova, arredondada (ex.: 55 acertos em 7 provas → 8/12).
+ */
+function renderCartoesMaterias(lista, ordem) {
+  const escolhida = filtroMotivos === '__todas' ? null : lista.find(r => r.id === filtroMotivos);
+  const base = escolhida ? [escolhida] : lista;
+  $('rotulo-materias').textContent = escolhida ? `Acertos em ${nomeCurtoResultado(escolhida).split(' · ')[0]}` : 'Acertos por prova (média)';
+  $('rotulo-materias').title = escolhida ? 'Acertos / questões de cada matéria nesta prova'
+    : 'Média de acertos / média de questões por prova, arredondadas para inteiro';
+  const eliminatorias = base.flatMap(r => situacaoEliminatorias(r.materias));
   const posicao = chave => { const i = ordem.findIndex(m => m.chave === chave); return i < 0 ? 999 : i; };
   const porMateria = new Map();
-  lista.forEach(r => r.materias.forEach(m => {
+  base.forEach(r => r.materias.forEach(m => {
     const chave = chaveMateria(m.nome);
     const acc = porMateria.get(chave) || { chave, nome: m.nome, acertos: 0, total: 0, provas: 0 };
     acc.acertos += m.acertos;
@@ -6817,7 +6950,7 @@ function renderDesempenho() {
 
   // "Total": média de acertos numa prova inteira (eliminatórias de fora;
   // no ITA, de 36 questões), com o número de questões sempre inteiro
-  const notasDasProvas = lista.map(r => somar(r.materias)).filter(s => s.total > 0);
+  const notasDasProvas = base.map(r => somar(r.materias)).filter(s => s.total > 0);
   const caixaTotal = $('total-materias');
   caixaTotal.hidden = !notasDasProvas.length;
   if (notasDasProvas.length) {
@@ -6842,11 +6975,10 @@ function renderDesempenho() {
   } else caixaTotal.replaceChildren();
   // (A coluna "Desempenho" e a legenda das faixas foram retiradas da tabela;
   //  as faixas continuam no gráfico e na "nota em 3 cenários".)
+}
 
-  // Motivos dos erros
-  renderMotivos(lista, ordem);
-
-  // Gráfico de linhas com a evolução de cada matéria
+/** Gráfico de linhas com a evolução de cada matéria */
+function desenharGraficoDesempenho(lista, ordem, fx) {
   ultimaListaGrafico = lista;
   ultimaOrdemGrafico = ordem;
   ultimasFaixasGrafico = fx;
@@ -8659,6 +8791,17 @@ $('filtro-motivos').addEventListener('change', () => {
   filtroMotivos = $('filtro-motivos').value;
   $('questoes-prova').open = false; // trocou de prova: "Questões" começa fechada
   renderMotivos(ultimaListaMotivos, ultimaOrdemMotivos);
+});
+// ‹ › ao lado do seletor: opção anterior / seguinte (Todas as provas → mais recente → … → mais antiga)
+[['prova-anterior', -1], ['prova-proxima', 1]].forEach(([id, passo]) => {
+  $(id).addEventListener('click', () => {
+    const seletor = $('filtro-motivos');
+    const i = seletor.selectedIndex + passo;
+    if (i < 0 || i >= seletor.options.length) return;
+    seletor.selectedIndex = i;
+    seletor.dispatchEvent(new Event('change'));
+    if ($(id).disabled) (passo < 0 ? $('prova-proxima') : $('prova-anterior')).focus(); // chegou na ponta
+  });
 });
 elR.filtroHist.addEventListener('change', () => {
   filtroHistorico = elR.filtroHist.value;
