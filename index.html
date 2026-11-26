@@ -56,7 +56,7 @@
     /* Cores das linhas do gráfico (uma por matéria, sempre na mesma ordem).
        Paleta categórica testada para daltonismo sobre fundo escuro. */
     --serie-1: #3987e5; /* azul    — Matemática */
-    --serie-2: #d95926; /* laranja — Física */
+    --serie-2: #f03a3a; /* vermelho vivo — Física */
     --serie-3: #199e70; /* verde-água — Química */
     --serie-4: #c98500; /* amarelo — Português */
     --serie-5: #d55181; /* magenta — Inglês */
@@ -1207,8 +1207,8 @@
   .item-grupo { color: var(--texto-suave); }
 
   /* Resultados: 3 abas (Registrar · Desempenho · 2ª fase); Histórico e Perfil abrem pela engrenagem */
-  #tela-resultados > .titulo-tela, .cabecalho .barra-topo { position: relative; }
-  #abas-tela.nav-abas { grid-template-columns: repeat(3, 1fr); }
+  .conteudo-resultados > .titulo-tela, .cabecalho .barra-topo { position: relative; }
+  #abas-tela.nav-abas { grid-template-columns: repeat(4, 1fr); }
   .menu-engrenagem {
     position: absolute; right: 0; top: calc(100% + 6px); z-index: 20;
     display: flex; flex-direction: column; min-width: 200px; padding: 6px;
@@ -1663,7 +1663,7 @@
 
   /* ---------- Resultados: voltar à esquerda e abas num controle só ---------- */
   #tela-resultados { max-width: 880px; padding: 20px 16px 56px; }
-  #tela-resultados > .titulo-tela { justify-content: flex-start; gap: 14px; margin-bottom: 14px; }
+  .conteudo-resultados > .titulo-tela { justify-content: flex-start; gap: 14px; margin-bottom: 14px; }
   #btn-resultados-voltar { order: -1; }
   .titulo-tela h1 { font-size: 1.3rem; }
   .nav-abas {
@@ -1809,7 +1809,7 @@
     --erro: #b3261e;
     --aviso: #9a5a00;
     /* Cores de dados mais escuras, para ler sobre o papel claro */
-    --serie-1: #1f6fc5; --serie-2: #b8461a; --serie-3: #0e7f5a; --serie-4: #946600;
+    --serie-1: #1f6fc5; --serie-2: #d42020; --serie-3: #0e7f5a; --serie-4: #946600;
     --serie-5: #b53a6b; --serie-6: #2e7d1f; --serie-7: #6b5fd0; --serie-8: #c24545;
     --estrela: #d99a00;
     --nivel-excelente: #1c7c54; --nivel-bom: #2366a8; --nivel-ok: #8c6d00; --nivel-mal: #b05a12; --nivel-ruim: #b3261e;
@@ -2295,6 +2295,547 @@
   @media (max-width: 720px) { .item-resultado .item-acoes .btn { flex: none; } }
   :root[data-tema^="editorial"] :is(#tela-resultados, .janela) .item-nota { font-weight: 300; font-size: 1.9rem; letter-spacing: -.02em; }
   :root[data-tema^="editorial"] :is(#tela-resultados, .janela) .item-resultado { padding-bottom: 6px; }
+
+  /* ==========================================================
+     PLANEJAMENTO SEMANAL (grade: dias nas colunas; Manhã e Tarde com uma linha por matéria)
+     ========================================================== */
+  .nav-aba .rotulo-curto { display: none; }
+  @media (max-width: 420px) {
+    .nav-aba .rotulo-longo { display: none; }
+    .nav-aba .rotulo-curto { display: inline; }
+  }
+  .titulo-plano { flex-wrap: wrap; gap: 10px; }
+  .barra-semana { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 4px 0 12px; }
+  .barra-semana .btn-icone { font-size: 1.3rem; line-height: 1; min-width: 38px; }
+  .titulo-semana { font-size: 1rem; min-width: 0; }
+  .progresso-plano { margin-left: auto; font-variant-numeric: tabular-nums; }
+  .rotulo-inline { display: inline; margin: 0; }
+  .campo-mes-plano { width: auto; font-size: .92rem; padding: 8px 36px 8px 12px; min-height: 38px; }
+
+  /* A aba Planejamento usa mais da largura da tela (as outras abas continuam em 880px) */
+  #tela-resultados.tela-larga { max-width: 1320px; }
+  /* Cada dia tem pelo menos 150px; se a tela não comportar, a grade rola para o lado
+     (a coluna das matérias e os nomes Manhã/Tarde ficam parados) */
+  .grade-plano-caixa { border: 1px solid var(--borda); border-radius: 12px; overflow-x: auto; overscroll-behavior-x: contain; }
+  .tabela-plano { width: 100%; min-width: calc(46px + 7 * 150px); border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: .84rem; }
+  .tabela-plano th, .tabela-plano td { border-width: 0 1px 1px 0 !important; }
+  .tabela-plano tbody tr:last-child > * { border-bottom-width: 0 !important; }
+  .tabela-plano tr > :last-child { border-right-width: 0 !important; }
+  .tabela-plano thead tr > :first-child, .tabela-plano .mat-plano { position: sticky; left: 0; z-index: 1; }
+  .tabela-plano thead tr > :first-child { background: var(--bg-2); }
+  .tabela-plano .linha-periodo th span { position: sticky; left: 10px; }
+  .tabela-plano col.col-mat { width: 46px; }
+  .tabela-plano th, .tabela-plano td { border: 1px solid var(--borda); padding: 0; vertical-align: top; }
+  .tabela-plano td { cursor: text; }
+  .tabela-plano tr > :first-child { border-left: 0; }
+  .tabela-plano tr > :last-child { border-right: 0; }
+  .tabela-plano thead tr:first-child > * { border-top: 0; }
+  .tabela-plano tbody tr:last-child > * { border-bottom: 0; }
+  .tabela-plano thead th { padding: 8px 4px; text-align: center; font-weight: 650; background: var(--bg-2); line-height: 1.2; }
+  .tabela-plano thead th small { display: block; font-weight: 400; color: var(--texto-suave); font-size: .78rem; }
+  .tabela-plano thead th.hoje { color: var(--chip); box-shadow: inset 0 -2px 0 var(--chip); }
+  .tabela-plano .linha-periodo th {
+    text-align: left; padding: 6px 10px; background: var(--bg-2); color: var(--texto-suave);
+    font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  }
+  .tabela-plano .mat-plano {
+    padding: 8px 2px; text-align: center; vertical-align: middle; font-size: .74rem; font-weight: 700;
+    letter-spacing: .03em; color: var(--cor); background: color-mix(in srgb, var(--cor) 10%, var(--bg));
+  }
+  .celula-plano { position: relative; display: flex; align-items: flex-start; min-height: 40px; }
+  .celula-plano.feito { background: color-mix(in srgb, var(--nivel-excelente) 9%, transparent); }
+  .txt-plano {
+    flex: 1; min-width: 0; width: 100%; min-height: 40px; margin: 0; padding: 9px 31px 9px 8px; border: 0; border-radius: 0;
+    background: transparent; color: var(--texto); font: inherit; line-height: 1.35; resize: none; overflow: hidden;
+  }
+  .txt-plano::placeholder { color: var(--texto-suave); opacity: .35; }
+  .txt-plano:focus { outline: 2px solid var(--foco); outline-offset: -2px; background: var(--bg-2); }
+  .celula-plano.feito .txt-plano { color: var(--texto-suave); }
+  .check-plano {
+    position: absolute; top: 7px; right: 4px; width: 22px; height: 22px; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1.5px solid var(--borda); border-radius: 6px; background: var(--bg); color: transparent; cursor: pointer;
+  }
+  .check-plano svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .check-plano:hover { border-color: var(--nivel-excelente); }
+  .check-plano[aria-pressed="true"] { background: var(--nivel-excelente); border-color: var(--nivel-excelente); color: #0a0a0a; }
+  .check-plano:focus-visible { outline: 2px solid var(--foco); outline-offset: 1px; }
+  .check-plano[hidden] { display: none; }
+
+  /* Dias (só no celular): um dia por vez */
+  .dias-plano { display: none; }
+  @media (max-width: 760px) {
+    .dias-plano { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 10px; }
+    .dias-plano button {
+      min-width: 0; padding: 6px 0; border: 1px solid var(--borda); border-radius: 10px; background: transparent;
+      color: var(--texto-suave); font: inherit; font-size: .8rem; font-weight: 600; line-height: 1.2; cursor: pointer;
+    }
+    .dias-plano button small { display: block; font-weight: 400; font-size: .72rem; }
+    .dias-plano button.hoje { border-color: var(--chip); }
+    .dias-plano button[aria-selected="true"] { background: var(--chip); border-color: var(--chip); color: var(--chip-texto); }
+    .dias-plano button .ponto-dia { display: block; width: 5px; height: 5px; margin: 3px auto 0; border-radius: 50%; background: currentColor; opacity: 0; }
+    .dias-plano button.tem-plano .ponto-dia { opacity: .7; }
+    .tabela-plano [data-i]:not(.dia-visivel) { display: none; }
+    /* Larguras pelas células visíveis (as colunas dos outros dias não ocupam espaço) */
+    .tabela-plano { font-size: .95rem; table-layout: auto; min-width: 0; }
+    .tabela-plano col.col-mat, .tabela-plano .mat-plano { width: 52px; }
+    .tabela-plano td.dia-visivel { width: 100%; }
+    .tabela-plano thead { display: none; }
+    .txt-plano { padding-right: 38px; }
+    .check-plano { width: 28px; height: 28px; top: 6px; right: 6px; }
+    .progresso-plano { margin-left: 0; width: 100%; }
+  }
+  /* Modo "Dia" (no PC também): o mesmo visual do celular, um dia por vez em largura total */
+  .modo-dia .dias-plano { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 12px; }
+  .modo-dia .dias-plano button {
+    min-width: 0; padding: 7px 0; border: 1px solid var(--borda); border-radius: 12px; background: transparent;
+    color: var(--texto-suave); font: inherit; font-size: .86rem; font-weight: 600; line-height: 1.2; cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  .modo-dia .dias-plano button:hover:not([aria-selected="true"]) { background: color-mix(in srgb, var(--texto) 5%, transparent); }
+  .modo-dia .dias-plano button small { display: block; font-weight: 400; font-size: .76rem; }
+  .modo-dia .dias-plano button.hoje { border-color: var(--chip); }
+  .modo-dia .dias-plano button[aria-selected="true"] { background: var(--chip); border-color: var(--chip); color: var(--chip-texto); }
+  .modo-dia .dias-plano button .ponto-dia { display: block; width: 5px; height: 5px; margin: 3px auto 0; border-radius: 50%; background: currentColor; opacity: 0; }
+  .modo-dia .dias-plano button.tem-plano .ponto-dia { opacity: .7; }
+  .modo-dia .tabela-plano [data-i]:not(.dia-visivel) { display: none; }
+  .modo-dia .tabela-plano { font-size: .95rem; table-layout: auto; min-width: 0; }
+  .modo-dia .tabela-plano col.col-mat, .modo-dia .tabela-plano .mat-plano { width: 64px; }
+  .modo-dia .tabela-plano td.dia-visivel { width: 100%; }
+  .modo-dia .tabela-plano thead { display: none; }
+  .modo-dia .txt-plano { min-height: 46px; padding: 12px 44px 12px 12px; }
+  .modo-dia .check-plano { width: 28px; height: 28px; top: 9px; right: 9px; }
+
+  /* Tela inicial: "Hoje" (o plano do dia) à esquerda do "Começar Prova" */
+  #tela-config .acoes {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 14px 24px;
+    grid-template-areas: "hoje botao" "grupo grupo";
+    position: static; background: none; padding-top: 4px;
+  }
+  #tela-config .acoes .hoje-plano { grid-area: hoje; }
+  #tela-config .acoes .grupo { grid-area: grupo; }
+  #tela-config .acoes .grupo:not(:has(:not([hidden]))) { display: none; }
+  #tela-config .acoes #btn-ir-prova { grid-area: botao; }
+  /* Cartão em duas camadas: a moldura (título + botão) e, dentro dela, o painel elevado (número + lista) */
+  /* Cores e sombras do visual "painel" (quadro Hoje e tela de Estudos) */
+  .hoje-plano, .dash, .lateral, .cartoes-materias, .total-materias, .menu-temas {
+    --hoje-moldura: color-mix(in srgb, var(--texto) 3%, var(--bg));
+    --hoje-painel: color-mix(in srgb, var(--texto) 2%, var(--bg-2));
+    --hoje-linha: color-mix(in srgb, var(--borda) 70%, transparent);
+    --hoje-sombra: 0 1px 2px rgba(0, 0, 0, .10), 0 10px 28px -6px rgba(0, 0, 0, .22);
+    --hoje-sombra-leve: 0 1px 2px rgba(0, 0, 0, .08), 0 2px 6px -2px rgba(0, 0, 0, .10);
+  }
+  .hoje-plano {
+    min-width: 0; max-width: 480px; padding: 6px; border: 1px solid var(--hoje-linha); border-radius: 22px;
+    background: var(--hoje-moldura); box-shadow: var(--hoje-sombra);
+  }
+  .hoje-plano-topo { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px 12px 14px; }
+  .hoje-plano-topo h2 { margin: 0; font-size: .98rem; font-weight: 600; letter-spacing: -.005em; }
+  .hoje-plano-topo h2 { min-width: 0; white-space: nowrap; padding: 0 2px; }
+  .hoje-plano-topo #hoje-plano-data { margin-left: 4px; color: var(--texto-suave); font-weight: 400; font-size: .86rem; }
+  .hoje-plano-topo { padding-left: 8px; flex-wrap: wrap; row-gap: 6px; }
+  .hoje-plano-nav { display: flex; align-items: center; gap: 2px; min-width: 0; }
+  .seta-hoje {
+    flex: none; width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center;
+    border: 0; border-radius: 9px; background: transparent; color: var(--texto-suave); cursor: pointer; transition: background .15s, color .15s;
+  }
+  .seta-hoje svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .seta-hoje:hover { background: color-mix(in srgb, var(--texto) 7%, transparent); color: var(--texto); }
+  .seta-hoje:focus-visible, .voltar-hoje:focus-visible { outline: 2px solid var(--foco); outline-offset: 1px; }
+  .voltar-hoje {
+    flex: none; margin-left: 4px; padding: 3px 9px; border: 0; border-radius: 999px; cursor: pointer;
+    font: inherit; font-size: .74rem; font-weight: 600; color: var(--chip-texto); background: var(--chip);
+  }
+  .voltar-hoje[hidden] { display: none; }
+  .btn-hoje .calendario-btn-hoje { display: none; }
+  @media (max-width: 520px) {
+    .hoje-plano-topo { flex-wrap: nowrap; }
+    .btn-hoje { width: 36px; height: 36px; padding: 0; justify-content: center; }
+    .btn-hoje #btn-hoje-plano-texto, .btn-hoje .seta-btn-hoje { display: none; }
+    .btn-hoje .calendario-btn-hoje { display: block; width: 18px; height: 18px; opacity: .85; }
+  }
+  /* Troca de dia: o painel desliza na direção do dia escolhido */
+  .hoje-plano-painel { touch-action: pan-y; }
+  .hoje-plano-painel.desliza-proximo { animation: desliza-proximo .28s cubic-bezier(.2, .7, .3, 1); }
+  .hoje-plano-painel.desliza-anterior { animation: desliza-anterior .28s cubic-bezier(.2, .7, .3, 1); }
+  @keyframes desliza-proximo { from { opacity: 0; transform: translateX(22px); } }
+  @keyframes desliza-anterior { from { opacity: 0; transform: translateX(-22px); } }
+  .btn-hoje {
+    display: inline-flex; align-items: center; gap: 4px; flex: none; min-height: 34px; padding: 6px 10px 6px 13px;
+    border: 1px solid var(--hoje-linha); border-radius: 11px; background: var(--hoje-painel); color: var(--texto);
+    font: inherit; font-size: .84rem; font-weight: 500; cursor: pointer; box-shadow: var(--hoje-sombra-leve);
+    transition: transform .15s, box-shadow .15s, border-color .15s;
+  }
+  .btn-hoje svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; opacity: .7; }
+  .btn-hoje:hover { border-color: var(--borda); transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0, 0, 0, .10), 0 6px 14px -4px rgba(0, 0, 0, .18); }
+  .btn-hoje:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+  .hoje-plano-painel {
+    padding: 18px 18px 10px; border: 1px solid var(--hoje-linha); border-radius: 17px;
+    background: var(--hoje-painel); box-shadow: var(--hoje-sombra-leve);
+  }
+  /* Número grande + anel de progresso (como um indicador de painel) */
+  .hoje-plano-numero { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .numero-hoje { display: block; font-size: 2rem; font-weight: 650; line-height: 1.05; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .numero-hoje small { font-size: .55em; font-weight: 500; color: var(--texto-suave); letter-spacing: 0; margin-left: 2px; }
+  .numero-hoje.sem-plano-hoje { font-size: 1.25rem; font-weight: 600; letter-spacing: -.01em; }
+  .variacao-hoje { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; font-size: .84rem; color: var(--texto-suave); }
+  .variacao-hoje b { color: var(--nivel-excelente); font-weight: 600; }
+  .variacao-hoje b::before { content: "▲"; font-size: .62em; margin-right: 4px; vertical-align: 2px; }
+  .variacao-hoje.completo b::before { content: "✓"; font-size: .9em; vertical-align: 0; }
+  .anel-hoje { flex: none; width: 58px; height: 58px; transform: rotate(-90deg); }
+  .anel-hoje circle { fill: none; stroke-width: 5; }
+  .anel-fundo { stroke: color-mix(in srgb, var(--texto) 9%, transparent); }
+  .anel-valor { stroke: var(--nivel-excelente); stroke-linecap: round; transition: stroke-dasharray .4s ease; }
+  /* Lista do dia */
+  .hoje-plano-corpo:not(:empty) { margin-top: 14px; padding-top: 4px; border-top: 1px solid var(--hoje-linha); }
+  .hoje-plano .periodo-resumo { margin: 10px 0 4px; color: var(--texto-suave); font-size: .68rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+  .hoje-plano ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .item-hoje { display: flex; align-items: flex-start; gap: 10px; margin: 0 -8px; padding: 7px 8px; border-radius: 10px; font-size: .9rem; line-height: 1.4; transition: background .15s; }
+  .item-hoje:hover { background: color-mix(in srgb, var(--texto) 4%, transparent); }
+  .item-hoje .sigla-hoje {
+    flex: none; min-width: 42px; padding: 2px 0; border-radius: 7px; text-align: center; font-size: .68rem; font-weight: 700;
+    letter-spacing: .04em; color: var(--cor); background: color-mix(in srgb, var(--cor) 13%, transparent); margin-top: 1px;
+  }
+  .item-hoje .texto-hoje { flex: 1; min-width: 0; overflow-wrap: break-word; white-space: pre-line; }
+  .item-hoje.feito .texto-hoje { color: var(--texto-suave); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--texto-suave) 55%, transparent); }
+  /* ✓ redondo */
+  .check-hoje {
+    flex: none; width: 22px; height: 22px; padding: 0; margin-top: 0; display: inline-flex; align-items: center; justify-content: center;
+    border: 1.5px solid color-mix(in srgb, var(--texto) 22%, transparent); border-radius: 50%; background: transparent; color: transparent;
+    cursor: pointer; transition: background .15s, border-color .15s, transform .1s;
+  }
+  .check-hoje svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .check-hoje:hover { border-color: var(--nivel-excelente); }
+  .check-hoje:active { transform: scale(.92); }
+  .check-hoje[aria-pressed="true"] { background: var(--nivel-excelente); border-color: var(--nivel-excelente); color: #0a0a0a; box-shadow: 0 2px 6px -1px color-mix(in srgb, var(--nivel-excelente) 55%, transparent); }
+  .check-hoje:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+  .hoje-plano .vazio-hoje { margin: 0; padding: 10px 0 6px; color: var(--texto-suave); font-size: .88rem; }
+  /* Temas claros: sombras mais suaves */
+  :root[data-tema="editorial-claro"] :is(.hoje-plano, .dash, .lateral, .cartoes-materias, .total-materias, .menu-temas) {
+    --hoje-moldura: color-mix(in srgb, var(--texto) 3%, var(--bg));
+    --hoje-painel: color-mix(in srgb, #fff 70%, var(--bg));
+    --hoje-sombra: 0 1px 2px rgba(16, 24, 40, .05), 0 12px 32px -10px rgba(16, 24, 40, .14);
+    --hoje-sombra-leve: 0 1px 2px rgba(16, 24, 40, .05), 0 2px 8px -2px rgba(16, 24, 40, .06);
+  }
+  @media (max-width: 520px) {
+    #tela-config .acoes { grid-template-columns: 1fr; grid-template-areas: "hoje" "grupo"; }
+    .hoje-plano { max-width: none; }
+    .check-hoje { width: 28px; height: 28px; }
+    .numero-hoje { font-size: 1.8rem; }
+  }
+
+  /* ==========================================================
+     ESTUDOS no visual "painel" (vale para todos os temas; vem depois das regras do tema Editorial)
+     ========================================================== */
+  :root #tela-estudos.tela-dash .dash {
+    margin-bottom: 18px; padding: 6px; border: 1px solid var(--hoje-linha); border-radius: 22px;
+    background: var(--hoje-moldura); box-shadow: var(--hoje-sombra);
+  }
+  :root #tela-estudos.tela-dash .dash-topo { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; padding: 8px 10px 12px 14px; }
+  :root #tela-estudos.tela-dash .dash-topo h2 {
+    display: inline-flex; align-items: center; gap: 8px; margin: 0;
+    font: 600 .98rem/1.3 var(--fonte); letter-spacing: -.005em; text-transform: none; color: var(--texto);
+  }
+  :root #tela-estudos.tela-dash .dash-topo .item-meta { font-size: .82rem; }
+  :root #tela-estudos.tela-dash .dash-painel {
+    padding: 18px; border: 1px solid var(--hoje-linha); border-radius: 17px;
+    background: var(--hoje-painel); box-shadow: var(--hoje-sombra-leve);
+  }
+  :root #tela-estudos.tela-dash .dash-rodape { padding: 4px 12px 2px; }
+  /* Período (Hoje · Semana · Total) em pílula, como o "Yearly" da referência */
+  :root #tela-estudos.tela-dash .dash-topo .segmento {
+    padding: 3px; gap: 2px; border: 1px solid var(--hoje-linha); border-radius: 12px;
+    background: var(--hoje-painel); box-shadow: var(--hoje-sombra-leve);
+  }
+  :root #tela-estudos.tela-dash .dash-topo .segmento button { border-radius: 9px; padding: 6px 12px; font-weight: 500; font-size: .84rem; }
+  :root #tela-estudos.tela-dash .dash-topo .segmento button[aria-selected="true"] { background: var(--chip); color: var(--chip-texto); box-shadow: 0 1px 2px rgba(0, 0, 0, .15); }
+
+  /* Matérias: cartõezinhos elevados com a cor da matéria e um botão de play */
+  :root #tela-estudos.tela-dash .estudo-materias { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 0; }
+  :root #tela-estudos.tela-dash .estudo-materia {
+    position: relative; gap: 4px; padding: 14px 52px 13px 16px; border: 1px solid var(--hoje-linha); border-radius: 14px;
+    background: var(--hoje-moldura); box-shadow: var(--hoje-sombra-leve);
+    transition: transform .15s, box-shadow .15s, border-color .15s;
+  }
+  :root #tela-estudos.tela-dash .estudo-materia::before {
+    content: ""; position: absolute; left: 16px; top: 0; width: 26px; height: 3px; border-radius: 0 0 3px 3px; background: var(--cor);
+  }
+  :root #tela-estudos.tela-dash .estudo-materia strong {
+    font: 600 1rem/1.2 var(--fonte); letter-spacing: -.005em; color: var(--texto);
+  }
+  :root #tela-estudos.tela-dash .estudo-materia .item-meta { font-size: .8rem; }
+  :root #tela-estudos.tela-dash .estudo-materia:hover {
+    border-color: color-mix(in srgb, var(--cor) 45%, var(--borda)); transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .10), 0 8px 18px -6px rgba(0, 0, 0, .22);
+  }
+  :root #tela-estudos.tela-dash .estudo-materia[aria-pressed="true"] {
+    border-color: var(--cor); background: color-mix(in srgb, var(--cor) 9%, var(--hoje-moldura));
+    box-shadow: 0 0 0 1px var(--cor), var(--hoje-sombra-leve);
+  }
+  :root #tela-estudos.tela-dash .estudo-materia[aria-pressed="true"] strong { color: var(--texto); }
+  .icone-estudo {
+    position: absolute; right: 12px; top: 50%; translate: 0 -50%; width: 30px; height: 30px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: color-mix(in srgb, var(--cor) 16%, transparent); color: var(--cor); transition: background .15s, color .15s;
+  }
+  .icone-estudo svg { width: 14px; height: 14px; fill: currentColor; }
+  .estudo-materia:hover .icone-estudo, .estudo-materia[aria-pressed="true"] .icone-estudo { background: var(--cor); color: #0a0a0a; }
+  .estudo-materia[aria-pressed="true"] .icone-estudo svg { animation: pulso-estudo 1.6s ease-in-out infinite; }
+  @keyframes pulso-estudo { 50% { opacity: .35; } }
+
+  /* Horas: número grande + barras coloridas por matéria */
+  .total-dash { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; margin-bottom: 14px; }
+  .numero-dash { font-size: 2.1rem; font-weight: 650; line-height: 1.05; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  :root #tela-estudos.tela-dash .estudo-lista { margin: 0; border-top: 1px solid var(--hoje-linha); padding-top: 6px; }
+  :root #tela-estudos.tela-dash .estudo-lista li {
+    grid-template-columns: minmax(96px, 9.5em) minmax(0, 1fr) 4.2em 2.8em; gap: 12px;
+    margin: 0 -8px; padding: 9px 8px; border: 0; border-radius: 10px; transition: background .15s;
+  }
+  :root #tela-estudos.tela-dash .estudo-lista li:hover { background: color-mix(in srgb, var(--texto) 4%, transparent); }
+  :root #tela-estudos.tela-dash .estudo-lista li.vazio { color: var(--texto-suave); padding: 12px 8px 6px; }
+  .nome-estudo { display: inline-flex; align-items: center; gap: 8px; min-width: 0; font-size: .92rem; }
+  .ponto-estudo { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--cor); box-shadow: 0 0 0 3px color-mix(in srgb, var(--cor) 18%, transparent); }
+  .trilho-estudo { display: block; height: 8px; border-radius: 999px; background: color-mix(in srgb, var(--texto) 7%, transparent); overflow: hidden; }
+  :root #tela-estudos.tela-dash .estudo-lista .barra-estudo {
+    height: 100%; border-radius: 999px; background: linear-gradient(90deg, color-mix(in srgb, var(--cor) 70%, transparent), var(--cor));
+  }
+  :root #tela-estudos.tela-dash .estudo-lista .horas { font-weight: 600; font-size: .92rem; }
+  .parte-estudo { text-align: right; color: var(--texto-suave); font-size: .8rem; font-variant-numeric: tabular-nums; }
+
+  /* Sessão em andamento */
+  :root #tela-estudos.tela-dash .estudo-ativo { text-align: center; border-color: color-mix(in srgb, var(--ok) 45%, var(--hoje-linha)); }
+  :root #tela-estudos.tela-dash .estudo-ativo .dash-topo { justify-content: center; }
+  .ponto-vivo { width: 9px; height: 9px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px color-mix(in srgb, var(--ok) 22%, transparent); animation: pulso-estudo 1.6s ease-in-out infinite; }
+  .estudo-ativo.pausado .ponto-vivo { background: var(--texto-suave); box-shadow: none; animation: none; }
+  .selo-dash { padding: 3px 10px; border-radius: 999px; font-size: .78rem; font-weight: 600; color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .estudo-ativo.pausado .selo-dash { color: var(--texto-suave); background: color-mix(in srgb, var(--texto) 8%, transparent); }
+  :root #tela-estudos.tela-dash .estudo-relogio { margin: 4px 0 2px; font-family: var(--fonte-titulo, inherit); font-weight: 600; font-size: clamp(2.6rem, 12vw, 3.8rem); letter-spacing: -.03em; color: var(--texto); }
+  :root #tela-estudos.tela-dash .estudo-ativo.pausado .estudo-relogio { color: var(--texto-suave); }
+
+  /* Gerenciamento e opção do simulado (no rodapé da moldura) */
+  :root #tela-estudos.tela-dash .dash-rodape .opcao-simulado { margin: 14px 0 4px; }
+  :root #tela-estudos.tela-dash .dash-rodape .dobra > summary { margin: 0 -6px; padding: 12px 6px; border-radius: 12px; }
+  @media (max-width: 520px) {
+    :root #tela-estudos.tela-dash .dash-painel { padding: 14px; }
+    :root #tela-estudos.tela-dash .estudo-materias { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    :root #tela-estudos.tela-dash .estudo-lista li { grid-template-columns: minmax(0, 1fr) 4em 2.6em; row-gap: 6px; }
+    :root #tela-estudos.tela-dash .estudo-lista li .trilho-estudo { grid-column: 1 / -1; grid-row: 2; }
+    .numero-dash { font-size: 1.9rem; }
+  }
+
+  /* ==========================================================
+     RESULTADOS: barra lateral (substitui as abas do topo)
+     Computador: coluna fixa à esquerda (pode recolher para só ícones). Celular: gaveta aberta pelo ☰.
+     ========================================================== */
+  /* A barra fica fixa à esquerda; as telas (Início, Estudos, Resultados) ganham um recuo do mesmo tamanho.
+     Na prova ela some (body sem .com-lateral). */
+  body { --lat: 232px; }
+  body.lateral-recolhida { --lat: 68px; }
+  body:not(.com-lateral) .lateral, body:not(.com-lateral) .fundo-lateral { display: none !important; }
+  body.com-lateral { padding-left: calc(var(--lat) + 32px); }
+  .conteudo-resultados { min-width: 0; }
+  /* As abas do topo e o "← Voltar" de Resultados saem: a lateral faz esse papel */
+  #abas-tela { display: none !important; }
+  .btn.btn-abrir-lateral { display: none; order: -2; } /* ☰ antes do "← Voltar" */
+  .btn-abrir-lateral svg { fill: none; }
+
+  .lateral {
+    position: fixed; top: 16px; bottom: 16px; left: 16px; z-index: 30; width: var(--lat);
+    display: flex; flex-direction: column; max-height: 900px; overflow-y: auto; overflow-x: hidden;
+    padding: 12px 10px; border: 1px solid var(--hoje-linha); border-radius: 22px;
+    background: var(--hoje-moldura); box-shadow: var(--hoje-sombra);
+    scrollbar-width: thin;
+  }
+  .lateral-topo { display: flex; align-items: center; gap: 10px; padding: 2px 2px 10px 4px; }
+  .marca-lateral {
+    flex: none; width: 34px; height: 34px; border-radius: 11px; display: inline-flex; align-items: center; justify-content: center;
+    background: var(--chip); color: var(--chip-texto); box-shadow: 0 2px 8px -2px color-mix(in srgb, var(--chip) 60%, transparent);
+  }
+  .marca-lateral svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+  .nome-lateral { flex: 1; min-width: 0; font-weight: 650; font-size: .98rem; letter-spacing: -.01em; white-space: nowrap; }
+  .btn-recolher-lateral {
+    flex: none; width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;
+    border: 0; border-radius: 10px; background: transparent; color: var(--texto-suave); cursor: pointer; transition: background .15s, color .15s;
+  }
+  .btn-recolher-lateral svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s; }
+  .btn-recolher-lateral:hover { background: color-mix(in srgb, var(--texto) 7%, transparent); color: var(--texto); }
+  .secao-lateral { margin: 14px 12px 6px; color: var(--texto-suave); font-size: .68rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; white-space: nowrap; }
+  .lista-lateral { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  .item-lateral {
+    display: flex; align-items: center; gap: 12px; width: 100%; min-height: 40px; padding: 8px 12px;
+    border: 1px solid transparent; border-radius: 12px; background: transparent; color: var(--texto-suave);
+    font: inherit; font-size: .92rem; font-weight: 500; text-align: left; white-space: nowrap; cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s, box-shadow .15s;
+  }
+  .item-lateral svg { flex: none; width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .item-lateral span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .item-lateral:hover { background: color-mix(in srgb, var(--texto) 5%, transparent); color: var(--texto); }
+  .item-lateral:focus-visible, .btn-recolher-lateral:focus-visible { outline: 2px solid var(--foco); outline-offset: 1px; }
+  /* Seção aberta: "pílula" elevada, como o Dashboard da referência */
+  .item-lateral[aria-current="page"] {
+    background: var(--hoje-painel); border-color: var(--hoje-linha); color: var(--texto); font-weight: 600; box-shadow: var(--hoje-sombra-leve);
+  }
+  .item-lateral[aria-current="page"] svg { color: var(--chip); }
+  :root[data-tema^="editorial"] .item-lateral[aria-current="page"] svg { color: var(--chip); }
+  .lista-lateral + .secao-lateral { margin-top: 16px; }
+  .lateral-rodape { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--hoje-linha); }
+  .dica-esc { margin: 10px 12px 2px; color: var(--texto-suave); font-size: .74rem; white-space: nowrap; }
+  .dica-esc kbd {
+    display: inline-block; margin-right: 4px; padding: 1px 6px; border: 1px solid var(--hoje-linha); border-radius: 6px;
+    background: var(--hoje-painel); box-shadow: 0 1px 0 var(--hoje-linha); font: 600 .7rem/1.4 var(--fonte); color: var(--texto);
+  }
+  /* Título da página: "RESULTADOS" pequeno em cima + nome da seção */
+  #tela-resultados .titulo-tela h1 { display: flex; flex-direction: column; line-height: 1.1; }
+  .sobretitulo { display: block; margin-bottom: 3px; font: 600 .68rem/1.2 var(--fonte); letter-spacing: .12em; text-transform: uppercase; color: var(--texto-suave); }
+
+  /* Recolhida (escolha no botão do topo): só os ícones; o nome aparece na dica ao passar o mouse. No PC nunca vira gaveta. */
+  .lateral-recolhida .lateral { padding: 12px 8px; }
+  .lateral-recolhida .lateral-topo { flex-direction: column; gap: 8px; padding: 2px 0 8px; }
+  .lateral-recolhida .nome-lateral,
+  .lateral-recolhida .item-lateral span { display: none; }
+  .lateral-recolhida .btn-recolher-lateral svg { transform: scaleX(-1); }
+  .lateral-recolhida .secao-lateral { height: 1px; margin: 10px 8px; overflow: hidden; font-size: 0; background: var(--hoje-linha); }
+  .lateral-recolhida .item-lateral { justify-content: center; padding: 8px 0; }
+  .lateral-recolhida .dica-esc { display: none; }
+  /* Janela estreita no PC: a barra continua com os nomes, só um pouco mais fina */
+  @media (max-width: 760px) {
+    body { --lat: 200px; }
+    body.com-lateral { padding-left: calc(var(--lat) + 24px); }
+    .item-lateral { gap: 10px; padding: 8px 10px; font-size: .88rem; }
+  }
+
+  /* Celular/tablet de toque (body.modo-gaveta): conteúdo na largura toda; a lateral é uma gaveta (☰) */
+  body.modo-gaveta.com-lateral { padding-left: 0; }
+  .modo-gaveta .btn.btn-abrir-lateral { display: inline-flex; flex: none; }
+  .modo-gaveta .cabecalho .barra-topo .btn.btn-abrir-lateral { flex: none; width: 44px; }
+  .modo-gaveta .btn-recolher-lateral, .modo-gaveta .dica-esc { display: none; }
+  .modo-gaveta .lateral {
+    top: 10px; bottom: 10px; left: 10px; z-index: 41; width: min(272px, calc(100vw - 56px)); max-height: none;
+    transform: translateX(calc(-100% - 24px)); visibility: hidden;
+    transition: transform .26s cubic-bezier(.2, .7, .3, 1), visibility 0s linear .26s;
+  }
+  .modo-gaveta.lateral-aberta .lateral { transform: none; visibility: visible; transition: transform .26s cubic-bezier(.2, .7, .3, 1), visibility 0s; }
+  .modo-gaveta .fundo-lateral { position: fixed; inset: 0; z-index: 40; background: rgba(0, 0, 0, .45); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); animation: fundo-entra .2s ease-out; }
+  @keyframes fundo-entra { from { opacity: 0; } }
+  .modo-gaveta .item-lateral { min-height: 46px; }
+  @media (prefers-reduced-motion: reduce) { .lateral { transition: none !important; } }
+
+  /* Tema na barra lateral: bolinha com a cor do tema atual + lista que abre ao lado */
+  .item-tema .amostra-tema-lateral {
+    flex: none; width: 14px; height: 14px; margin-left: auto; border-radius: 50%;
+    box-shadow: 0 0 0 2px var(--hoje-moldura), 0 0 0 3px var(--hoje-linha);
+  }
+  .lateral-recolhida .item-tema .amostra-tema-lateral { display: none; }
+  .menu-temas {
+    position: fixed; z-index: 60; width: 230px; max-height: min(460px, calc(100vh - 20px)); overflow-y: auto;
+    padding: 8px; border: 1px solid var(--hoje-linha); border-radius: 16px;
+    background: var(--hoje-painel); box-shadow: 0 2px 6px rgba(0, 0, 0, .12), 0 18px 40px -10px rgba(0, 0, 0, .45);
+    animation: surgir .14s ease-out;
+  }
+  .titulo-menu-temas { margin: 6px 8px 4px; color: var(--texto-suave); font-size: .66rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; }
+  .grupo-menu-temas + .grupo-menu-temas { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--hoje-linha); }
+  .opcao-menu-tema {
+    display: flex; align-items: center; gap: 10px; width: 100%; padding: 7px 8px; border: 0; border-radius: 10px;
+    background: transparent; color: var(--texto); font: inherit; font-size: .86rem; text-align: left; cursor: pointer;
+  }
+  .opcao-menu-tema:hover, .opcao-menu-tema:focus-visible { background: color-mix(in srgb, var(--texto) 6%, transparent); outline: none; }
+  .opcao-menu-tema[aria-checked="true"] { font-weight: 600; }
+  .opcao-menu-tema[aria-checked="true"]::after { content: "✓"; margin-left: auto; color: var(--chip); font-weight: 700; }
+  .amostra-menu-tema { flex: none; display: inline-flex; width: 26px; height: 18px; overflow: hidden; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(127, 127, 127, .35); }
+  .amostra-menu-tema span { flex: 1; }
+
+  /* ==========================================================
+     DESEMPENHO: quadros das matérias e Total no visual "painel"
+     (cartão elevado, brilho da cor da matéria no canto, anel de %, barra e nota)
+     ========================================================== */
+  .cartoes-materias { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .cartao-materia {
+    position: relative; overflow: hidden; gap: 0; padding: 14px 16px 13px;
+    border: 1px solid var(--hoje-linha); border-radius: 18px;
+    background:
+      radial-gradient(130% 90% at 100% 0%, color-mix(in srgb, var(--cor) 16%, transparent), transparent 62%),
+      var(--hoje-painel);
+    box-shadow: var(--hoje-sombra-leve);
+    transition: transform .18s, box-shadow .18s, border-color .18s;
+  }
+  .cartao-materia::before {
+    content: ""; position: absolute; inset: 0 0 auto; height: 3px;
+    background: linear-gradient(90deg, var(--cor), color-mix(in srgb, var(--cor) 25%, transparent));
+  }
+  .cartao-materia:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--cor) 40%, var(--hoje-linha)); box-shadow: var(--hoje-sombra); }
+  .topo-cartao-materia { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .cartao-materia .nome-cartao-materia {
+    display: inline-flex; align-items: center; gap: 7px; min-width: 0; padding: 0; border-radius: 0; background: none;
+    color: var(--texto); font-size: .88rem; font-weight: 600; letter-spacing: 0;
+  }
+  .ponto-materia { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--cor); box-shadow: 0 0 0 3px color-mix(in srgb, var(--cor) 20%, transparent); }
+  .cartao-materia .valor-materia { margin: 0; font-size: 2.1rem; font-weight: 650; letter-spacing: -.02em; }
+  .cartao-materia .valor-materia small { font-weight: 500; }
+  .barra-materia { display: block; height: 6px; margin: 10px 0 10px; border-radius: 999px; background: color-mix(in srgb, var(--texto) 8%, transparent); overflow: hidden; }
+  .barra-materia span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--cor) 65%, transparent), var(--cor)); }
+  .rodape-cartao-materia { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 8px; }
+  .nota-materia { display: inline-flex; align-items: baseline; gap: 5px; font-size: .9rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .nota-materia small { color: var(--texto-suave); font-size: .72rem; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; }
+  .selo-eliminatoria { padding: 2px 8px; border-radius: 999px; font-size: .7rem; font-weight: 600; color: var(--texto-suave); background: color-mix(in srgb, var(--texto) 7%, transparent); white-space: nowrap; }
+  .selo-eliminatoria.abaixo { color: var(--nivel-ruim); background: color-mix(in srgb, var(--nivel-ruim) 14%, transparent); }
+  .cartao-materia.eliminatoria { border-style: solid; border-top-style: solid; }
+  .cartao-materia.eliminatoria::before { background: repeating-linear-gradient(90deg, var(--cor) 0 8px, transparent 8px 13px); }
+  /* Total: largo, com a barra no meio */
+  .total-materias {
+    display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 18px; margin-top: 12px;
+    padding: 14px 18px; border: 1px solid var(--hoje-linha); border-radius: 18px;
+    background: var(--hoje-painel); box-shadow: var(--hoje-sombra-leve);
+    --cor: var(--chip);
+  }
+  .total-materias .nome-total strong { font-size: 1rem; }
+  .meio-total { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .meio-total .barra-materia { flex: 1; margin: 0; height: 8px; }
+  .pct-total { font-size: .8rem; font-weight: 700; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
+  .total-materias .valor-total { display: flex; align-items: baseline; gap: 12px; }
+  .total-materias .valor-materia { font-size: 2.1rem; font-weight: 650; letter-spacing: -.02em; }
+  /* O Total se ajusta à largura do próprio bloco (a barra lateral também ocupa espaço) */
+  #bloco-materias { container-type: inline-size; }
+  @container (max-width: 480px) {
+    .total-materias { grid-template-columns: minmax(0, 1fr) auto; row-gap: 10px; }
+    .meio-total { grid-column: 1 / -1; grid-row: 2; }
+  }
+  @container (max-width: 300px) {
+    .total-materias { grid-template-columns: minmax(0, 1fr); }
+    .total-materias .valor-total { grid-row: 2; }
+    .meio-total { grid-row: 3; }
+  }
+  @media (max-width: 520px) {
+    .cartoes-materias { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .cartao-materia { padding: 12px 12px 11px; border-radius: 16px; }
+    .cartao-materia .valor-materia { font-size: 1.7rem; }
+    .total-materias { grid-template-columns: minmax(0, 1fr) auto; row-gap: 10px; }
+    .meio-total { grid-column: 1 / -1; grid-row: 2; }
+    .total-materias .valor-materia { font-size: 1.8rem; }
+  }
+
+  /* Todas as semanas: cada semana em 7 colunas (uma por dia); no celular, os dias um embaixo do outro */
+  .lista-semanas { display: flex; flex-direction: column; gap: 14px; }
+  .semana-resumo { border: 1px solid var(--borda); border-radius: 12px; padding: 12px; }
+  .semana-resumo-topo { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .semana-resumo-topo strong { font-size: .98rem; }
+  .semana-resumo-topo .btn { margin-left: auto; }
+  .dias-resumo { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+  .dia-resumo { min-width: 0; border-radius: 9px; background: var(--bg-2); padding: 7px 7px 8px; font-size: .76rem; line-height: 1.3; }
+  .dia-resumo h4 { margin: 0 0 4px; font-size: .78rem; font-weight: 700; }
+  .dia-resumo h4 small { font-weight: 400; color: var(--texto-suave); }
+  .dia-resumo .periodo-resumo { margin: 6px 0 2px; color: var(--texto-suave); font-size: .66rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+  .dia-resumo ul { list-style: none; margin: 0; padding: 0; }
+  .dia-resumo li { overflow-wrap: break-word; white-space: pre-line; margin-top: 2px; }
+  .dia-resumo li b { color: var(--cor); font-size: .68rem; letter-spacing: .03em; margin-right: 3px; }
+  .dia-resumo li.feito { color: var(--texto-suave); }
+  .dia-resumo li.feito::after { content: " ✓"; color: var(--nivel-excelente); font-weight: 700; }
+  .dia-resumo .vazio-resumo { color: var(--texto-suave); opacity: .6; }
+  @media (max-width: 760px) {
+    .dias-resumo { grid-template-columns: 1fr; }
+    .dia-resumo { font-size: .86rem; }
+    .dia-resumo li b { font-size: .74rem; }
+    .dia-resumo.sem-plano { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -2302,12 +2843,64 @@
 <!-- ============================================================
      TELA 1 — CONFIGURAÇÃO
      ============================================================ -->
+<!-- Barra lateral do app (Início, Estudos e Resultados; some durante a prova).
+     No computador fica fixa à esquerda e pode recolher; no celular vira uma gaveta (abre no ☰). Esc volta ao Início. -->
+<div id="fundo-lateral" class="fundo-lateral" hidden></div>
+<aside id="lateral" class="lateral" aria-label="Navegação">
+  <div class="lateral-topo">
+    <span class="marca-lateral" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5M10 3h4M18.2 7.3l1.3-1.3"/></svg>
+    </span>
+    <span class="nome-lateral">Simulado</span>
+    <button id="btn-recolher-lateral" class="btn-recolher-lateral" type="button" aria-label="Recolher a barra lateral" title="Recolher">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><path d="M9.5 4.5v15M15.5 10l-2 2 2 2"/></svg>
+    </button>
+  </div>
+
+  <ul class="lista-lateral">
+    <li><button class="item-lateral" type="button" data-ir="inicio" title="Início">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6.5 8 6.5"/><path d="M6 9.5V20h12V9.5"/></svg><span>Início</span></button></li>
+    <li><button class="item-lateral" type="button" data-ir="estudos" title="Estudos">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5C6.5 5 9.5 5 12 6.5v13C9.5 18 6.5 18 4 19.5zM20 6.5C17.5 5 14.5 5 12 6.5v13c2.5-1.5 5.5-1.5 8 0z"/></svg><span>Estudos</span></button></li>
+  </ul>
+
+  <p class="secao-lateral">Resultados</p>
+  <ul class="lista-lateral">
+    <li><button class="item-lateral" type="button" data-ir="desempenho" title="Desempenho">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5h16M7 16v-4M12 16V7M17 16v-6"/></svg><span>Desempenho</span></button></li>
+    <li><button class="item-lateral" type="button" data-ir="registrar" title="Registrar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4.5V3h6v1.5M9 11h6M9 15h4"/></svg><span>Registrar</span></button></li>
+    <li><button class="item-lateral" type="button" data-ir="segunda" title="2ª fase">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V9l7-5 7 5v11"/><path d="M9.5 20v-5.5h5V20"/></svg><span>2ª fase</span></button></li>
+    <li><button class="item-lateral" type="button" data-ir="planejamento" title="Planejamento">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4M8.5 14h2M13.5 14h2M8.5 17h2"/></svg><span>Planejamento</span></button></li>
+  </ul>
+
+  <div class="lateral-rodape">
+    <ul class="lista-lateral">
+      <!-- Tema: abre a lista de temas (ao lado da barra) -->
+      <li><button id="btn-tema-lateral" class="item-lateral item-tema" type="button" title="Tema"
+                  aria-haspopup="menu" aria-expanded="false" aria-controls="menu-temas">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.1 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.8-1.7 1.7-1.7h2a4.5 4.5 0 0 0 4.5-4.5C21 6.6 17 3.5 12 3.5z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10.5" cy="7.5" r="1.2"/><circle cx="15" cy="7.5" r="1.2"/></svg><span>Tema</span><i id="amostra-tema-lateral" class="amostra-tema-lateral" aria-hidden="true"></i></button></li>
+      <li><button class="item-lateral" type="button" data-ir="historico" title="Histórico">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3.5 4v4h4M12 8v4.5l3 1.8"/></svg><span>Histórico</span></button></li>
+      <li><button class="item-lateral" type="button" data-ir="perfil" title="Perfil e backup">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></svg><span>Perfil e backup</span></button></li>
+    </ul>
+    <p class="dica-esc" aria-hidden="true"><kbd>Esc</kbd> volta ao Início</p>
+  </div>
+</aside>
+<div id="menu-temas" class="menu-temas" role="menu" aria-label="Tema" hidden></div>
+
 <main id="tela-config">
   <header class="cabecalho">
     <img class="logo-grande" src="data:image/png;base64,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" alt="Logo do ITA">
     <h1>Cronômetro de Simulado</h1>
     <p class="subtitulo">Escolha a prova e comece.</p>
     <div class="barra-topo">
+      <button class="btn btn-fantasma btn-pequeno btn-icone btn-abrir-lateral" type="button"
+              aria-label="Abrir o menu" title="Menu" aria-controls="lateral" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
       <button id="btn-estudos" class="btn btn-fantasma btn-pequeno" type="button">Estudos</button>
       <button id="btn-abrir-resultados" class="btn btn-fantasma btn-pequeno" type="button">Resultados →</button>
       <!-- Mesmo menu da engrenagem de Resultados -->
@@ -2427,6 +3020,37 @@
 
 
   <div class="acoes">
+    <!-- Hoje no planejamento semanal: o que estudar de manhã e à tarde, com ✓ -->
+    <section id="hoje-plano" class="hoje-plano" aria-labelledby="titulo-hoje-plano">
+      <div class="hoje-plano-topo">
+        <!-- ‹ › trocam o dia (no celular também dá para arrastar o painel para o lado) -->
+        <div class="hoje-plano-nav">
+          <button id="hoje-anterior" class="seta-hoje" type="button" aria-label="Dia anterior" title="Dia anterior">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <h2 id="titulo-hoje-plano" aria-live="polite"><span id="hoje-plano-nome">Hoje</span> <span id="hoje-plano-data"></span></h2>
+          <button id="hoje-proximo" class="seta-hoje" type="button" aria-label="Próximo dia" title="Próximo dia">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+          <button id="hoje-voltar" class="voltar-hoje" type="button" hidden>Hoje</button>
+        </div>
+        <button id="btn-hoje-plano" class="btn-hoje" type="button"><span id="btn-hoje-plano-texto">Abrir planejamento</span>
+          <svg class="seta-btn-hoje" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+          <!-- No celular: só o ícone de calendário -->
+          <svg class="calendario-btn-hoje" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></button>
+      </div>
+      <div class="hoje-plano-painel">
+        <div class="hoje-plano-numero">
+          <div>
+            <strong id="hoje-plano-total" class="numero-hoje"></strong>
+            <span id="hoje-plano-progresso" class="variacao-hoje"></span>
+          </div>
+          <svg class="anel-hoje" viewBox="0 0 48 48" aria-hidden="true">
+            <circle class="anel-fundo" cx="24" cy="24" r="19" pathLength="100"/>
+            <circle id="anel-hoje-valor" class="anel-valor" cx="24" cy="24" r="19" pathLength="100" stroke-dasharray="0 100"/>
+          </svg>
+        </div>
+        <div id="hoje-plano-corpo" class="hoje-plano-corpo"></div>
+      </div>
+    </section>
     <div class="grupo">
       <button id="btn-restaurar" class="btn btn-fantasma" type="button">Restaurar adesivos padrão</button>
     </div>
@@ -2489,32 +3113,46 @@
 <!-- ============================================================
      TELA 4 — ESTUDOS (cronômetro de estudo por matéria)
      ============================================================ -->
-<main id="tela-estudos" hidden>
+<main id="tela-estudos" class="tela-dash" hidden>
   <div class="titulo-tela">
+    <button class="btn btn-fantasma btn-pequeno btn-icone btn-abrir-lateral" type="button"
+            aria-label="Abrir o menu" title="Menu" aria-controls="lateral" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     <button id="btn-estudos-voltar" class="btn btn-fantasma btn-pequeno" type="button">← Voltar</button>
     <h1>Estudos</h1>
   </div>
 
   <!-- Sessão em andamento -->
-  <section id="estudo-ativo" class="cartao estudo-ativo" hidden>
-    <p class="estudo-ativo-topo"><strong id="estudo-ativo-nome"></strong> · <span id="estudo-ativo-estado">estudando</span></p>
-    <p id="estudo-relogio" class="estudo-relogio">0:00:00</p>
-    <p id="estudo-desde" class="item-meta"></p>
-    <div class="linha estudo-botoes">
-      <button id="btn-estudo-pausar" class="btn btn-fantasma" type="button">Pausar</button>
-      <button id="btn-estudo-terminar" class="btn" type="button">Terminar e salvar</button>
+  <!-- Visual em "painel": moldura com o título + painel elevado dentro (como o quadro Hoje da tela inicial) -->
+  <section id="estudo-ativo" class="dash estudo-ativo" hidden>
+    <div class="dash-topo">
+      <h2><span class="ponto-vivo" aria-hidden="true"></span><span id="estudo-ativo-nome"></span></h2>
+      <span id="estudo-ativo-estado" class="selo-dash">estudando</span>
     </div>
-    <button id="btn-estudo-descartar" class="link-discreto" type="button">Descartar esta sessão</button>
+    <div class="dash-painel">
+      <p id="estudo-relogio" class="estudo-relogio">0:00:00</p>
+      <p id="estudo-desde" class="item-meta"></p>
+      <div class="linha estudo-botoes">
+        <button id="btn-estudo-pausar" class="btn btn-fantasma" type="button">Pausar</button>
+        <button id="btn-estudo-terminar" class="btn" type="button">Terminar e salvar</button>
+      </div>
+      <button id="btn-estudo-descartar" class="link-discreto" type="button">Descartar esta sessão</button>
+    </div>
   </section>
 
-  <section class="cartao">
-    <h2>O que você vai estudar?</h2>
-    <div id="estudo-materias" class="estudo-materias"></div>
-    <p id="msg-estudos" class="msg msg-ok" role="status"></p>
+  <section class="dash">
+    <div class="dash-topo">
+      <h2>O que você vai estudar?</h2>
+      <span class="item-meta">Toque numa matéria para começar</span>
+    </div>
+    <div class="dash-painel">
+      <div id="estudo-materias" class="estudo-materias"></div>
+      <p id="msg-estudos" class="msg msg-ok" role="status"></p>
+    </div>
   </section>
 
-  <section class="cartao">
-    <div class="titulo-tela compacto">
+  <section class="dash">
+    <div class="dash-topo">
       <h2>Horas estudadas</h2>
       <div id="estudo-periodos" class="segmento" role="tablist" aria-label="Período">
         <button type="button" role="tab" data-periodo="hoje">Hoje</button>
@@ -2522,7 +3160,14 @@
         <button type="button" role="tab" data-periodo="total">Total</button>
       </div>
     </div>
-    <ul id="estudo-lista" class="estudo-lista" aria-label="Horas estudadas por matéria"></ul>
+    <div class="dash-painel">
+      <div class="total-dash">
+        <strong id="estudo-total-numero" class="numero-dash">0h00</strong>
+        <span id="estudo-total-legenda" class="item-meta"></span>
+      </div>
+      <ul id="estudo-lista" class="estudo-lista" aria-label="Horas estudadas por matéria"></ul>
+    </div>
+    <div class="dash-rodape">
     <!-- Integração com o cronômetro de prova -->
     <label class="marcar opcao-simulado">
       <input id="chk-simulado-estudos" type="checkbox">
@@ -2556,13 +3201,19 @@
       </form>
       <p id="erro-estudo-manual" class="msg msg-erro" role="alert"></p>
     </details>
+    </div>
   </section>
 </main>
 
 <main id="tela-resultados" hidden>
 
+  <div class="conteudo-resultados">
   <div class="titulo-tela">
-    <h1>Resultados</h1>
+    <!-- ☰ abre a barra lateral (só no celular) -->
+    <button id="btn-abrir-lateral" class="btn btn-fantasma btn-pequeno btn-icone btn-abrir-lateral" type="button"
+            aria-label="Abrir o menu" title="Menu" aria-controls="lateral" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <h1><small id="sobretitulo-resultados" class="sobretitulo">Resultados</small><span id="titulo-resultados">Desempenho</span></h1>
     <button id="btn-resultados-voltar" class="btn btn-fantasma btn-pequeno" type="button">← Voltar</button>
     <!-- Engrenagem: menu com Histórico, Perfil e backup e Aparência (as Opções da tela inicial) -->
     <button id="btn-opcoes-resultados" class="btn btn-fantasma btn-pequeno btn-icone btn-opcoes-tela" type="button"
@@ -2577,6 +3228,8 @@
             aria-controls="painel-registrar" aria-selected="false" tabindex="-1">Registrar</button>
     <button id="nav-segunda" class="nav-aba" type="button" role="tab" data-aba="segunda"
             aria-controls="painel-segunda" aria-selected="false" tabindex="-1">2ª fase</button>
+    <button id="nav-planejamento" class="nav-aba" type="button" role="tab" data-aba="planejamento"
+            aria-controls="painel-planejamento" aria-selected="false" tabindex="-1"><span class="rotulo-longo">Planejamento</span><span class="rotulo-curto" aria-hidden="true">Plano</span></button>
   </nav>
   <!-- Aparece só no perfil "Exemplo" -->
   <div id="aviso-exemplo" class="aviso-exemplo" hidden>
@@ -2689,6 +3342,47 @@
             <div><label class="rotulo" for="meta-red">Redação</label><input id="meta-red" class="campo seg-num" type="number" min="0" max="10" step="0.1"></div>
           </form>
         </details>
+      </div>
+    </section>
+  </div>
+
+  <!-- ABA: PLANEJAMENTO (semana de segunda a domingo: Manhã e Tarde, uma linha por matéria) -->
+  <div id="painel-planejamento" role="tabpanel" aria-labelledby="nav-planejamento" hidden>
+    <section class="cartao">
+      <div class="titulo-tela compacto titulo-plano">
+        <h2>Planejamento</h2>
+        <div id="modo-plano" class="segmento" role="tablist" aria-label="O que mostrar">
+          <button type="button" role="tab" data-modo="dia" aria-selected="false" tabindex="-1">Dia</button>
+          <button type="button" role="tab" data-modo="semana" aria-selected="true">Semana</button>
+          <button type="button" role="tab" data-modo="todas" aria-selected="false" tabindex="-1">Todas as semanas</button>
+        </div>
+      </div>
+
+      <!-- Uma semana, para escrever e marcar o que foi feito -->
+      <div id="plano-semana">
+        <p class="dica">Todo domingo, escreva o que vai estudar de manhã e à tarde até o próximo domingo. Marque ✓ no que fizer.</p>
+        <div class="barra-semana">
+          <button id="plano-anterior" class="btn btn-fantasma btn-pequeno btn-icone" type="button" aria-label="Semana anterior" title="Semana anterior">‹</button>
+          <strong id="plano-titulo-semana" class="titulo-semana" aria-live="polite"></strong>
+          <button id="plano-proxima" class="btn btn-fantasma btn-pequeno btn-icone" type="button" aria-label="Próxima semana" title="Próxima semana">›</button>
+          <button id="plano-hoje" class="btn btn-fantasma btn-pequeno" type="button" title="Ir para a semana de hoje">Hoje</button>
+          <span id="plano-progresso" class="item-meta progresso-plano"></span>
+        </div>
+        <!-- No celular: um dia por vez -->
+        <div id="plano-dias" class="dias-plano" role="tablist" aria-label="Dia da semana"></div>
+        <div class="grade-plano-caixa">
+          <table id="tabela-plano" class="tabela-plano"></table>
+        </div>
+      </div>
+
+      <!-- Todas as semanas já planejadas, da mais recente para a mais antiga -->
+      <div id="plano-todas" hidden>
+        <div class="barra-semana">
+          <label class="rotulo rotulo-inline" for="plano-mes">Mês</label>
+          <select id="plano-mes" class="campo campo-mes-plano"></select>
+          <span id="plano-resumo-todas" class="item-meta progresso-plano"></span>
+        </div>
+        <div id="lista-semanas" class="lista-semanas"></div>
       </div>
     </section>
   </div>
@@ -2893,6 +3587,7 @@
       </div>
     </form>
   </div>
+  </div><!-- /conteudo-resultados -->
 </main>
 
 <!-- ============================================================
@@ -3077,7 +3772,7 @@ const CHAVE_TEMA   = 'cronometro-simulado:tema';   // esquema de cores (todos os
 const DADOS_DO_PERFIL = ['v1', 'tipos', 'resultados', 'ultimo-backup', 'ordenacao', 'ordem-manual', 'versao', 'filtro',
                          'excluidos', 'filtro-historico', 'ultimo-gabarito', 'estudos', 'estudo-ativo', 'estudos-retirados',
                          'grupos', 'filtro-grupo', 'ultimo-grupo', 'segunda-fase', 'grupos-ciclos',
-                         'filtro-grupo-segunda', 'ultimo-grupo-segunda', 'estudos-simulado', 'blocos-de-4'];
+                         'filtro-grupo-segunda', 'ultimo-grupo-segunda', 'estudos-simulado', 'blocos-de-4', 'planejamento'];
 
 function chaveDoPerfil(idPerfil, nome) {
   return idPerfil === 'principal'
@@ -4144,6 +4839,7 @@ function aplicarTema(id) {
   gravar(CHAVE_TEMA, tema.id);
   const resumo = document.getElementById('resumo-cores'); // nome do tema, ao lado de "Cores"
   if (resumo) resumo.textContent = tema.nome;
+  atualizarItemTema(); // bolinha do tema na barra lateral
 }
 
 /** Cria um botão por tema, com amostra das cores */
@@ -4249,6 +4945,8 @@ function mostrarTela(qual) {
   el.telaProva.hidden = qual !== 'prova';
   el.telaResultados.hidden = qual !== 'resultados';
   $('tela-estudos').hidden = qual !== 'estudos';
+  if (qual === 'config' && window.planoCarregado) { deslocamentoHoje = 0; renderHojePlano(); } // volta para hoje (o plano pode ter mudado)
+  if (window.lateralPronta) sincronizarLateral(qual); // barra lateral: some na prova e marca a tela aberta
   window.scrollTo(0, 0);
 }
 
@@ -5256,7 +5954,7 @@ function itemResultado(r, posicao = {}) {
   };
   acoes.append(
     botaoAcao('Ver questões', '', () => verQuestoesNoDesempenho(r), 'Ver questões'), // abre no Desempenho
-    botaoAcao('Editar', '', () => abrirFormulario({ existente: r }), 'Editar'),
+    botaoAcao('Editar', '', () => editarDoHistorico(r), 'Editar'),
     botaoAcao('Excluir', 'perigo', () => excluirResultado(r), 'Excluir'));
 
   // Na "Minha ordem", botões para subir/descer a prova na lista
@@ -6017,6 +6715,14 @@ function renderDesempenho() {
     valor.append(criar('small', '', `/${total}`));
     return valor;
   };
+  // Barra de progresso (% de acerto) na cor da matéria
+  const barraMateria = pct => {
+    const trilho = criar('span', 'barra-materia');
+    const preenchido = criar('span');
+    preenchido.style.width = `${pct}%`;
+    trilho.append(preenchido);
+    return trilho;
+  };
   elR.corpoMaterias.replaceChildren(...linhasTabela.map(m => {
     const cartao = criar('div', 'cartao-materia');
     cartao.style.setProperty('--cor', corDaMateria(m.chave, ordem) || 'var(--texto-suave)');
@@ -6024,14 +6730,23 @@ function renderDesempenho() {
     // Média por prova, arredondada: ex.: 55 acertos em 7 provas → 8/12
     const acertos = Math.round(m.acertos / m.provas);
     const total = Math.round(m.total / m.provas);
-    cartao.append(
-      criar('span', 'nome-cartao-materia', m.nome),
-      fracao(acertos, total),
-      // Nota de 0 a 10 com 4 casas, feita com os números mostrados no cartão (ex.: 10/12 → 8,3333)
-      criar('span', 'item-meta', formatarNotaSegunda(total ? (acertos / total) * 10 : null, 4) +
-        (minimo !== null ? ` · eliminatória (mín. ${minimo})` : ''))
-    );
-    if (minimo !== null) cartao.classList.add('eliminatoria');
+    const pct = total ? Math.round((acertos / total) * 100) : 0;
+    const topo = criar('div', 'topo-cartao-materia');
+    const nome = criar('span', 'nome-cartao-materia');
+    nome.append(criar('span', 'ponto-materia'), m.nome);
+    topo.append(nome);
+    // Nota de 0 a 10 com 4 casas, feita com os números mostrados no cartão (ex.: 10/12 → 8,3333)
+    const rodape = criar('div', 'rodape-cartao-materia');
+    const nota = criar('span', 'nota-materia');
+    nota.append(criar('small', '', 'nota'), formatarNotaSegunda(total ? (acertos / total) * 10 : null, 4));
+    rodape.append(nota);
+    if (minimo !== null) {
+      const abaixo = acertos < minimo;
+      const selo = criar('span', 'selo-eliminatoria' + (abaixo ? ' abaixo' : ''), abaixo ? `abaixo do mín. ${minimo}` : `eliminatória · mín. ${minimo}`);
+      rodape.append(selo);
+      cartao.classList.add('eliminatoria');
+    }
+    cartao.append(topo, fracao(acertos, total), barraMateria(pct), rodape);
     return cartao;
   }));
 
@@ -6051,9 +6766,14 @@ function renderDesempenho() {
     // Nota com os números mostrados (ex.: 28/36 → 7,7778)
     const acertosTotal = Math.round(mediaAcertos);
     const questoesTotal = Math.round(mediaQuestoes);
-    direita.append(fracao(acertosTotal, questoesTotal),
-      criar('span', 'item-meta', formatarNotaSegunda(questoesTotal ? (acertosTotal / questoesTotal) * 10 : null, 4)));
-    caixaTotal.replaceChildren(texto, direita);
+    const pctTotal = questoesTotal ? Math.round((acertosTotal / questoesTotal) * 100) : 0;
+    const nota = criar('span', 'nota-materia');
+    nota.append(criar('small', '', 'nota'), formatarNotaSegunda(questoesTotal ? (acertosTotal / questoesTotal) * 10 : null, 4));
+    direita.append(fracao(acertosTotal, questoesTotal), nota);
+    // No meio: barra com a % de acerto da prova inteira
+    const meio = criar('span', 'meio-total');
+    meio.append(barraMateria(pctTotal), criar('span', 'pct-total', `${pctTotal}%`));
+    caixaTotal.replaceChildren(texto, meio, direita);
   } else caixaTotal.replaceChildren();
   // (A coluna "Desempenho" e a legenda das faixas foram retiradas da tabela;
   //  as faixas continuam no gráfico e na "nota em 3 cenários".)
@@ -6070,7 +6790,7 @@ function renderDesempenho() {
 
 /* ---------- Abas da tela de Resultados ---------- */
 // Abas de Resultados. Histórico e Perfil e backup não são abas: abrem em janelas, como as Configurações
-const ABAS_TELA = ['desempenho', 'registrar', 'segunda'];
+const ABAS_TELA = ['desempenho', 'registrar', 'segunda', 'planejamento'];
 const JANELAS = ['historico', 'perfil'];
 let abaTela = 'desempenho';
 let abriuJanela = null; // botão que abriu a janela (o foco volta para ele ao fechar)
@@ -6119,11 +6839,14 @@ function trocarAbaTela(aba) {
     botao.tabIndex = ativa ? 0 : -1;
   });
   ABAS_TELA.forEach(a => { $(`painel-${a}`).hidden = a !== aba; });
+  el.telaResultados.classList.toggle('tela-larga', aba === 'planejamento'); // a grade da semana precisa de espaço
+  atualizarLateral(aba);
   // Registrar sem nada em andamento: abre um formulário novo
   if (aba === 'registrar' && !edicao) abrirFormulario();
   // O gráfico só mede a largura certa com a aba visível
   if (aba === 'desempenho') atualizarGrafico();
   if (aba === 'segunda') renderSegunda();
+  if (aba === 'planejamento') renderPlano();
 }
 
 /* ---------- Engrenagem (tela inicial e Resultados): o mesmo menu com Histórico, Perfil e backup e Aparência ---------- */
@@ -6198,6 +6921,184 @@ function abrirResultados(aba = abaTela) {
   if (JANELAS.includes(aba)) { trocarAbaTela(abaTela); abrirJanela(aba); return; }
   trocarAbaTela(aba);
 }
+
+/* ---------- Barra lateral do app (Início, Estudos e Resultados; some durante a prova) ---------- */
+const CHAVE_LATERAL_RECOLHIDA = 'cronometro-simulado:lateral-recolhida'; // '1' = só ícones (vale para o aparelho)
+
+/** Marca o item da tela/seção aberta (inicio · estudos · desempenho…) e põe o nome da seção no título de Resultados */
+function atualizarLateral(aba) {
+  // (dentro da função: pode ser chamada antes desta parte do código ter rodado)
+  const NOMES_SECOES = { desempenho: 'Desempenho', registrar: 'Registrar', segunda: '2ª fase', planejamento: 'Planejamento' };
+  document.querySelectorAll('#lateral .item-lateral').forEach(b => {
+    if (b.dataset.ir === aba) b.setAttribute('aria-current', 'page');
+    else b.removeAttribute('aria-current');
+  });
+  if (NOMES_SECOES[aba]) $('titulo-resultados').textContent = NOMES_SECOES[aba];
+}
+
+/** Chamada a cada troca de tela: mostra a barra (menos na prova) e marca onde se está */
+function sincronizarLateral(qual) {
+  document.body.classList.toggle('com-lateral', qual !== 'prova');
+  fecharGaveta(false);
+  if (qual === 'config') atualizarLateral('inicio');
+  else if (qual === 'estudos') atualizarLateral('estudos');
+  else if (qual === 'resultados') atualizarLateral(abaTela);
+  if (qual === 'config' || qual === 'resultados') document.title = 'Cronômetro de Simulado';
+}
+
+let botaoGaveta = null; // ☰ que abriu a gaveta (o foco volta para ele)
+function abrirGaveta(e) {
+  botaoGaveta = e && e.currentTarget ? e.currentTarget : null;
+  document.body.classList.add('lateral-aberta');
+  $('fundo-lateral').hidden = false;
+  document.querySelectorAll('.btn-abrir-lateral').forEach(b => b.setAttribute('aria-expanded', 'true'));
+  ($('lateral').querySelector('[aria-current="page"]') || $('lateral').querySelector('.item-lateral')).focus();
+}
+function fecharGaveta(devolverFoco = true) {
+  if (!document.body.classList.contains('lateral-aberta')) return;
+  document.body.classList.remove('lateral-aberta');
+  $('fundo-lateral').hidden = true;
+  document.querySelectorAll('.btn-abrir-lateral').forEach(b => b.setAttribute('aria-expanded', 'false'));
+  if (devolverFoco && botaoGaveta && botaoGaveta.offsetParent) botaoGaveta.focus();
+}
+document.querySelectorAll('.btn-abrir-lateral').forEach(b => b.addEventListener('click', abrirGaveta));
+$('fundo-lateral').addEventListener('click', () => fecharGaveta());
+// Gaveta só em celular/tablet de toque. No PC a barra fica sempre aberta, com os nomes (em qualquer largura).
+const MQ_GAVETA = window.matchMedia('(max-width: 900px) and (pointer: coarse)');
+function aplicarModoLateral() {
+  const gaveta = MQ_GAVETA.matches;
+  document.body.classList.toggle('modo-gaveta', gaveta);
+  if (!gaveta) fecharGaveta(false);
+  aplicarLateralRecolhida();
+}
+MQ_GAVETA.addEventListener('change', aplicarModoLateral);
+
+/** "Início": sai de Resultados ou de Estudos (com prova em andamento, volta para a prova, como o antigo Voltar) */
+function irParaInicio() {
+  if (!el.telaResultados.hidden) voltarDosResultados();
+  else if (!$('tela-estudos').hidden) voltarDosEstudos();
+}
+
+document.querySelectorAll('#lateral .item-lateral[data-ir]').forEach(botao => {
+  botao.addEventListener('click', () => {
+    const ir = botao.dataset.ir;
+    fecharGaveta(false);
+    elR.msg.textContent = ''; elR.erro.textContent = '';
+    if (ir === 'inicio') { irParaInicio(); return; }
+    if (ir === 'estudos') { if ($('tela-estudos').hidden) abrirEstudos(); return; }
+    if (JANELAS.includes(ir)) { abriuJanela = botao; abrirJanela(ir); return; } // Histórico / Perfil: janela por cima
+    if (el.telaResultados.hidden) abrirResultados(ir); // vindo do Início ou de Estudos
+    else trocarAbaTela(ir);
+    window.scrollTo(0, 0);
+  });
+});
+
+/* Esc volta ao Início (de Resultados ou de Estudos) — só quando não há nada aberto por cima
+   (janela, diálogo, menu, gaveta: aí o Esc fecha isso primeiro). Num campo de texto, o 1º Esc só sai do campo. */
+window.addEventListener('keydown', e => {
+  if (e.key !== 'Escape' || e.defaultPrevented || e.repeat) return;
+  if (document.querySelector('.modal:not([hidden]), .menu-engrenagem:not([hidden])')) return;
+  if (!$('menu-temas').hidden) { e.preventDefault(); e.stopPropagation(); fecharMenuTemas(true); return; }
+  if (document.body.classList.contains('lateral-aberta')) { e.preventDefault(); e.stopPropagation(); fecharGaveta(); return; }
+  if (el.telaResultados.hidden && $('tela-estudos').hidden) return; // já no Início (ou na prova)
+  const ativo = document.activeElement;
+  if (ativo && ativo.matches('input:not([type="checkbox"]):not([type="radio"]), textarea, select, [contenteditable="true"]')) { ativo.blur(); return; }
+  if (ativo && ativo.id === 'area-grafico') { setTimeout(() => ativo.blur()); return; } // o gráfico esconde a mira com o Esc
+  e.preventDefault();
+  e.stopPropagation();
+  irParaInicio();
+}, true);
+
+/* ----- Tema na barra lateral: lista com amostras, abre ao lado do botão ----- */
+function corDoTema(tema) { return tema.acento || tema.amostra[1]; }
+function atualizarItemTema() {
+  const botao = document.getElementById('btn-tema-lateral');
+  if (!botao) return;
+  const atual = TEMAS.find(t => t.id === lerTexto(CHAVE_TEMA)) || TEMAS[0];
+  $('amostra-tema-lateral').style.background = corDoTema(atual);
+  botao.title = `Tema: ${atual.nome}`;
+  botao.setAttribute('aria-label', `Tema: ${atual.nome}`);
+  document.querySelectorAll('#menu-temas [data-tema]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.tema === atual.id)));
+}
+function renderMenuTemas() {
+  const grupo = (titulo, temas) => {
+    const caixa = criar('div', 'grupo-menu-temas');
+    caixa.append(criar('p', 'titulo-menu-temas', titulo), ...temas.map(tema => {
+      const b = criar('button', 'opcao-menu-tema');
+      b.type = 'button';
+      b.setAttribute('role', 'menuitemradio');
+      b.dataset.tema = tema.id;
+      const amostra = criar('span', 'amostra-menu-tema');
+      amostra.setAttribute('aria-hidden', 'true');
+      (tema.amostra || ['#0a0a0a', tema.acento]).slice(0, 2).forEach(cor => {
+        const faixa = criar('span'); faixa.style.background = cor; amostra.append(faixa);
+      });
+      b.append(amostra, criar('span', 'nome-menu-tema', tema.nome.replace(' (original)', '')));
+      b.addEventListener('click', () => { aplicarTema(tema.id); atualizarItemTema(); });
+      return b;
+    }));
+    return caixa;
+  };
+  $('menu-temas').replaceChildren(grupo('Estilos', TEMAS.filter(t => !t.acento)), grupo('Cores', TEMAS.filter(t => t.acento)));
+  atualizarItemTema();
+}
+function abrirMenuTemas() {
+  const menu = $('menu-temas');
+  const botao = $('btn-tema-lateral');
+  renderMenuTemas();
+  menu.hidden = false;
+  botao.setAttribute('aria-expanded', 'true');
+  // Ao lado da barra (no PC); se não couber (celular), em cima do botão
+  const r = botao.getBoundingClientRect();
+  const largura = menu.offsetWidth, altura = menu.offsetHeight;
+  let esquerda = r.right + 10, topo = Math.min(r.bottom - altura, window.innerHeight - altura - 10);
+  if (esquerda + largura > window.innerWidth - 8) { esquerda = Math.max(8, r.left); topo = r.top - altura - 8; }
+  menu.style.left = `${Math.max(8, esquerda)}px`;
+  menu.style.top = `${Math.max(8, topo)}px`;
+  (menu.querySelector('[aria-checked="true"]') || menu.querySelector('button')).focus();
+}
+function fecharMenuTemas(devolverFoco = false) {
+  if ($('menu-temas').hidden) return;
+  $('menu-temas').hidden = true;
+  $('btn-tema-lateral').setAttribute('aria-expanded', 'false');
+  if (devolverFoco) $('btn-tema-lateral').focus();
+}
+$('btn-tema-lateral').addEventListener('click', e => {
+  e.stopPropagation();
+  if ($('menu-temas').hidden) abrirMenuTemas(); else fecharMenuTemas();
+});
+// Clique fora fecha; setas ↑ ↓ andam pela lista
+document.addEventListener('click', e => { if (!$('menu-temas').hidden && !$('menu-temas').contains(e.target)) fecharMenuTemas(); });
+$('menu-temas').addEventListener('keydown', e => {
+  const opcoes = [...$('menu-temas').querySelectorAll('button')];
+  const i = opcoes.indexOf(document.activeElement);
+  const passo = { ArrowDown: 1, ArrowUp: -1 }[e.key];
+  if (passo) { e.preventDefault(); opcoes[(i + passo + opcoes.length) % opcoes.length].focus(); }
+  if (e.key === 'Tab') fecharMenuTemas();
+});
+window.addEventListener('resize', () => fecharMenuTemas());
+atualizarItemTema();
+
+/** Recolher/expandir (só no PC, pelo botão do topo da barra); o app lembra a escolha */
+let escolhaRecolhida = lerTexto(CHAVE_LATERAL_RECOLHIDA) === '1';
+function aplicarLateralRecolhida() {
+  const corpo = document.body.classList;
+  const recolhida = !corpo.contains('modo-gaveta') && escolhaRecolhida;
+  corpo.toggle('lateral-recolhida', recolhida);
+  const botao = $('btn-recolher-lateral');
+  botao.setAttribute('aria-label', recolhida ? 'Expandir a barra lateral' : 'Recolher a barra lateral');
+  botao.title = recolhida ? 'Expandir' : 'Recolher';
+  botao.setAttribute('aria-expanded', String(!recolhida));
+}
+$('btn-recolher-lateral').addEventListener('click', () => {
+  escolhaRecolhida = !escolhaRecolhida;
+  gravar(CHAVE_LATERAL_RECOLHIDA, escolhaRecolhida ? '1' : '0');
+  aplicarLateralRecolhida();
+});
+aplicarModoLateral();
+var lateralPronta = true; // a partir daqui, mostrarTela já atualiza a barra
+sincronizarLateral(!el.telaProva.hidden ? 'prova' : !el.telaResultados.hidden ? 'resultados'
+  : !$('tela-estudos').hidden ? 'estudos' : 'config');
 
 document.querySelectorAll('#abas-tela .nav-aba').forEach(botao => {
   botao.addEventListener('click', () => { elR.msg.textContent = ''; elR.erro.textContent = ''; trocarAbaTela(botao.dataset.aba); });
@@ -7242,7 +8143,30 @@ function abrirFormulario({ existente = null, novo = null } = {}) {
   })));
 
   if (abaTela !== 'registrar' || el.telaResultados.hidden) trocarAbaTela('registrar');
+  else fecharJanelas(); // já no Registrar: fecha o Histórico (veio de "Editar")
   if (existente) window.scrollTo(0, 0);
+  retratoForm = estadoDoForm(); // para saber depois se algo foi mudado sem salvar
+}
+
+/** Tudo o que dá para preencher no formulário, num texto (para comparar) */
+let retratoForm = null;
+function estadoDoForm() {
+  return JSON.stringify([elR.data.value, elR.tipoSel.value, elR.tipo.value, elR.grupo.value, elR.fonte.value,
+    elR.obs.value, materiasForm.map(m => [m.nome, m.total, m.acertosDigitados, m.questoes.map(questaoParaTexto)])]);
+}
+/** Há algo preenchido no formulário que ainda não foi salvo? */
+function formNaoSalvo() { return !!edicao && retratoForm !== null && estadoDoForm() !== retratoForm; } // sem edicao = já salvo
+
+/** "Editar" no Histórico: se houver um registro sem salvar, pergunta antes de trocar */
+async function editarDoHistorico(r) {
+  if (edicao && edicao.id === r.id) { fecharJanelas(); trocarAbaTela('registrar'); return; } // já editando essa
+  if (formNaoSalvo()) {
+    const ok = await confirmar(edicao && edicao.id
+      ? 'Você está editando outra prova e as mudanças não foram salvas. Descartar e editar esta?'
+      : 'Há um registro ainda não salvo. Descartar e editar esta prova?', 'Descartar e editar');
+    if (!ok) return;
+  }
+  abrirFormulario({ existente: r });
 }
 
 /** Avisa se essa edição/fonte já foi feita antes (não impede salvar) */
@@ -7448,7 +8372,8 @@ function montarBackup() {
     grupos, // grupos de provas (Provas antigas, Ciclos e os criados)
     segundaFase: segunda, // ciclos de 2ª fase, metas e excluídos
     estudos, // horas de estudo por matéria
-    estudosRetirados: [...estudosRetirados] // sessões apagadas por "Retirar" (não voltam ao importar)
+    estudosRetirados: [...estudosRetirados], // sessões apagadas por "Retirar" (não voltam ao importar)
+    planejamento: plano // planejamento semanal (o que estudar em cada dia, manhã e tarde)
   };
 }
 
@@ -7562,8 +8487,13 @@ async function importarBackup() {
   const ciclosNovos = segundaLa.ciclos.filter(c => !excluidosSegunda.has(c.id) &&
     (!ciclosAqui.has(c.id) || c.atualizadoEm > ciclosAqui.get(c.id).atualizadoEm));
 
+  // Planejamento: cada dia fica com a versão mudada por último (aqui ou lá)
+  const planoLa = limparPlano(dados.planejamento);
+  const diasPlanoNovos = Object.entries(planoLa.dias)
+    .filter(([data, d]) => !plano.dias[data] || d.em > (plano.dias[data].em || ''));
+
   const temMudancas = novos.length || maisRecentes.length || tiposNovos.length || removidos.length || estudosNovos.length ||
-    gruposNovos.length || ciclosNovos.length || gruposSegundaNovos.length;
+    gruposNovos.length || ciclosNovos.length || gruposSegundaNovos.length || diasPlanoNovos.length;
   if (!temMudancas && !voltariam.length) {
     guardarExclusoes();
     avisarResultados('Tudo o que está nesse backup já está aqui. Nada foi alterado.');
@@ -7580,6 +8510,7 @@ async function importarBackup() {
     if (gruposNovos.length) partes.push(plural(gruposNovos.length, 'grupo novo', 'grupos novos'));
     if (ciclosNovos.length) partes.push(plural(ciclosNovos.length, 'ciclo de 2ª fase', 'ciclos de 2ª fase'));
     if (gruposSegundaNovos.length) partes.push(plural(gruposSegundaNovos.length, 'grupo novo da 2ª fase', 'grupos novos da 2ª fase'));
+    if (diasPlanoNovos.length) partes.push(plural(diasPlanoNovos.length, 'dia de planejamento', 'dias de planejamento'));
     const ok = await confirmar(
       `Importar de "${arquivo.name}" para o perfil "${perfilAtivo().nome}": ${partes.join(', ')}? ` +
       (typeof dados.perfil === 'string' && dados.perfil !== perfilAtivo().nome
@@ -7612,6 +8543,11 @@ async function importarBackup() {
       });
       segunda.excluidos = [...excluidosSegunda].slice(-500);
       salvarSegunda();
+    }
+    if (diasPlanoNovos.length) {
+      diasPlanoNovos.forEach(([data, d]) => { plano.dias[data] = d; });
+      salvarPlano();
+      if (!$('painel-planejamento').hidden) renderPlano();
     }
   }
 
@@ -7833,6 +8769,7 @@ async function criarPerfil() {
   if (backup) gravar(chaveDoPerfil(id, 'estudos-retirados'), limparIdsRetirados(backup.estudosRetirados));
   if (backup) gravar(chaveDoPerfil(id, 'grupos'), limparGrupos(backup.grupos));
   if (backup) gravar(chaveDoPerfil(id, 'segunda-fase'), limparSegunda(backup.segundaFase));
+  if (backup) gravar(chaveDoPerfil(id, 'planejamento'), limparPlano(backup.planejamento));
   if (backup && Array.isArray(backup.tipos)) {
     // Timers padrão + os do backup (sem repetir id nem nome)
     const tipos = BACKUP_PADRAO.tipos.map(limparTipo).filter(Boolean);
@@ -8277,6 +9214,12 @@ async function descartarEstudo() {
 /* ----- Desenho da tela ----- */
 let periodoEstudo = 'semana'; // 'hoje' | 'semana' | 'total'
 
+/** Cor fixa de cada matéria (as mesmas do gráfico e do planejamento); "Simulado" usa a cor do tema */
+function corDoEstudo(materia) {
+  const i = MATERIAS_ESTUDO.indexOf(materia);
+  return i >= 0 ? `var(--serie-${i + 1})` : 'var(--chip)';
+}
+
 /** Começo do período (meia-noite de hoje · segunda-feira desta semana · null = tudo) */
 function inicioDoPeriodo(periodo) {
   const d = new Date();
@@ -8317,8 +9260,13 @@ function renderEstudos() {
     const ativa = !!estudoAtivo && estudoAtivo.materia === materia;
     botao.setAttribute('aria-pressed', String(ativa));
     const seg = hoje.get(materia) || 0;
+    botao.style.setProperty('--cor', corDoEstudo(materia));
+    const icone = criar('span', 'icone-estudo');
+    icone.innerHTML = ativa
+      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/></svg>'
+      : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7l8 5-8 5z"/></svg>';
     botao.append(criar('strong', '', materia),
-      criar('span', 'item-meta', ativa ? 'estudando agora' : seg ? `hoje ${formatarHorasEstudo(seg)}` : 'Começar'));
+      criar('span', 'item-meta', ativa ? 'estudando agora' : seg ? `hoje ${formatarHorasEstudo(seg)}` : 'Começar'), icone);
     botao.addEventListener('click', () => comecarEstudo(materia));
     return botao;
   }));
@@ -8330,24 +9278,29 @@ function renderEstudos() {
   const soma = segundosPorMateria(inicioDoPeriodo(periodoEstudo));
   const linhas = [...soma.entries()].filter(([, s]) => s > 0).sort((a, b) => b[1] - a[1]);
   const lista = $('estudo-lista');
+  // Total em destaque (número grande) + legenda do período
+  const total = linhas.reduce((s, [, seg]) => s + seg, 0);
+  $('estudo-total-numero').textContent = formatarHorasEstudo(total);
+  $('estudo-total-legenda').textContent = { hoje: 'estudadas hoje', semana: 'estudadas nesta semana', total: 'estudadas no total' }[periodoEstudo] +
+    (linhas.length ? ` · ${plural(linhas.length, 'matéria', 'matérias')}` : '');
   if (!linhas.length) {
     const textos = { hoje: 'Nenhum estudo registrado hoje.', semana: 'Nenhum estudo registrado nesta semana.', total: 'Nenhum estudo registrado ainda.' };
     lista.replaceChildren(criar('li', 'vazio', textos[periodoEstudo]));
   } else {
     const maior = linhas[0][1];
-    const total = linhas.reduce((s, [, seg]) => s + seg, 0);
     lista.replaceChildren(...linhas.map(([materia, seg]) => {
       const li = criar('li');
+      li.style.setProperty('--cor', corDoEstudo(materia));
       const barra = criar('span', 'barra-estudo');
       barra.style.width = `${Math.max(2, Math.round((seg / maior) * 100))}%`;
-      const trilho = criar('span');
+      const trilho = criar('span', 'trilho-estudo');
       trilho.append(barra);
-      li.append(criar('span', '', materia), trilho, criar('span', 'horas', formatarHorasEstudo(seg)));
+      const nome = criar('span', 'nome-estudo');
+      nome.append(criar('span', 'ponto-estudo'), materia);
+      const parte = criar('span', 'parte-estudo', `${Math.round((seg / total) * 100)}%`);
+      li.append(nome, trilho, criar('span', 'horas', formatarHorasEstudo(seg)), parte);
       return li;
     }));
-    const liTotal = criar('li', 'total-estudo');
-    liTotal.append(criar('span', '', 'Total'), criar('span'), criar('span', 'horas', formatarHorasEstudo(total)));
-    lista.append(liTotal);
   }
   renderGerenciamento();
   renderBotaoEstudosTopo();
@@ -9003,6 +9956,538 @@ $('form-metas').addEventListener('input', e => {
   renderSegunda();
 });
 $('form-metas').addEventListener('submit', e => e.preventDefault());
+
+/* ================================================================
+   PLANEJAMENTO SEMANAL
+   Semana de segunda a domingo. Cada dia: { em, manha: { mat: { t, f } … }, tarde: { … } }
+   (t = o que estudar, f = feito). "em" = última mudança do dia (o backup fica com a mais recente).
+   ================================================================ */
+const CHAVE_PLANO = chaveDoPerfil(PERFIL_ATIVO, 'planejamento'); // { dias: { 'AAAA-MM-DD': dia } }
+const MATERIAS_PLANO = [
+  { id: 'mat', sigla: 'MAT', nome: 'Matemática', cor: 'var(--serie-1)' },
+  { id: 'fis', sigla: 'FIS', nome: 'Física', cor: 'var(--serie-2)' },
+  { id: 'qui', sigla: 'QUI', nome: 'Química', cor: 'var(--serie-3)' },
+  { id: 'port', sigla: 'PORT', nome: 'Português', cor: 'var(--serie-4)' }
+];
+const PERIODOS_PLANO = [{ id: 'manha', nome: 'Manhã' }, { id: 'tarde', nome: 'Tarde' }];
+const DIAS_CURTOS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+const DIAS_LONGOS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+const MESES_PLANO = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro',
+  'outubro', 'novembro', 'dezembro'];
+const MESES_PLANO_CURTOS = ['jan.', 'fev.', 'mar.', 'abr.', 'maio', 'jun.', 'jul.', 'ago.', 'set.', 'out.', 'nov.', 'dez.'];
+
+function limparPlano(p) {
+  const fonte = p && typeof p === 'object' && p.dias && typeof p.dias === 'object' ? p.dias : {};
+  const dias = {};
+  Object.keys(fonte).forEach(data => {
+    const d = fonte[data];
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data) || !d || typeof d !== 'object') return;
+    const dia = { em: typeof d.em === 'string' ? d.em : '' };
+    PERIODOS_PLANO.forEach(per => {
+      const origem = d[per.id] && typeof d[per.id] === 'object' ? d[per.id] : {};
+      dia[per.id] = {};
+      MATERIAS_PLANO.forEach(m => {
+        const item = origem[m.id];
+        const t = item && typeof item.t === 'string' ? item.t.slice(0, 2000) : '';
+        if (t.trim()) dia[per.id][m.id] = { t, f: item.f === true };
+      });
+    });
+    dias[data] = dia;
+  });
+  return { dias };
+}
+
+const plano = limparPlano(lerJSON(CHAVE_PLANO));
+let temporizadorPlano = null;
+function salvarPlano() { clearTimeout(temporizadorPlano); temporizadorPlano = null; gravar(CHAVE_PLANO, plano); }
+function salvarPlanoDepois() { clearTimeout(temporizadorPlano); temporizadorPlano = setTimeout(salvarPlano, 400); }
+// Fechou ou trocou de aba do navegador no meio da digitação: grava na hora
+window.addEventListener('pagehide', () => { if (temporizadorPlano) salvarPlano(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && temporizadorPlano) salvarPlano(); });
+
+/* ----- Datas (sempre no horário local, ao meio-dia, para não pular de dia) ----- */
+function dataPlanoISO(d) {
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+function dataDoPlano(iso) { const [a, m, d] = iso.split('-').map(Number); return new Date(a, m - 1, d, 12); }
+function somarDiasPlano(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+function segundaDaSemana(d) {
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12);
+  return somarDiasPlano(x, -((x.getDay() + 6) % 7));
+}
+function diasDaSemanaPlano(segunda) { return Array.from({ length: 7 }, (_, i) => somarDiasPlano(segunda, i)); }
+/** Semana que abre primeiro: a de hoje; no domingo, a seguinte (é quando se planeja) */
+function semanaInicialPlano() {
+  const hoje = new Date();
+  const seg = segundaDaSemana(hoje);
+  return hoje.getDay() === 0 ? somarDiasPlano(seg, 7) : seg;
+}
+/** Ex.: "24 a 30 de nov." · "29 de dez. a 4 de jan. de 2027" */
+function textoSemanaPlano(seg) {
+  const dom = somarDiasPlano(seg, 6);
+  const ano = dom.getFullYear() !== new Date().getFullYear() ? ` de ${dom.getFullYear()}` : '';
+  return seg.getMonth() === dom.getMonth()
+    ? `${seg.getDate()} a ${dom.getDate()} de ${MESES_PLANO_CURTOS[dom.getMonth()]}${ano}`
+    : `${seg.getDate()} de ${MESES_PLANO_CURTOS[seg.getMonth()]} a ${dom.getDate()} de ${MESES_PLANO_CURTOS[dom.getMonth()]}${ano}`;
+}
+function diaMesPlano(d) { return `${d.getDate()}/${String(d.getMonth() + 1).padStart(2, '0')}`; }
+
+/* ----- Dados ----- */
+function itemPlano(data, per, mat) { const dia = plano.dias[data]; return (dia && dia[per][mat]) || null; }
+function itensDoDia(data) {
+  const dia = plano.dias[data];
+  return dia ? PERIODOS_PLANO.flatMap(per => Object.values(dia[per.id])) : [];
+}
+function contagemPlano(datas) {
+  const itens = datas.flatMap(itensDoDia);
+  return { total: itens.length, feitos: itens.filter(it => it.f).length };
+}
+function textoContagemPlano({ total, feitos }) {
+  return total ? `${feitos} de ${total} ${total === 1 ? 'feito' : 'feitos'}` : 'Nada planejado ainda';
+}
+/** Muda um item; sem texto, o item some (e o ✓ junto) */
+function mudarItemPlano(data, per, mat, mudar) {
+  const dia = plano.dias[data] || (plano.dias[data] = { em: '', manha: {}, tarde: {} });
+  const item = dia[per][mat] || { t: '', f: false };
+  mudar(item);
+  if (item.t.trim()) dia[per][mat] = item;
+  else delete dia[per][mat];
+  dia.em = new Date().toISOString();
+}
+
+/* ----- Tela ----- */
+let modoPlano = 'semana';          // 'semana' | 'todas'
+let semanaPlano = semanaInicialPlano();
+let diaPlanoCelular = null;        // dia mostrado no celular (0 = segunda); null = hoje
+let mesPlano = '__todos';
+
+function renderPlano() {
+  document.querySelectorAll('#modo-plano button').forEach(b => {
+    const ativo = b.dataset.modo === modoPlano;
+    b.setAttribute('aria-selected', String(ativo));
+    b.tabIndex = ativo ? 0 : -1;
+  });
+  $('plano-semana').hidden = modoPlano === 'todas';
+  $('plano-semana').classList.toggle('modo-dia', modoPlano === 'dia'); // Dia = a mesma grade, um dia por vez
+  $('plano-todas').hidden = modoPlano !== 'todas';
+  if (modoPlano === 'todas') renderTodasSemanas(); else renderSemanaPlano();
+}
+
+function ajustarAlturaPlano(txt) {
+  if (!txt.offsetParent) return; // escondida (outro dia, no celular)
+  txt.style.height = 'auto';
+  txt.style.height = `${txt.scrollHeight}px`;
+}
+function ajustarAlturasPlano() { $('tabela-plano').querySelectorAll('.txt-plano').forEach(ajustarAlturaPlano); }
+
+function renderSemanaPlano() {
+  const dias = diasDaSemanaPlano(semanaPlano);
+  const datas = dias.map(dataPlanoISO);
+  const hoje = dataPlanoISO(new Date());
+  if (diaPlanoCelular === null) diaPlanoCelular = Math.max(0, datas.indexOf(hoje));
+  atualizarTituloPlano();
+
+  // Dias (celular)
+  $('plano-dias').replaceChildren(...dias.map((d, i) => {
+    const b = criar('button', datas[i] === hoje ? 'hoje' : '');
+    b.type = 'button';
+    b.setAttribute('role', 'tab');
+    b.dataset.i = i;
+    b.setAttribute('aria-label', `${DIAS_LONGOS[i]}, ${diaMesPlano(d)}`);
+    b.append(DIAS_CURTOS[i], criar('small', '', String(d.getDate())), criar('span', 'ponto-dia'));
+    b.addEventListener('click', () => mostrarDiaPlano(i));
+    return b;
+  }));
+
+  // Grade: dias nas colunas; Manhã e Tarde com uma linha por matéria
+  const colunas = criar('colgroup');
+  colunas.append(criar('col', 'col-mat'));
+  datas.forEach((_, i) => { const c = criar('col'); c.dataset.i = i; colunas.append(c); });
+  const cabeca = criar('thead');
+  const linhaCabeca = criar('tr');
+  linhaCabeca.append(criar('th'));
+  dias.forEach((d, i) => {
+    const th = criar('th', datas[i] === hoje ? 'hoje' : '', DIAS_CURTOS[i]);
+    th.scope = 'col';
+    th.dataset.i = i;
+    th.title = DIAS_LONGOS[i];
+    th.append(criar('small', '', diaMesPlano(d)));
+    linhaCabeca.append(th);
+  });
+  cabeca.append(linhaCabeca);
+  const corpo = criar('tbody');
+  PERIODOS_PLANO.forEach(per => {
+    const linhaPer = criar('tr', 'linha-periodo');
+    const thPer = criar('th');
+    thPer.append(criar('span', '', per.nome));
+    thPer.colSpan = 8;
+    thPer.scope = 'colgroup';
+    linhaPer.append(thPer);
+    corpo.append(linhaPer);
+    MATERIAS_PLANO.forEach(m => {
+      const tr = criar('tr');
+      const th = criar('th', 'mat-plano', m.sigla);
+      th.scope = 'row';
+      th.title = m.nome;
+      th.style.setProperty('--cor', m.cor);
+      tr.append(th);
+      datas.forEach((data, i) => {
+        const td = criar('td');
+        td.dataset.i = i;
+        td.append(celulaPlano(data, i, per, m));
+        // A linha cresce com o texto de outro dia: clicar em qualquer parte da célula já escreve nela
+        td.addEventListener('click', e => { if (!e.target.closest('textarea, button')) td.querySelector('textarea').focus(); });
+        tr.append(td);
+      });
+      corpo.append(tr);
+    });
+  });
+  $('tabela-plano').replaceChildren(colunas, cabeca, corpo);
+  mostrarDiaPlano(diaPlanoCelular, false);
+  atualizarContagemSemana();
+}
+
+/** Uma célula: o texto do que estudar + o ✓ (aparece quando há texto) */
+function celulaPlano(data, i, per, m) {
+  const caixa = criar('div', 'celula-plano');
+  const txt = criar('textarea', 'txt-plano');
+  txt.rows = 1;
+  txt.maxLength = 2000;
+  txt.placeholder = '—';
+  txt.spellcheck = false;
+  const onde = `${DIAS_LONGOS[i]}, ${per.nome}, ${m.nome}`;
+  txt.setAttribute('aria-label', onde);
+  const item = itemPlano(data, per.id, m.id);
+  txt.value = item ? item.t : '';
+  const check = criar('button', 'check-plano');
+  check.type = 'button';
+  check.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  const pintar = () => {
+    const it = itemPlano(data, per.id, m.id);
+    const feito = !!(it && it.f);
+    check.hidden = !txt.value.trim();
+    check.setAttribute('aria-pressed', String(feito));
+    check.setAttribute('aria-label', `Feito: ${onde}`);
+    check.title = feito ? 'Feito (clique para desmarcar)' : 'Marcar como feito';
+    caixa.classList.toggle('feito', feito);
+  };
+  txt.addEventListener('input', () => {
+    mudarItemPlano(data, per.id, m.id, it => { it.t = txt.value; });
+    ajustarAlturaPlano(txt);
+    pintar();
+    salvarPlanoDepois();
+    atualizarContagemSemana();
+  });
+  check.addEventListener('click', () => {
+    mudarItemPlano(data, per.id, m.id, it => { it.f = !it.f; });
+    pintar();
+    salvarPlano();
+    atualizarContagemSemana();
+  });
+  pintar();
+  caixa.append(txt, check);
+  return caixa;
+}
+
+/** Título e botão "Hoje": no modo Dia, o dia escolhido; na Semana, a semana */
+function atualizarTituloPlano() {
+  const datas = diasDaSemanaPlano(semanaPlano).map(dataPlanoISO);
+  const hoje = dataPlanoISO(new Date());
+  if (modoPlano === 'dia') {
+    const d = somarDiasPlano(semanaPlano, diaPlanoCelular || 0);
+    $('plano-titulo-semana').textContent = `${DIAS_LONGOS[diaPlanoCelular || 0]}, ${d.getDate()} de ${MESES_PLANO_CURTOS[d.getMonth()]}`;
+    $('plano-hoje').hidden = datas[diaPlanoCelular || 0] === hoje;
+  } else {
+    $('plano-titulo-semana').textContent = textoSemanaPlano(semanaPlano);
+    $('plano-hoje').hidden = datas.includes(hoje);
+  }
+  const dia = modoPlano === 'dia';
+  $('plano-anterior').setAttribute('aria-label', dia ? 'Dia anterior' : 'Semana anterior');
+  $('plano-anterior').title = dia ? 'Dia anterior' : 'Semana anterior';
+  $('plano-proxima').setAttribute('aria-label', dia ? 'Próximo dia' : 'Próxima semana');
+  $('plano-proxima').title = dia ? 'Próximo dia' : 'Próxima semana';
+}
+
+/** No celular (e no modo Dia), mostra só um dia; na Semana do computador todos aparecem */
+function mostrarDiaPlano(i, focar = false) {
+  diaPlanoCelular = i;
+  if (modoPlano === 'dia') atualizarTituloPlano();
+  $('plano-dias').querySelectorAll('button').forEach(b => {
+    const ativo = Number(b.dataset.i) === i;
+    b.setAttribute('aria-selected', String(ativo));
+    b.tabIndex = ativo ? 0 : -1;
+    if (ativo && focar) b.focus();
+  });
+  $('tabela-plano').querySelectorAll('[data-i]').forEach(c => c.classList.toggle('dia-visivel', Number(c.dataset.i) === i));
+  ajustarAlturasPlano();
+}
+
+function atualizarContagemSemana() {
+  const datas = diasDaSemanaPlano(semanaPlano).map(dataPlanoISO);
+  $('plano-progresso').textContent = textoContagemPlano(contagemPlano(datas));
+  $('plano-dias').querySelectorAll('button').forEach(b => {
+    b.classList.toggle('tem-plano', itensDoDia(datas[Number(b.dataset.i)]).length > 0);
+  });
+}
+
+/** Semanas com algo escrito, da mais recente para a mais antiga (segunda-feira de cada uma) */
+function semanasComPlano() {
+  const semanas = new Set();
+  Object.keys(plano.dias).forEach(data => {
+    if (itensDoDia(data).length) semanas.add(dataPlanoISO(segundaDaSemana(dataDoPlano(data))));
+  });
+  return [...semanas].sort().reverse();
+}
+
+function renderTodasSemanas() {
+  const semanas = semanasComPlano();
+  const mesesDa = s => new Set(diasDaSemanaPlano(dataDoPlano(s)).map(d => dataPlanoISO(d).slice(0, 7)));
+  const meses = [...new Set(semanas.flatMap(s => [...mesesDa(s)]))].sort().reverse();
+  if (mesPlano !== '__todos' && !meses.includes(mesPlano)) mesPlano = '__todos';
+  const seletor = $('plano-mes');
+  seletor.replaceChildren(new Option('Todos os meses', '__todos'), ...meses.map(m => {
+    const [a, mm] = m.split('-').map(Number);
+    return new Option(`${MESES_PLANO[mm - 1]} de ${a}`, m);
+  }));
+  seletor.value = mesPlano;
+  seletor.disabled = !meses.length;
+
+  const filtradas = mesPlano === '__todos' ? semanas : semanas.filter(s => mesesDa(s).has(mesPlano));
+  const todasDatas = filtradas.flatMap(s => diasDaSemanaPlano(dataDoPlano(s)).map(dataPlanoISO));
+  $('plano-resumo-todas').textContent = filtradas.length
+    ? `${plural(filtradas.length, 'semana', 'semanas')} · ${textoContagemPlano(contagemPlano(todasDatas))}` : '';
+
+  const lista = $('lista-semanas');
+  if (!filtradas.length) {
+    lista.replaceChildren(criar('p', 'dica', 'Nenhuma semana planejada ainda. Escreva o plano em "Semana".'));
+    return;
+  }
+  const hoje = dataPlanoISO(new Date());
+  lista.replaceChildren(...filtradas.map(s => {
+    const seg = dataDoPlano(s);
+    const dias = diasDaSemanaPlano(seg);
+    const datas = dias.map(dataPlanoISO);
+    const caixa = criar('section', 'semana-resumo');
+    const topo = criar('div', 'semana-resumo-topo');
+    const abrir = criar('button', 'btn btn-fantasma btn-pequeno', 'Abrir');
+    abrir.type = 'button';
+    abrir.setAttribute('aria-label', `Abrir a semana de ${textoSemanaPlano(seg)}`);
+    abrir.addEventListener('click', () => {
+      semanaPlano = seg;
+      diaPlanoCelular = datas.includes(hoje) ? null : 0;
+      modoPlano = 'semana';
+      renderPlano();
+      $('painel-planejamento').scrollIntoView({ block: 'start' });
+    });
+    topo.append(criar('strong', '', textoSemanaPlano(seg)), criar('span', 'item-meta', textoContagemPlano(contagemPlano(datas))), abrir);
+    const grade = criar('div', 'dias-resumo');
+    dias.forEach((d, i) => {
+      const itens = itensDoDia(datas[i]);
+      const dia = criar('div', 'dia-resumo' + (itens.length ? '' : ' sem-plano'));
+      const titulo = criar('h4', '', `${DIAS_CURTOS[i]} `);
+      titulo.append(criar('small', '', diaMesPlano(d)));
+      dia.append(titulo);
+      PERIODOS_PLANO.forEach(per => {
+        const doPeriodo = MATERIAS_PLANO.filter(m => itemPlano(datas[i], per.id, m.id));
+        if (!doPeriodo.length) return;
+        const ul = criar('ul');
+        doPeriodo.forEach(m => {
+          const it = itemPlano(datas[i], per.id, m.id);
+          const li = criar('li', it.f ? 'feito' : '');
+          li.style.setProperty('--cor', m.cor);
+          li.append(criar('b', '', m.sigla), it.t.trim());
+          if (it.f) li.setAttribute('aria-label', `${m.nome}: ${it.t.trim()} (feito)`);
+          ul.append(li);
+        });
+        dia.append(criar('div', 'periodo-resumo', per.nome), ul);
+      });
+      if (!itens.length) dia.append(criar('span', 'vazio-resumo', '—'));
+      grade.append(dia);
+    });
+    caixa.append(topo, grade);
+    return caixa;
+  }));
+}
+
+/* ----- Eventos ----- */
+document.querySelectorAll('#modo-plano button').forEach(b => {
+  b.addEventListener('click', () => { modoPlano = b.dataset.modo; renderPlano(); });
+});
+$('modo-plano').addEventListener('keydown', e => {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  e.preventDefault();
+  const modos = ['dia', 'semana', 'todas'];
+  modoPlano = modos[(modos.indexOf(modoPlano) + (e.key === 'ArrowRight' ? 1 : -1) + modos.length) % modos.length];
+  renderPlano();
+  $('modo-plano').querySelector(`[data-modo="${modoPlano}"]`).focus();
+});
+/** ‹ ›: no modo Dia anda um dia (passando de semana quando precisa); na Semana, uma semana */
+function andarPlano(passo) {
+  if (modoPlano === 'dia') {
+    let i = (diaPlanoCelular || 0) + passo;
+    if (i < 0 || i > 6) { semanaPlano = somarDiasPlano(semanaPlano, passo * 7); i = (i + 7) % 7; }
+    diaPlanoCelular = i;
+  } else {
+    semanaPlano = somarDiasPlano(semanaPlano, passo * 7);
+  }
+  renderSemanaPlano();
+}
+$('plano-anterior').addEventListener('click', () => andarPlano(-1));
+$('plano-proxima').addEventListener('click', () => andarPlano(1));
+$('plano-hoje').addEventListener('click', () => {
+  semanaPlano = segundaDaSemana(new Date());
+  diaPlanoCelular = null;
+  renderSemanaPlano();
+  $('plano-proxima').focus(); // "Hoje" some ao chegar na semana de hoje
+});
+$('plano-dias').addEventListener('keydown', e => {
+  const passo = { ArrowLeft: -1, ArrowRight: 1 }[e.key];
+  if (!passo) return;
+  e.preventDefault();
+  mostrarDiaPlano((diaPlanoCelular + passo + 7) % 7, true);
+});
+$('plano-mes').addEventListener('change', () => { mesPlano = $('plano-mes').value; renderTodasSemanas(); });
+// Mudou a largura da grade (girou o celular, janela redimensionada, aba que estava escondida):
+// as caixas de texto refazem a altura. Só a largura conta (a altura muda com o próprio ajuste).
+let larguraGradePlano = 0;
+if ('ResizeObserver' in window) {
+  new ResizeObserver(entradas => {
+    const largura = Math.round(entradas[0].contentRect.width);
+    if (largura && largura !== larguraGradePlano) {
+      larguraGradePlano = largura;
+      requestAnimationFrame(ajustarAlturasPlano);
+    }
+  }).observe($('tabela-plano'));
+}
+
+/* ----- Tela inicial: o plano do dia (Manhã e Tarde), com ✓. ‹ › (ou arrastar) mostram os outros dias ----- */
+let deslocamentoHoje = 0; // 0 = hoje, 1 = amanhã, -1 = ontem…
+const DIAS_CURTOS_MIN = ['seg.', 'ter.', 'qua.', 'qui.', 'sex.', 'sáb.', 'dom.'];
+/** Texto do botão (no celular ele vira só um ícone: o texto fica no nome acessível e na dica) */
+function textoBotaoHoje(texto) {
+  $('btn-hoje-plano-texto').textContent = texto;
+  $('btn-hoje-plano').setAttribute('aria-label', texto);
+  $('btn-hoje-plano').title = texto;
+}
+function diaDoQuadroHoje() {
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate() + deslocamentoHoje, 12);
+}
+function renderHojePlano() {
+  const agora = diaDoQuadroHoje();
+  const data = dataPlanoISO(agora);
+  const i = (agora.getDay() + 6) % 7; // 0 = segunda
+  const nomes = { 0: 'Hoje', 1: 'Amanhã', '-1': 'Ontem' };
+  $('hoje-plano-nome').textContent = nomes[deslocamentoHoje] || DIAS_LONGOS[i];
+  $('hoje-plano-data').textContent = nomes[deslocamentoHoje]
+    ? `${DIAS_CURTOS_MIN[i]}, ${diaMesPlano(agora)}` : diaMesPlano(agora);
+  $('hoje-voltar').hidden = deslocamentoHoje === 0;
+  const contagem = contagemPlano([data]);
+  const corpo = $('hoje-plano-corpo');
+  const numero = $('hoje-plano-total');
+  const variacao = $('hoje-plano-progresso');
+  const pct = contagem.total ? Math.round((contagem.feitos / contagem.total) * 100) : 0;
+  $('anel-hoje-valor').setAttribute('stroke-dasharray', `${pct} 100`);
+  $('anel-hoje-valor').style.opacity = pct ? '' : '0'; // em 0% a ponta redonda viraria um pontinho
+  numero.classList.toggle('sem-plano-hoje', !contagem.total);
+  variacao.classList.toggle('completo', contagem.total > 0 && pct === 100);
+  if (!contagem.total) {
+    numero.textContent = 'Nada planejado';
+    // Domingo (hoje) é o dia de planejar a semana seguinte
+    const domingoHoje = i === 6 && deslocamentoHoje === 0;
+    variacao.textContent = domingoHoje ? 'Domingo é dia de planejar a próxima semana.'
+      : deslocamentoHoje === 0 ? 'Escreva o que vai estudar hoje.'
+      : deslocamentoHoje < 0 ? 'Nada foi planejado para este dia.' : 'Escreva o que vai estudar neste dia.';
+    corpo.replaceChildren();
+    textoBotaoHoje(domingoHoje ? 'Planejar a semana' : 'Planejar');
+    return;
+  }
+  // Ex.: "2/4" e "▲ 50% concluído · faltam 2"
+  numero.replaceChildren(String(contagem.feitos), criar('small', '', `/${contagem.total}`));
+  numero.setAttribute('aria-label', `${contagem.feitos} de ${contagem.total} feitos`);
+  const faltam = contagem.total - contagem.feitos;
+  variacao.replaceChildren(criar('b', '', pct === 100 ? 'Tudo feito' : `${pct}%`),
+    pct === 100 ? 'bom trabalho!' : `concluído · ${faltam === 1 ? 'falta 1' : `faltam ${faltam}`}`);
+  textoBotaoHoje('Abrir planejamento');
+  const partes = [];
+  PERIODOS_PLANO.forEach(per => {
+    const doPeriodo = MATERIAS_PLANO.filter(m => itemPlano(data, per.id, m.id));
+    if (!doPeriodo.length) return;
+    const ul = criar('ul');
+    doPeriodo.forEach(m => {
+      const it = itemPlano(data, per.id, m.id);
+      const li = criar('li', 'item-hoje' + (it.f ? ' feito' : ''));
+      li.style.setProperty('--cor', m.cor);
+      const sigla = criar('span', 'sigla-hoje', m.sigla);
+      sigla.title = m.nome;
+      const check = criar('button', 'check-hoje');
+      check.type = 'button';
+      check.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+      check.setAttribute('aria-pressed', String(it.f));
+      check.setAttribute('aria-label', `Feito: ${per.nome}, ${m.nome}`);
+      check.title = it.f ? 'Feito (clique para desmarcar)' : 'Marcar como feito';
+      check.addEventListener('click', () => {
+        mudarItemPlano(data, per.id, m.id, x => { x.f = !x.f; });
+        salvarPlano();
+        renderHojePlano();
+        corpo.querySelector(`[aria-label="Feito: ${per.nome}, ${m.nome}"]`)?.focus();
+      });
+      li.append(sigla, criar('span', 'texto-hoje', it.t.trim()), check);
+      ul.append(li);
+    });
+    partes.push(criar('div', 'periodo-resumo', per.nome), ul);
+  });
+  corpo.replaceChildren(...partes);
+}
+$('btn-hoje-plano').addEventListener('click', () => {
+  // Abre a semana do dia mostrado, já nesse dia (hoje sendo domingo sem plano: a semana seguinte, para planejar)
+  const dia = diaDoQuadroHoje();
+  const vazioNoDomingo = deslocamentoHoje === 0 && dia.getDay() === 0 && !contagemPlano([dataPlanoISO(dia)]).total;
+  semanaPlano = vazioNoDomingo ? semanaInicialPlano() : segundaDaSemana(dia);
+  diaPlanoCelular = vazioNoDomingo ? 0 : (dia.getDay() + 6) % 7;
+  modoPlano = 'semana';
+  abrirResultados('planejamento');
+});
+/** Troca o dia mostrado (passo = +1 próximo, -1 anterior, null = volta para hoje) */
+function trocarDiaHoje(passo) {
+  const antes = deslocamentoHoje;
+  deslocamentoHoje = passo === null ? 0 : deslocamentoHoje + passo;
+  if (deslocamentoHoje === antes) return;
+  renderHojePlano();
+  const painel = document.querySelector('.hoje-plano-painel');
+  painel.classList.remove('desliza-proximo', 'desliza-anterior');
+  void painel.offsetWidth; // reinicia a animação
+  painel.classList.add(deslocamentoHoje > antes ? 'desliza-proximo' : 'desliza-anterior');
+}
+$('hoje-anterior').addEventListener('click', () => trocarDiaHoje(-1));
+$('hoje-proximo').addEventListener('click', () => trocarDiaHoje(1));
+$('hoje-voltar').addEventListener('click', () => { trocarDiaHoje(null); $('hoje-proximo').focus(); });
+// Setas do teclado com o foco dentro do quadro (fora dos botões de ✓ também funciona)
+$('hoje-plano').addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') { e.preventDefault(); trocarDiaHoje(-1); }
+  if (e.key === 'ArrowRight') { e.preventDefault(); trocarDiaHoje(1); }
+});
+// Arrastar o painel para o lado (celular / touchpad com toque)
+(() => {
+  const painel = document.querySelector('.hoje-plano-painel');
+  let inicio = null;
+  painel.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse') return;
+    inicio = { x: e.clientX, y: e.clientY };
+  });
+  painel.addEventListener('pointerup', e => {
+    if (!inicio) return;
+    const dx = e.clientX - inicio.x, dy = e.clientY - inicio.y;
+    inicio = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) trocarDiaHoje(dx < 0 ? 1 : -1);
+  });
+  painel.addEventListener('pointercancel', () => { inicio = null; });
+})();
+// Voltou ao app depois de um tempo (pode ter virado o dia)
+document.addEventListener('visibilitychange', () => { if (!document.hidden && !el.telaConfig.hidden) renderHojePlano(); });
+var planoCarregado = true; // a partir daqui, mostrarTela('config') já pode desenhar o "Hoje"
+renderHojePlano();
 
 /* ----- Exemplo: 2ª fase dos 5 Ciclos Poliedro (ligados às provas de 1ª fase do exemplo) ----- */
 const EXEMPLO_SEGUNDA = {
