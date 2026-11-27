@@ -599,6 +599,24 @@
     box-shadow: 0 12px 30px -14px rgba(0, 0, 0, .5);
   }
   .blocos-titulo { margin: 0; font-size: .72rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--texto-suave); }
+  /* Título + (?) que abre a explicação num balão ao lado do painel */
+  .blocos-cabeca { display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-ajuda {
+    width: 22px; height: 22px; flex: none; display: inline-grid; place-items: center; padding: 0;
+    border-radius: 50%; border: 1px solid var(--borda); background: none; color: var(--texto-suave);
+    font: 700 .78rem/1 inherit; cursor: pointer;
+  }
+  .btn-ajuda:hover, .btn-ajuda[aria-expanded="true"] { color: var(--foco); border-color: var(--foco); }
+  .btn-ajuda:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+  .ajuda-blocos {
+    position: absolute; right: calc(100% + 10px); top: 0; width: 270px; z-index: 6;
+    padding: 12px 14px; text-align: left; font-size: .86rem; line-height: 1.45; color: var(--texto);
+    background: var(--bg-2, var(--bg)); border: 1px solid var(--foco); border-radius: var(--raio, 12px);
+    box-shadow: 0 16px 36px -14px rgba(0, 0, 0, .6);
+  }
+  .ajuda-blocos[hidden] { display: none; }
+  .ajuda-blocos p { margin: 0 0 8px; }
+  .ajuda-blocos p:last-child { margin-bottom: 0; }
   .btn-bloco { width: 100%; padding: 16px 10px; }
   .btn-bloco.marcou { animation: blocoMarcado .5s ease-out; }
   @keyframes blocoMarcado { 0% { transform: scale(1); } 40% { transform: scale(.94); } 100% { transform: scale(1); } }
@@ -613,6 +631,8 @@
     /* Celular: painel embaixo, à direita, sem cobrir o botão principal */
     .painel-blocos { top: auto; bottom: 64px; right: 10px; transform: none; width: 150px; padding: 10px; gap: 6px; }
     .btn-bloco { padding: 12px 8px; }
+    /* Celular: o balão abre acima do painel */
+    .ajuda-blocos { right: 0; top: auto; bottom: calc(100% + 8px); width: min(280px, calc(100vw - 20px)); }
   }
 
   /* Desempenho: tempo de cada bloco da prova escolhida */
@@ -1157,8 +1177,6 @@
   .btn.btn-icone { display: inline-flex; align-items: center; justify-content: center; padding: 8px 10px; }
   .btn-icone svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
   .cabecalho .barra-topo .btn-icone { flex: none; }
-  /* Engrenagem no canto direito do título de Resultados */
-  .btn-opcoes-tela { margin-left: auto; flex: none; width: 44px; }
   .caixa-opcoes { width: min(100%, 560px); max-height: calc(100vh - 32px); overflow-y: auto; }
   .opcoes-topo { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
   .opcoes-topo h2 { margin: 0; font-size: 1.15rem; }
@@ -1230,20 +1248,9 @@
   /* Grupo da prova no Histórico */
   .item-grupo { color: var(--texto-suave); }
 
-  /* Resultados: 3 abas (Registrar · Desempenho · 2ª fase); Histórico e Perfil abrem pela engrenagem */
+  /* Resultados: 4 abas; Histórico e Perfil abrem pela barra lateral */
   .conteudo-resultados > .titulo-tela, .cabecalho .barra-topo { position: relative; }
   #abas-tela.nav-abas { grid-template-columns: repeat(4, 1fr); }
-  .menu-engrenagem {
-    position: absolute; right: 0; top: calc(100% + 6px); z-index: 20;
-    display: flex; flex-direction: column; min-width: 200px; padding: 6px;
-    background: var(--bg-2); border: 1px solid var(--borda); border-radius: 12px;
-    box-shadow: 0 18px 40px -14px rgba(0, 0, 0, .55);
-  }
-  .menu-engrenagem button {
-    text-align: left; background: none; border: 0; border-radius: 8px; padding: 10px 12px;
-    color: var(--texto); font-size: .95rem; cursor: pointer;
-  }
-  .menu-engrenagem button:hover, .menu-engrenagem button:focus-visible { background: var(--sup-2, var(--bg)); outline: none; }
   .barra-secundaria { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; }
   .barra-secundaria h2 { margin: 0; font-size: 1.15rem; }
 
@@ -1487,6 +1494,36 @@
   }
   #btn-estudos.estudando::before { content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 7px; border-radius: 50%; background: var(--ok); vertical-align: 1px; }
 
+  /* Atalhos do topo da tela inicial (Estudos · Resultados): ícone + nome; Resultados com a cor do tema */
+  #tela-config .barra-topo .btn-atalho {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 42px; padding: 8px 16px; border-radius: 12px;
+    background: var(--bg-2); border: 1px solid var(--borda); color: var(--texto);
+    font-weight: 600; font-size: .92rem; letter-spacing: .01em;
+    transition: border-color .15s, background .15s, transform .15s;
+  }
+  .btn-atalho svg {
+    width: 18px; height: 18px; flex: none; color: var(--texto-suave);
+    fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    transition: color .15s, transform .15s;
+  }
+  #tela-config .barra-topo .btn-atalho:hover { border-color: color-mix(in srgb, var(--foco) 55%, var(--borda)); background: var(--sup-2, var(--bg-2)); transform: translateY(-1px); }
+  .btn-atalho:hover svg { color: var(--foco); }
+  #tela-config .barra-topo .btn-atalho-destaque {
+    border-color: color-mix(in srgb, var(--foco) 60%, var(--borda));
+    background: color-mix(in srgb, var(--foco) 10%, var(--bg-2));
+  }
+  #tela-config .barra-topo .btn-atalho-destaque:hover { background: color-mix(in srgb, var(--foco) 16%, var(--bg-2)); border-color: var(--foco); }
+  .btn-atalho-destaque svg { color: var(--foco); }
+  .btn-atalho .seta-atalho { width: 16px; height: 16px; margin-left: -2px; }
+  .btn-atalho:hover .seta-atalho { transform: translateX(2px); }
+  #btn-estudos.btn-atalho.estudando::before { margin-right: 0; order: 2; } /* bolinha verde depois do nome */
+  @media (max-width: 374px) { /* celular bem estreito: cabe ☰ + os dois atalhos numa linha */
+    #tela-config .barra-topo .btn-atalho { padding: 8px 10px; gap: 6px; }
+    .btn-atalho .seta-atalho { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .btn-atalho, .btn-atalho svg { transition: none; } .btn-atalho:hover, .btn-atalho:hover svg { transform: none !important; } }
+
   /* Boas-vindas (só na primeira vez) */
   .boas-vindas { border-color: var(--foco); background: color-mix(in srgb, var(--foco) 6%, var(--bg-2)); }
   .boas-vindas h2 { margin-bottom: 10px; }
@@ -1523,6 +1560,9 @@
   .lista-criar { margin: -4px 0 10px; padding-left: 1.2em; font-size: .92rem; line-height: 1.5; }
   .lista-criar li::marker { color: var(--foco); }
   .ferramentas-propria { margin-top: 12px; }
+  /* Criando prova: o quadro "Salvar prova…" fica no fim e o Hoje + "Começar Prova" somem */
+  #tela-config > .painel-criar { margin: 0 0 16px; }
+  #tela-config .acoes.criando-prova { display: none; }
 
   /* ==========================================================
      VISUAL NOVO (camada de teste, novembro/2026)
@@ -2011,7 +2051,6 @@
   :root[data-tema^="editorial"] #tela-resultados .grupos-desempenho button { border: 1px solid var(--borda); }
   :root[data-tema^="editorial"] #tela-resultados .grupos-desempenho button[aria-selected="true"] { border-color: var(--chip); }
   /* Menu da engrenagem, barra "← Voltar" e 2ª fase */
-  :root[data-tema^="editorial"] #tela-resultados .menu-engrenagem { border-radius: 8px; background: var(--bg); }
   :root[data-tema^="editorial"] #tela-resultados .barra-secundaria h2 {
     font-family: var(--serifa); font-weight: 400; font-synthesis: none; font-size: 1.8rem; color: var(--chip); letter-spacing: 0;
   }
@@ -2120,14 +2159,11 @@
      Vale para todos os temas (só usa as variáveis de cor).
      ========================================================== */
 
-  /* ---------- Menu da engrenagem: ícone + nome + o que tem lá ---------- */
-  .menu-engrenagem { min-width: 280px; gap: 2px; padding: 6px; }
-  .menu-engrenagem button { display: flex; align-items: center; gap: 12px; padding: 10px 12px; }
+  /* ---------- Menus com ícone + nome + o que tem lá ---------- */
   .menu-icone {
     width: 20px; height: 20px; flex: none; color: var(--texto-suave);
     fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
   }
-  .menu-engrenagem button:hover .menu-icone, .menu-engrenagem button:focus-visible .menu-icone { color: var(--chip); }
   .menu-texto { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
   .menu-nome { font-weight: 600; font-size: .95rem; color: var(--texto); }
   .menu-dica { font-size: .8rem; color: var(--texto-suave); }
@@ -3075,14 +3111,12 @@
       <button class="btn btn-fantasma btn-pequeno btn-icone btn-abrir-lateral" type="button"
               aria-label="Abrir o menu" title="Menu" aria-controls="lateral" aria-expanded="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-      <button id="btn-estudos" class="btn btn-fantasma btn-pequeno" type="button">Estudos</button>
-      <button id="btn-abrir-resultados" class="btn btn-fantasma btn-pequeno" type="button">Resultados →</button>
-      <!-- Mesmo menu da engrenagem de Resultados -->
-      <div id="menu-inicio" class="menu-engrenagem" role="menu" aria-label="Mais opções" hidden></div>
-      <button id="btn-opcoes" class="btn btn-fantasma btn-pequeno btn-icone" type="button" aria-label="Mais opções" title="Mais opções"
-              aria-haspopup="menu" aria-expanded="false" aria-controls="menu-inicio">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </button>
+      <!-- Atalhos para Estudos e Resultados (os mesmos ícones da barra lateral) -->
+      <button id="btn-estudos" class="btn btn-fantasma btn-pequeno btn-atalho" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5C6.5 5 9.5 5 12 6.5v13C9.5 18 6.5 18 4 19.5zM20 6.5C17.5 5 14.5 5 12 6.5v13c2.5-1.5 5.5-1.5 8 0z"/></svg><span>Estudos</span></button>
+      <button id="btn-abrir-resultados" class="btn btn-fantasma btn-pequeno btn-atalho btn-atalho-destaque" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5h16M7 16v-4M12 16V7M17 16v-6"/></svg><span>Resultados</span>
+        <svg class="seta-atalho" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 7l5 5-5 5"/></svg></button>
     </div>
   </header>
 
@@ -3104,21 +3138,6 @@
     <!-- Um cartão por prova (gerados pelo JavaScript) + "Criar prova" -->
     <div id="provas-cartoes" class="provas-cartoes" role="radiogroup" aria-labelledby="titulo-provas"></div>
 
-
-    <!-- Criando uma prova nova -->
-    <div id="painel-criar" class="painel-criar" hidden>
-      <p><strong>Nova prova.</strong> Você pode:</p>
-      <ul class="lista-criar">
-        <li>ajustar a duração da prova;</li>
-        <li>escolher quais matérias e o número de questões;</li>
-        <li>definir quando cada adesivo será retirado e qual a duração do adesivo.</li>
-      </ul>
-      <p>Depois, toque em "Salvar prova…" e dê um nome.</p>
-      <div class="linha">
-        <button id="btn-tipo-novo" class="btn btn-pequeno" type="button">Salvar prova…</button>
-        <button id="btn-criar-cancelar" class="btn btn-fantasma btn-pequeno" type="button">Cancelar</button>
-      </div>
-    </div>
 
     <!-- Prova criada por você: dá para editar, renomear e excluir -->
     <div id="ferramentas-propria" class="linha ferramentas-propria" hidden>
@@ -3192,7 +3211,22 @@
     </details>
   </section>
 
+  <!-- Criando uma prova nova: fica no fim, depois de duração, adesivos e matérias -->
+  <div id="painel-criar" class="painel-criar" hidden>
+    <p><strong>Nova prova.</strong> Você pode:</p>
+    <ul class="lista-criar">
+      <li>ajustar a duração da prova;</li>
+      <li>escolher quais matérias e o número de questões;</li>
+      <li>definir quando cada adesivo será retirado e qual a duração do adesivo.</li>
+    </ul>
+    <p>Depois, toque em "Salvar prova…" e dê um nome.</p>
+    <div class="linha">
+      <button id="btn-tipo-novo" class="btn btn-pequeno" type="button">Salvar prova…</button>
+      <button id="btn-criar-cancelar" class="btn btn-fantasma btn-pequeno" type="button">Cancelar</button>
+    </div>
+  </div>
 
+  <!-- Some enquanto uma prova nova está sendo criada -->
   <div class="acoes">
     <!-- Hoje no planejamento semanal: o que estudar de manhã e à tarde, com ✓ -->
     <section id="hoje-plano" class="hoje-plano" aria-labelledby="titulo-hoje-plano">
@@ -3263,10 +3297,19 @@
     <span class="item-meta">Abre o Registrar com a prova, o tempo usado e o gabarito já preenchidos.</span>
   </div>
 
-  <!-- Blocos de 4 questões (opcional, ligado nas Opções): marca o fim de cada bloco.
-       Os tempos não aparecem durante a prova, só depois de registrar o resultado. -->
+  <!-- Blocos de 4 questões (sempre ligados): marca o fim de cada bloco.
+       Os tempos não aparecem durante a prova, só depois de registrar o resultado. O (?) explica. -->
   <aside id="painel-blocos" class="painel-blocos" hidden aria-label="Blocos de 4 questões">
-    <p class="blocos-titulo">Blocos de 4</p>
+    <div class="blocos-cabeca">
+      <p class="blocos-titulo">Blocos de 4</p>
+      <button id="btn-ajuda-blocos" class="btn-ajuda" type="button" aria-expanded="false" aria-controls="ajuda-blocos"
+              aria-label="Como funcionam os blocos" title="Como funcionam os blocos">?</button>
+    </div>
+    <div id="ajuda-blocos" class="ajuda-blocos" hidden>
+      <p>Toque em <strong>Bloco concluído</strong> sempre que terminar 4 questões ou a seu critério de escolha, e em <strong>Inglês concluído</strong> ao terminar o Inglês.</p>
+      <p>Ele aparece no Histórico depois de você registrar o resultado.</p>
+      <p>Marcou sem querer? Use <strong>Desfazer último</strong></p>
+    </div>
     <button id="btn-bloco" class="btn btn-bloco" type="button">Bloco concluído</button>
     <button id="btn-bloco-ingles" class="btn btn-fantasma btn-pequeno" type="button">Inglês concluído</button>
     <p id="blocos-contagem" class="blocos-contagem" aria-live="polite"></p>
@@ -3421,10 +3464,6 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     <h1><small id="sobretitulo-resultados" class="sobretitulo">Resultados</small><span id="titulo-resultados">Desempenho</span></h1>
     <button id="btn-resultados-voltar" class="btn btn-fantasma btn-pequeno" type="button">← Voltar</button>
-    <!-- Engrenagem: menu com Histórico, Perfil e backup e Aparência (as Opções da tela inicial) -->
-    <button id="btn-opcoes-resultados" class="btn btn-fantasma btn-pequeno btn-icone btn-opcoes-tela" type="button"
-            aria-label="Mais opções" title="Mais opções" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-resultados"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
-    <div id="menu-resultados" class="menu-engrenagem" role="menu" aria-label="Mais opções" hidden></div>
   </div>
 
   <nav id="abas-tela" class="nav-abas" role="tablist" aria-label="Seções dos resultados">
@@ -3835,72 +3874,7 @@
 <!-- ============================================================
      DIÁLOGO
      ============================================================ -->
-<!-- Painel de opções (engrenagem da tela inicial) -->
-<div id="painel-opcoes" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="titulo-opcoes">
-  <div class="modal-caixa caixa-opcoes">
-    <header class="config-topo">
-      <h2 id="titulo-opcoes">Configurações</h2>
-      <button id="btn-fechar-opcoes" class="btn-x" type="button" aria-label="Fechar">×</button>
-    </header>
-    <div class="config-corpo">
-      <!-- Seções: barra lateral no computador, abas no celular -->
-      <nav id="config-nav" class="config-nav" role="tablist" aria-label="Seções das configurações">
-        <button type="button" role="tab" data-secao="aparencia" aria-controls="config-aparencia" aria-selected="true">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg>Aparência</button>
-        <button type="button" role="tab" data-secao="cronometro" aria-controls="config-cronometro" aria-selected="false" tabindex="-1">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>Cronômetro</button>
-        <button type="button" role="tab" data-secao="grupos" aria-controls="config-grupos" aria-selected="false" tabindex="-1">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="18" height="6" rx="1.5"/></svg>Grupos</button>
-      </nav>
-
-      <div class="config-paineis">
-        <section id="config-aparencia" class="config-secao" role="tabpanel" aria-labelledby="titulo-tema">
-          <h3 id="titulo-tema">Tema</h3>
-          <p class="config-dica">Cores e estilo do site. A escolha fica salva neste navegador.</p>
-          <!-- Cartões gerados pelo JavaScript a partir da lista TEMAS -->
-          <div id="opcoes-tema" class="temas" role="radiogroup" aria-labelledby="titulo-tema"></div>
-        </section>
-
-        <section id="config-cronometro" class="config-secao" role="tabpanel" aria-labelledby="titulo-cfg-cronometro" hidden>
-          <h3 id="titulo-cfg-cronometro">Cronômetro</h3>
-          <p class="config-dica">Como a tela da prova funciona.</p>
-          <div class="config-lista">
-            <label class="config-linha" for="chk-blocos">
-              <span class="config-rotulo">
-                <span class="config-nome">Blocos de 4 questões</span>
-                <span class="config-dica">Botões "Bloco concluído" e "Inglês concluído" no canto direito da prova. Os tempos de cada bloco só aparecem depois de registrar o resultado.</span>
-              </span>
-              <input id="chk-blocos" class="interruptor" type="checkbox" role="switch">
-            </label>
-            <div class="config-linha">
-              <span class="config-rotulo">
-                <span class="config-nome">Som dos adesivos</span>
-                <span class="config-dica">Toca o bipe dos adesivos de tempo, para conferir o volume antes da prova.</span>
-              </span>
-              <button id="btn-testar-som" class="btn btn-fantasma btn-pequeno" type="button">Testar som</button>
-            </div>
-          </div>
-        </section>
-
-        <section id="config-grupos" class="config-secao" role="tabpanel" aria-labelledby="titulo-cfg-grupos" hidden>
-          <h3 id="titulo-cfg-grupos">Grupos de provas</h3>
-          <p class="config-dica">Separam as provas no Desempenho. Use ↑ ↓ para mudar a ordem. Ao apagar um grupo,
-            as provas dele vão para o primeiro da lista — nenhuma prova é apagada.</p>
-          <ul id="lista-grupos" class="lista-grupos config-lista"></ul>
-          <button id="btn-novo-grupo" class="btn btn-fantasma btn-pequeno config-adicionar" type="button">+ Novo grupo</button>
-
-          <h3 class="config-sub">Grupos da 2ª fase</h3>
-          <p class="config-dica">Separam os ciclos na aba "2ª fase". Use ↑ ↓ para mudar a ordem. Ao apagar um grupo,
-            os ciclos dele vão para o primeiro da lista — nenhum ciclo é apagado.</p>
-          <ul id="lista-grupos-segunda" class="lista-grupos config-lista"></ul>
-          <button id="btn-novo-grupo-segunda" class="btn btn-fantasma btn-pequeno config-adicionar" type="button">+ Novo grupo da 2ª fase</button>
-        </section>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Histórico e Perfil e backup: janelas abertas pela engrenagem (como as Configurações) -->
+<!-- Histórico e Perfil e backup: janelas abertas pela barra lateral -->
 <div id="janela-historico" class="modal janela" hidden role="dialog" aria-modal="true" aria-labelledby="titulo-janela-historico">
   <div class="modal-caixa caixa-janela">
     <header class="config-topo">
@@ -3974,6 +3948,31 @@
         <button id="btn-exportar" class="btn btn-pequeno" type="button">⬇ Exportar backup</button>
         <button id="btn-importar" class="btn btn-fantasma btn-pequeno" type="button">⬆ Importar backup</button>
         <input id="input-importar" type="file" hidden>
+      </div>
+    </section>
+
+    <!-- Grupos (vieram das antigas Configurações) -->
+    <section class="cartao">
+      <h2>Grupos de provas</h2>
+      <p class="dica">Separam as provas no Desempenho. Use ↑ ↓ para mudar a ordem. Ao apagar um grupo,
+        as provas dele vão para o primeiro da lista — nenhuma prova é apagada.</p>
+      <ul id="lista-grupos" class="lista-grupos config-lista"></ul>
+      <button id="btn-novo-grupo" class="btn btn-fantasma btn-pequeno config-adicionar" type="button">+ Novo grupo</button>
+    </section>
+
+    <section class="cartao">
+      <h2>Grupos da 2ª fase</h2>
+      <p class="dica">Separam os ciclos na aba "2ª fase". Use ↑ ↓ para mudar a ordem. Ao apagar um grupo,
+        os ciclos dele vão para o primeiro da lista — nenhum ciclo é apagado.</p>
+      <ul id="lista-grupos-segunda" class="lista-grupos config-lista"></ul>
+      <button id="btn-novo-grupo-segunda" class="btn btn-fantasma btn-pequeno config-adicionar" type="button">+ Novo grupo da 2ª fase</button>
+    </section>
+
+    <section class="cartao">
+      <h2>Som dos adesivos</h2>
+      <p class="dica">Toca o bipe dos adesivos de tempo, para conferir o volume antes da prova.</p>
+      <div class="linha">
+        <button id="btn-testar-som" class="btn btn-fantasma btn-pequeno" type="button">Testar som</button>
       </div>
     </section>
   </div>
@@ -4754,7 +4753,7 @@ function iniciarCriacao() {
   salvarTipos();
   $('det-marcos').open = true;
   renderConfig();
-  $('painel-criar').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  $('sec-duracao').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
 function cancelarCriacao() {
@@ -5086,47 +5085,6 @@ function aplicarTema(id) {
   atualizarItemTema(); // bolinha do tema na barra lateral
 }
 
-/** Cria um botão por tema, com amostra das cores */
-function renderOpcoesTema() {
-  // Dois grupos de cartões: os estilos completos (com amostra própria) e as cores sobre fundo preto
-  const grupo = (titulo, temas) => {
-    const caixa = criar('div', 'temas-grupo');
-    const grade = criar('div', 'temas-grade');
-    grade.append(...temas.map(cartaoTema));
-    caixa.append(criar('p', 'temas-titulo', titulo), grade);
-    return caixa;
-  };
-  $('opcoes-tema').replaceChildren(
-    grupo('Estilos', TEMAS.filter(t => !t.acento)),
-    grupo('Cores sobre fundo preto', TEMAS.filter(t => t.acento)));
-  const atual = lerTexto(CHAVE_TEMA);
-  document.querySelectorAll('.opcao-tema').forEach(botao => {
-    botao.setAttribute('aria-checked', String(botao.dataset.tema === (TEMAS.some(t => t.id === atual) ? atual : TEMAS[0].id)));
-  });
-}
-
-function cartaoTema(tema) {
-  {
-    const botao = criar('button', 'opcao-tema');
-    botao.type = 'button';
-    botao.setAttribute('role', 'radio');
-    botao.setAttribute('aria-checked', 'false');
-    botao.dataset.tema = tema.id;
-    const amostra = criar('span', 'amostra');
-    amostra.setAttribute('aria-hidden', 'true');
-    const cores = tema.amostra || ['#0a0a0a', tema.acento, misturar(tema.acento, '#ffffff', 0.3)];
-    cores.forEach(cor => {
-      const faixa = criar('span');
-      faixa.style.background = cor;
-      amostra.append(faixa);
-    });
-    botao.append(amostra, criar('span', 'nome-tema', tema.nome.replace(' (original)', '')));
-    if (tema.id === TEMAS[0].id) botao.append(criar('span', 'selo-tema', 'original'));
-    botao.addEventListener('click', () => aplicarTema(tema.id));
-    return botao;
-  }
-}
-
 
 /* ================================================================
    9. RENDERIZAÇÃO
@@ -5309,6 +5267,7 @@ function renderTipos() {
   const alterado = tipoEstaAlterado();
   const valida = problemasDaConfig().length === 0 && !configComErro();
   $('painel-criar').hidden = modo !== 'criando';
+  document.querySelector('#tela-config .acoes').classList.toggle('criando-prova', modo === 'criando'); // sem Hoje e "Começar Prova"
   $('ferramentas-propria').hidden = modo !== 'propria';
   // Duração, adesivos e matérias: implícitos nas provas padrão; editáveis ao criar ou numa prova sua
   $('sec-duracao').hidden = modo === 'padrao';
@@ -5438,8 +5397,7 @@ function renderProva(recentes = []) {
    "Bloco concluído" anota o tempo de prova (sem pausas) naquele momento; o tempo do bloco é a
    diferença para a marcação anterior. "Inglês concluído" faz o mesmo, mas vira o bloco de Inglês.
    Durante a prova só aparece a contagem: os tempos ficam para depois de registrar o resultado. */
-const CHAVE_BLOCOS = chaveDoPerfil(PERFIL_ATIVO, 'blocos-de-4'); // '1' = ligado
-function blocosLigados() { return lerTexto(CHAVE_BLOCOS) === '1'; }
+function blocosLigados() { return true; } // blocos de 4 sempre ligados (o (?) do painel explica)
 
 function marcarBloco(ingles) {
   if (!(prova.fase === 'rodando' || prova.fase === 'pausado')) return;
@@ -6011,7 +5969,7 @@ function linhaDeGrupo({ g, i, total, contagem, rotulo, aoMover, aoRenomear, aoAp
   return li;
 }
 
-/** Redesenha o que mostra grupos: Opções, Desempenho, Histórico e o campo do Registrar */
+/** Redesenha o que mostra grupos: Perfil, Desempenho, Histórico e o campo do Registrar */
 function renderTudoDosGrupos() {
   renderGruposOpcoes();
   if (!el.telaResultados.hidden) {
@@ -7073,11 +7031,9 @@ let abriuJanela = null; // botão que abriu a janela (o foco volta para ele ao f
 
 /** Abre a janela do Histórico ou do Perfil e backup, por cima da tela em que você está */
 function abrirJanela(nome) {
-  fecharMenusEngrenagem();
-  fecharOpcoes();
   JANELAS.forEach(j => { $(`janela-${j}`).hidden = j !== nome; });
   if (nome === 'historico') renderHistoricoAba();
-  if (nome === 'perfil') renderPerfis();
+  if (nome === 'perfil') { renderPerfis(); renderGruposOpcoes(); renderGruposSegundaOpcoes(); }
   const janela = $(`janela-${nome}`);
   janela.querySelector('.janela-corpo').scrollTop = 0;
   janela.querySelector('.btn-fechar-janela').focus();
@@ -7104,7 +7060,6 @@ function trocarAbaTela(aba) {
   if (JANELAS.includes(aba)) { abrirJanela(aba); return; }
   if (!ABAS_TELA.includes(aba)) aba = 'desempenho';
   cancelarAvanco();
-  fecharMenuResultados();
   fecharJanelas(); // ex.: "Ver questões" e "Editar" no Histórico levam para uma aba
   // Vindo de uma janela aberta na tela inicial: mostra a tela de Resultados
   if (el.telaResultados.hidden) { mostrarTela('resultados'); renderResultados(); }
@@ -7125,70 +7080,7 @@ function trocarAbaTela(aba) {
   if (aba === 'planejamento') renderPlano();
 }
 
-/* ---------- Engrenagem (tela inicial e Resultados): o mesmo menu com Histórico, Perfil e backup e Aparência ---------- */
-const MENUS_ENGRENAGEM = [
-  { botao: 'btn-opcoes-resultados', menu: 'menu-resultados' },
-  { botao: 'btn-opcoes', menu: 'menu-inicio' }
-];
-// Itens do menu (os dois menus são iguais): ícone, nome e uma linha dizendo o que tem lá
-const ITENS_MENU_ENGRENAGEM = [
-  { id: 'historico', nome: 'Histórico', dica: 'Todas as provas registradas',
-    icone: '<path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/>' },
-  { id: 'perfil', nome: 'Perfil e backup', dica: 'Trocar de perfil, exportar e importar',
-    icone: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>' },
-  { separador: true },
-  { id: 'aparencia', nome: 'Configurações', dica: 'Tema, cronômetro e grupos',
-    icone: '<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>' }
-];
-MENUS_ENGRENAGEM.forEach(({ menu }) => {
-  $(menu).innerHTML = ITENS_MENU_ENGRENAGEM.map(item => item.separador
-    ? '<div class="menu-separador" role="separator"></div>'
-    : `<button type="button" role="menuitem" data-menu="${item.id}">` +
-      `<svg class="menu-icone" viewBox="0 0 24 24" aria-hidden="true">${item.icone}</svg>` +
-      `<span class="menu-texto"><span class="menu-nome">${item.nome}</span><span class="menu-dica">${item.dica}</span></span></button>`
-  ).join('');
-});
-function fecharMenusEngrenagem(devolverFoco = false) {
-  MENUS_ENGRENAGEM.forEach(({ botao, menu }) => {
-    if ($(menu).hidden) return;
-    $(menu).hidden = true;
-    $(botao).setAttribute('aria-expanded', 'false');
-    if (devolverFoco) $(botao).focus();
-  });
-}
-const fecharMenuResultados = fecharMenusEngrenagem; // (nome antigo, usado ao trocar de aba)
-
-MENUS_ENGRENAGEM.forEach(({ botao, menu }) => {
-  $(botao).addEventListener('click', e => {
-    e.stopPropagation();
-    const aberto = !$(menu).hidden;
-    fecharMenusEngrenagem();
-    if (aberto) { $(botao).focus(); return; }
-    $(menu).hidden = false;
-    $(botao).setAttribute('aria-expanded', 'true');
-    $(menu).querySelector('button').focus();
-  });
-  $(menu).addEventListener('click', e => {
-    const item = e.target.closest('[data-menu]');
-    if (!item) return;
-    fecharMenusEngrenagem();
-    if (item.dataset.menu === 'aparencia') { abrirOpcoes({ currentTarget: $(botao) }); return; }
-    // Histórico e Perfil e backup: janela por cima da tela atual (igual às Configurações)
-    abrirJanela(item.dataset.menu);
-    abriuJanela = $(botao);
-  });
-  $(menu).addEventListener('keydown', e => {
-    const itens = [...$(menu).querySelectorAll('button')];
-    const i = itens.indexOf(document.activeElement);
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      e.preventDefault();
-      itens[(i + (e.key === 'ArrowDown' ? 1 : -1) + itens.length) % itens.length].focus();
-    } else if (e.key === 'Escape') { e.preventDefault(); fecharMenusEngrenagem(true); }
-  });
-});
-document.addEventListener('click', e => {
-  if (!e.target.closest('.menu-engrenagem')) fecharMenusEngrenagem();
-});
+/* Sem engrenagem nem Configurações: Tema, Histórico e Perfil e backup (com grupos e teste de som) ficam no rodapé da barra lateral. */
 
 /** Abre a tela de Resultados numa aba (Histórico/Perfil: na aba de antes, com a janela por cima) */
 function abrirResultados(aba = abaTela) {
@@ -7280,7 +7172,7 @@ document.querySelectorAll('#lateral .item-lateral[data-ir]').forEach(botao => {
    (janela, diálogo, menu, gaveta: aí o Esc fecha isso primeiro). Num campo de texto, o 1º Esc só sai do campo. */
 window.addEventListener('keydown', e => {
   if (e.key !== 'Escape' || e.defaultPrevented || e.repeat) return;
-  if (document.querySelector('.modal:not([hidden]), .menu-engrenagem:not([hidden])')) return;
+  if (document.querySelector('.modal:not([hidden])')) return;
   if (!$('menu-temas').hidden) { e.preventDefault(); e.stopPropagation(); fecharMenuTemas(true); return; }
   if (document.body.classList.contains('lateral-aberta')) { e.preventDefault(); e.stopPropagation(); fecharGaveta(); return; }
   if (el.telaResultados.hidden && $('tela-estudos').hidden && $('tela-dicas').hidden) return; // já no Início (ou na prova)
@@ -9266,40 +9158,7 @@ $('btn-entendi').addEventListener('click', () => {
   $('boas-vindas').hidden = true;
 });
 
-// Engrenagem: painel de opções (cores do site)
-let abriuOpcoes = null; // botão que abriu as Opções (o foco volta para ele ao fechar)
-function abrirOpcoes(evento) {
-  abriuOpcoes = evento && evento.currentTarget ? evento.currentTarget : null;
-  renderGruposOpcoes();
-  renderGruposSegundaOpcoes();
-  $('painel-opcoes').hidden = false;
-  $('btn-fechar-opcoes').focus();
-}
-
-/* Seções das Configurações (Aparência · Cronômetro · Grupos): uma por vez, setas trocam */
-function trocarSecaoConfig(secao, focar = false) {
-  document.querySelectorAll('#config-nav [role="tab"]').forEach(aba => {
-    const ativa = aba.dataset.secao === secao;
-    aba.setAttribute('aria-selected', String(ativa));
-    aba.tabIndex = ativa ? 0 : -1;
-    $(aba.getAttribute('aria-controls')).hidden = !ativa;
-    if (ativa && focar) aba.focus();
-  });
-  document.querySelector('.config-paineis').scrollTop = 0;
-}
-document.querySelectorAll('#config-nav [role="tab"]').forEach(aba => {
-  aba.addEventListener('click', () => trocarSecaoConfig(aba.dataset.secao));
-  aba.addEventListener('keydown', e => {
-    const teclas = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 };
-    if (!(e.key in teclas)) return;
-    e.preventDefault();
-    const abas = [...document.querySelectorAll('#config-nav [role="tab"]')];
-    const prox = abas[(abas.indexOf(aba) + teclas[e.key] + abas.length) % abas.length];
-    trocarSecaoConfig(prox.dataset.secao, true);
-  });
-});
-
-/** Lista de grupos nas Configurações: mudar a ordem, renomear e apagar (sempre sobra um) */
+/** Lista de grupos (janela Perfil e backup): mudar a ordem, renomear e apagar (sempre sobra um) */
 function renderGruposOpcoes() {
   $('lista-grupos').replaceChildren(...grupos.map((g, i) => linhaDeGrupo({
     g, i, total: grupos.length, rotulo: 'grupo',
@@ -9312,15 +9171,6 @@ function renderGruposOpcoes() {
 $('btn-novo-grupo').addEventListener('click', async () => {
   if (await criarGrupo()) renderTudoDosGrupos();
 });
-function fecharOpcoes() {
-  if ($('painel-opcoes').hidden) return;
-  $('painel-opcoes').hidden = true;
-  (abriuOpcoes && document.contains(abriuOpcoes) ? abriuOpcoes : $('btn-opcoes')).focus();
-}
-$('btn-fechar-opcoes').addEventListener('click', fecharOpcoes);
-$('painel-opcoes').addEventListener('click', e => { if (e.target === e.currentTarget) fecharOpcoes(); });
-// (Esc numa janela de diálogo aberta por cima só fecha o diálogo)
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && !e.defaultPrevented) fecharOpcoes(); });
 el.btnTipoSalvar.addEventListener('click', salvarAlteracoesTipo);
 el.btnTipoNovo.addEventListener('click', salvarComoNovoTipo);
 el.btnTipoRenomear.addEventListener('click', renomearTipo);
@@ -9347,10 +9197,17 @@ $('btn-registrar-prova').addEventListener('click', registrarProvaDoCronometro);
 $('btn-bloco').addEventListener('click', () => marcarBloco(false));
 $('btn-bloco-ingles').addEventListener('click', () => marcarBloco(true));
 $('btn-bloco-desfazer').addEventListener('click', desfazerBloco);
-$('chk-blocos').checked = blocosLigados();
-$('chk-blocos').addEventListener('change', e => {
-  gravar(CHAVE_BLOCOS, e.target.checked ? '1' : '0');
-  renderBlocos();
+/** (?) dos blocos: abre/fecha a explicação; clicar fora ou Esc fecha */
+function mostrarAjudaBlocos(abrir) {
+  $('ajuda-blocos').hidden = !abrir;
+  $('btn-ajuda-blocos').setAttribute('aria-expanded', String(abrir));
+}
+$('btn-ajuda-blocos').addEventListener('click', () => mostrarAjudaBlocos($('ajuda-blocos').hidden));
+document.addEventListener('click', e => {
+  if (!$('ajuda-blocos').hidden && !e.target.closest('#painel-blocos')) mostrarAjudaBlocos(false);
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('ajuda-blocos').hidden) { mostrarAjudaBlocos(false); $('btn-ajuda-blocos').focus(); }
 });
 
 
@@ -10943,7 +10800,6 @@ if (PERFIL_ATIVO === ID_PERFIL_EXEMPLO && !segunda.ciclos.length && !segunda.exc
   salvarSegunda();
 }
 
-renderOpcoesTema();
 aplicarTema(lerTexto(CHAVE_TEMA) || 'preto-amarelo');
 renderMateriasConfig();
 // Prova padrão com duração/adesivos mudados numa versão anterior: volta ao que a prova define
