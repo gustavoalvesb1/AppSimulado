@@ -590,9 +590,41 @@
   .gabarito.marcando .gabarito-texto { color: var(--chip); font-weight: 600; }
   .gabarito.marcando #btn-gabarito { border-color: var(--chip); color: var(--texto); }
 
-  /* Fim da prova: botão para registrar o resultado */
-  .fim-acoes { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
-  .fim-acoes .item-meta { margin: 0; }
+  /* Fim da prova: a tela "fecha" — some a cartela, os blocos e o rodapé, e fica só o cartão de fim
+     (no visual painel: moldura com título e, dentro, o painel com o resumo) */
+  #tela-prova.finalizada { justify-content: center; }
+  #tela-prova.finalizada > .topo,
+  #tela-prova.finalizada > .area-cartela,
+  #tela-prova.finalizada > .painel-blocos,
+  #tela-prova.finalizada > .rodape { display: none !important; }
+  .fim-prova {
+    width: min(460px, 100%); margin: auto 0; padding: 6px; border: 1px solid var(--hoje-linha); border-radius: 22px;
+    background: var(--hoje-moldura); box-shadow: var(--hoje-sombra);
+    animation: surgir-fim .28s ease-out;
+  }
+  @keyframes surgir-fim { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+  .fim-cabeca { display: flex; align-items: center; gap: 12px; padding: 12px 14px 14px; }
+  .fim-icone {
+    flex: none; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px;
+    background: color-mix(in srgb, var(--chip) 16%, transparent); color: var(--foco);
+  }
+  .fim-icone svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .fim-titulo { margin: 0; font-size: 1.2rem; letter-spacing: -.01em; }
+  .fim-sub { margin: 2px 0 0; color: var(--texto-suave); font-size: .88rem; }
+  .fim-prova.antes .fim-icone { background: color-mix(in srgb, var(--erro) 14%, transparent); color: var(--erro); }
+  .fim-painel { padding: 16px 18px; border: 1px solid var(--hoje-linha); border-radius: 17px; background: var(--hoje-painel); box-shadow: var(--hoje-sombra-leve); }
+  .fim-nome { margin: 0 0 12px; color: var(--texto-suave); font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+  .fim-resumo { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin: 0; }
+  .fim-resumo div { min-width: 0; }
+  .fim-resumo dt { color: var(--texto-suave); font-size: .76rem; }
+  .fim-resumo dd { margin: 2px 0 0; font-size: 1.35rem; font-weight: 650; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+  .fim-resumo dd small { color: var(--texto-suave); font-size: .62em; font-weight: 500; }
+  .fim-pergunta { margin: 16px 14px 10px; font-weight: 600; text-align: center; }
+  .fim-botoes { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; padding: 0 10px; }
+  .fim-botoes .btn { width: 100%; min-height: 46px; }
+  .fim-dica { margin: 10px 14px 10px; color: var(--texto-suave); font-size: .76rem; text-align: center; line-height: 1.4; }
+  @media (max-width: 400px) { .fim-botoes { grid-template-columns: 1fr; } .fim-botoes #btn-registrar-prova { order: -1; } }
+  @media (prefers-reduced-motion: reduce) { .fim-prova { animation: none; } }
 
   /* Blocos de 4 questões: painel fixo no canto direito da tela da prova */
   .painel-blocos {
@@ -2615,7 +2647,7 @@
   #tela-config .acoes #btn-ir-prova { grid-area: botao; }
   /* Cartão em duas camadas: a moldura (título + botão) e, dentro dela, o painel elevado (número + lista) */
   /* Cores e sombras do visual "painel" (quadro Hoje e tela de Estudos) */
-  .hoje-plano, .dash, .lateral, .cartoes-materias, .total-materias, .menu-temas, .provas-cartoes, .bloco-escolha-prova, .moldura-motivos, .cenarios {
+  .hoje-plano, .dash, .lateral, .cartoes-materias, .total-materias, .menu-temas, .provas-cartoes, .bloco-escolha-prova, .moldura-motivos, .cenarios, .fim-prova, #painel-desempenho {
     --hoje-moldura: color-mix(in srgb, var(--texto) 3%, var(--bg));
     --hoje-painel: color-mix(in srgb, var(--texto) 2%, var(--bg-2));
     --hoje-linha: color-mix(in srgb, var(--borda) 70%, transparent);
@@ -2708,7 +2740,7 @@
   .check-hoje:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
   .hoje-plano .vazio-hoje { margin: 0; padding: 10px 0 6px; color: var(--texto-suave); font-size: .88rem; }
   /* Temas claros: sombras mais suaves */
-  :is(:root[data-tema="editorial-claro"], :root[data-modo="claro"]) :is(.hoje-plano, .dash, .lateral, .cartoes-materias, .total-materias, .menu-temas, .provas-cartoes, .bloco-escolha-prova, .moldura-motivos, .cenarios) {
+  :is(:root[data-tema="editorial-claro"], :root[data-modo="claro"]) :is(.hoje-plano, .dash, .lateral, .cartoes-materias, .total-materias, .menu-temas, .provas-cartoes, .bloco-escolha-prova, .moldura-motivos, .cenarios, .fim-prova, #painel-desempenho) {
     --hoje-moldura: color-mix(in srgb, var(--texto) 3%, var(--bg));
     --hoje-painel: color-mix(in srgb, #fff 70%, var(--bg));
     --hoje-sombra: 0 1px 2px rgba(16, 24, 40, .05), 0 12px 32px -10px rgba(16, 24, 40, .14);
@@ -3139,6 +3171,62 @@
     .total-materias .valor-total { grid-row: 2; }
     .meio-total { grid-row: 3; }
   }
+  /* Desempenho (topo): "provas registradas" e o gráfico no visual painel */
+  :root #painel-desempenho .resumo-numeros .numero {
+    position: relative; overflow: hidden; --cor: var(--chip);
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    padding: 16px 18px 15px; border: 1px solid var(--hoje-linha); border-radius: 18px;
+    background:
+      radial-gradient(120% 120% at 100% 0%, color-mix(in srgb, var(--cor) 14%, transparent), transparent 60%),
+      var(--hoje-painel);
+    box-shadow: var(--hoje-sombra-leve);
+  }
+  :root #painel-desempenho .resumo-numeros .numero::before {
+    content: ""; position: absolute; inset: 0 0 auto; height: 3px;
+    background: linear-gradient(90deg, var(--cor), color-mix(in srgb, var(--cor) 25%, transparent));
+  }
+  :root #painel-desempenho .resumo-numeros .numero strong {
+    font-family: inherit; font-size: 2.1rem; font-weight: 650; letter-spacing: -.02em; line-height: 1; color: var(--texto);
+  }
+  :root #painel-desempenho .resumo-numeros .numero span { font-size: .9rem; }
+  /* Gráfico: moldura arredondada com o cabeçalho (abas) e, dentro, o painel elevado com o gráfico */
+  :root #painel-desempenho .grafico {
+    margin-top: 16px; padding: 6px; border: 1px solid var(--hoje-linha); border-radius: 22px;
+    background: var(--hoje-moldura); box-shadow: var(--hoje-sombra);
+  }
+  :root #painel-desempenho .grafico-cabecalho { padding: 8px 8px 10px; }
+  :root #painel-desempenho #abas-grafico {
+    display: inline-flex; flex: 0 1 auto; flex-direction: row; flex-wrap: wrap; max-width: 100%;
+    gap: 3px; padding: 3px; border: 0; border-radius: 12px; background: color-mix(in srgb, var(--texto) 6%, transparent);
+  }
+  :root #painel-desempenho #abas-grafico .aba {
+    padding: 7px 14px; border: 0; border-radius: 9px; background: transparent; color: var(--texto-suave);
+    font-size: .88rem; font-weight: 600; transition: background .15s, color .15s, box-shadow .15s;
+  }
+  :root #painel-desempenho #abas-grafico .aba:hover { color: var(--texto); }
+  :root #painel-desempenho #abas-grafico .aba { flex: 1 1 auto; }
+  @media (max-width: 420px) { :root #painel-desempenho #abas-grafico .aba { padding: 7px 10px; font-size: .84rem; } }
+  :root #painel-desempenho #abas-grafico .aba[aria-selected="true"] {
+    border: 0; background: var(--hoje-painel); color: var(--texto);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .12), 0 2px 6px -2px rgba(0, 0, 0, .18);
+  }
+  :root #painel-desempenho .grafico > #subtitulo-grafico,
+  :root #painel-desempenho .grafico > #legenda-grafico,
+  :root #painel-desempenho .grafico > .area-grafico,
+  :root #painel-desempenho .grafico > #nota-grafico {
+    margin: 0; padding-left: 18px; padding-right: 18px; background: var(--hoje-painel);
+    border-left: 1px solid var(--hoje-linha); border-right: 1px solid var(--hoje-linha);
+  }
+  :root #painel-desempenho .grafico > #subtitulo-grafico {
+    padding-top: 14px; border-top: 1px solid var(--hoje-linha); border-radius: 17px 17px 0 0;
+  }
+  :root #painel-desempenho .grafico > .area-grafico { padding-top: 6px; padding-bottom: 8px; border-radius: 0; }
+  :root #painel-desempenho .grafico > #nota-grafico {
+    padding-bottom: 14px; border-bottom: 1px solid var(--hoje-linha); border-radius: 0 0 17px 17px;
+    box-shadow: 0 6px 8px -6px rgba(0, 0, 0, .10);
+  }
+  :root #painel-desempenho .grafico > #nota-grafico:empty { padding-bottom: 10px; }
+
   /* Nota em 3 cenários: mesmos cartões do painel (Sem chutes · Real · Potencial) */
   .cenarios { gap: 12px; align-items: stretch; }
   .cenario.sem-chute { --cor: var(--texto-suave); }
@@ -3317,7 +3405,9 @@
     <!-- Prova criada por você: dá para editar, renomear e excluir -->
     <div id="ferramentas-propria" class="linha ferramentas-propria" hidden>
       <span id="tipo-alterado" class="etiqueta" hidden>alterações não salvas</span>
+      <button id="btn-tipo-editar" class="btn btn-pequeno" type="button">Editar</button>
       <button id="btn-tipo-salvar" class="btn btn-pequeno" type="button">Salvar alterações</button>
+      <button id="btn-tipo-cancelar-edicao" class="btn btn-fantasma btn-pequeno" type="button">Cancelar edição</button>
       <button id="btn-tipo-renomear" class="btn btn-fantasma btn-pequeno" type="button">Renomear</button>
       <button id="btn-tipo-excluir" class="btn btn-fantasma btn-pequeno" type="button">Excluir</button>
     </div>
@@ -3466,11 +3556,26 @@
     </div>
   </div>
 
-  <p id="msg-fim" class="fim" hidden>Tempo esgotado — prova encerrada.</p>
-  <div id="fim-acoes" class="fim-acoes" hidden>
-    <button id="btn-registrar-prova" class="btn" type="button">Registrar resultado</button>
-    <span class="item-meta">Abre o Registrar com a prova, o tempo usado e o gabarito já preenchidos.</span>
-  </div>
+  <!-- Fim da prova: um cartão só, no lugar dos adesivos, com a escolha de registrar ou não -->
+  <section id="fim-acoes" class="fim-prova" hidden aria-labelledby="titulo-fim">
+    <div class="fim-cabeca">
+      <span class="fim-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11.5l-2.2 4.2 2.2 4.3H5"/></svg></span>
+      <div>
+        <h2 id="titulo-fim" class="fim-titulo">Prova encerrada</h2>
+        <p id="msg-fim" class="fim-sub">Tempo esgotado.</p>
+      </div>
+    </div>
+    <div class="fim-painel">
+      <p id="fim-nome" class="fim-nome"></p>
+      <dl id="fim-resumo" class="fim-resumo"></dl>
+    </div>
+    <p class="fim-pergunta">Quer registrar o resultado desta prova?</p>
+    <div class="fim-botoes">
+      <button id="btn-nao-registrar" class="btn btn-fantasma" type="button">Não registrar</button>
+      <button id="btn-registrar-prova" class="btn" type="button">Registrar resultado</button>
+    </div>
+    <p class="fim-dica">O Registrar abre com a prova, o tempo usado e o gabarito já preenchidos.</p>
+  </section>
 
   <!-- Blocos de 4 questões (sempre ligados): marca o fim de cada bloco.
        Os tempos não aparecem durante a prova, só depois de registrar o resultado. O (?) explica. -->
@@ -4880,6 +4985,7 @@ function avisarTipo(texto) {
 function aplicarTipo(id) {
   const tipo = biblioteca.tipos.find(t => t.id === id);
   if (!tipo) return;
+  editandoPropria = false; // ao trocar (ou recarregar) a prova, os quadros de edição fecham
   biblioteca.ativoId = tipo.id;
   config.duracao = tipo.duracao;
   config.marcos = [...tipo.marcos];
@@ -4906,6 +5012,20 @@ function modoProva() {
 }
 
 let idAntesDeCriar = null; // prova escolhida antes de "+ Criar prova" (para o Cancelar)
+let editandoPropria = false; // prova sua: os quadros de edição só aparecem depois de "Editar"
+
+function editarProvaPropria() {
+  if (modoProva() !== 'propria') return;
+  editandoPropria = true;
+  renderConfig();
+  $('sec-duracao').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+/** Descarta o que foi mexido e fecha os quadros de edição */
+function cancelarEdicaoPropria() {
+  const tipo = tipoAtivo();
+  editandoPropria = false;
+  if (tipo) aplicarTipo(tipo.id); else renderConfig();
+}
 
 async function aoEscolherTipo(novoId) {
   // Avisa se há algo que se perderia ao trocar (prova padrão alterada não conta: vale só desta vez)
@@ -4949,6 +5069,7 @@ function salvarAlteracoesTipo() {
   if (!tipo || problemasDaConfig().length || configComErro()) return;
   Object.assign(tipo, copiaDaConfig());
   salvarTipos();
+  editandoPropria = false; // salvou: fecha os quadros de edição
   renderConfig();
   avisarTipo(`Prova "${tipo.nome}" atualizada.`);
 }
@@ -4966,6 +5087,7 @@ async function salvarComoNovoTipo() {
   biblioteca.tipos.push(tipo);
   biblioteca.ativoId = tipo.id;
   salvarTipos();
+  editandoPropria = false; // prova criada: esconde os quadros de edição (o "Editar" reabre)
   renderConfig();
   avisarTipo(`Prova "${nome}" salva.`);
 }
@@ -5486,15 +5608,20 @@ function renderTipos() {
 
   // O que aparece em cada caso
   const alterado = tipoEstaAlterado();
+  if (modo === 'propria' && alterado) editandoPropria = true; // mudanças pendentes ficam à vista
   const valida = problemasDaConfig().length === 0 && !configComErro();
   $('painel-criar').hidden = modo !== 'criando';
   document.querySelector('#tela-config .acoes').classList.toggle('criando-prova', modo === 'criando'); // sem Hoje e "Começar Prova"
   $('ferramentas-propria').hidden = modo !== 'propria';
-  // Duração, adesivos e matérias: implícitos nas provas padrão; editáveis ao criar ou numa prova sua
-  $('sec-duracao').hidden = modo === 'padrao';
-  $('sec-marcos').hidden = modo === 'padrao';
-  $('sec-materias').hidden = modo === 'padrao';
-  el.btnRestaurar.hidden = modo === 'padrao';
+  // Duração, adesivos e matérias: aparecem ao criar uma prova, ou numa prova sua depois de tocar em "Editar"
+  const editando = modo === 'criando' || (modo === 'propria' && editandoPropria);
+  $('sec-duracao').hidden = !editando;
+  $('sec-marcos').hidden = !editando;
+  $('sec-materias').hidden = !editando;
+  el.btnRestaurar.hidden = !editando;
+  $('btn-tipo-editar').hidden = editandoPropria;
+  el.btnTipoSalvar.hidden = !editandoPropria;
+  $('btn-tipo-cancelar-edicao').hidden = !editandoPropria;
   el.tipoAlterado.hidden = !alterado;
   el.btnTipoSalvar.disabled = !(alterado && valida);
   el.btnTipoNovo.disabled = !valida;
@@ -5603,9 +5730,8 @@ function renderProva(recentes = []) {
   el.nomeTipoProva.hidden = !prova.nome;
   el.status.dataset.fase = fase;
   el.statusTexto.textContent = textos.status;
-  el.msgFim.hidden = fase !== 'finalizado';
-  el.msgFim.textContent = prova.encerradaAntes ? 'Prova encerrada antes do fim.' : 'Tempo esgotado — prova encerrada.';
   $('fim-acoes').hidden = fase !== 'finalizado';
+  if (fase === 'finalizado') renderFimProva();
   el.telaProva.classList.toggle('finalizada', fase === 'finalizado');
   el.btnVoltar.textContent = emAndamento ? 'Encerrar' : 'Voltar';
   document.title = prova.nome && fase !== 'pronto' ? `${textos.titulo} · ${prova.nome}` : textos.titulo;
@@ -5667,6 +5793,37 @@ function duracoesDosBlocos(blocos) {
 }
 
 /** Fim do cronômetro → abre o Registrar com a prova, o tempo usado, o gabarito e os blocos */
+/* ---------- Cartão de fim de prova: resumo + registrar ou não ---------- */
+function textoTempoFim(ms) {
+  const min = Math.round(ms / 60000), h = Math.floor(min / 60), m = min % 60;
+  return h ? `${h}h${String(m).padStart(2, '0')}` : `${m} min`;
+}
+function renderFimProva() {
+  const antes = !!prova.encerradaAntes;
+  $('fim-acoes').classList.toggle('antes', antes);
+  $('titulo-fim').textContent = antes ? 'Prova encerrada' : 'Tempo esgotado';
+  el.msgFim.textContent = antes ? 'Você encerrou antes do fim do tempo.' : 'A prova chegou ao fim do tempo.';
+  $('fim-nome').textContent = prova.nome || 'Simulado';
+  $('fim-nome').hidden = false;
+  const usadoMs = Math.min(prova.acumuladoMs, prova.duracaoMs);
+  const itens = [['Tempo de prova', textoTempoFim(usadoMs), `de ${textoTempoFim(prova.duracaoMs)}`]];
+  if (prova.gabaritoMs !== null && prova.gabaritoMs !== undefined) itens.push(['Gabarito', textoTempoFim(prova.gabaritoMs), '']);
+  const blocos = (prova.blocos || []).filter(b => !b.ingles).length;
+  if (blocos || (prova.blocos || []).length) itens.push(['Blocos marcados', String(blocos), (prova.blocos || []).some(b => b.ingles) ? '+ Inglês' : '']);
+  $('fim-resumo').replaceChildren(...itens.map(([rotulo, valor, extra]) => {
+    const caixa = criar('div');
+    const dd = criar('dd', '', valor);
+    if (extra) { dd.append(' '); dd.append(criar('small', '', extra)); }
+    caixa.append(criar('dt', '', rotulo), dd);
+    return caixa;
+  }));
+}
+async function naoRegistrarProva() {
+  if (prova.fase !== 'finalizado') return;
+  const ok = await confirmar('O resultado desta prova não será registrado. Voltar ao início?', 'Não registrar');
+  if (ok) voltarParaConfig();
+}
+
 function registrarProvaDoCronometro() {
   if (prova.fase !== 'finalizado') return;
   const usadoMs = Math.min(prova.acumuladoMs, prova.duracaoMs);
@@ -9493,6 +9650,8 @@ $('btn-novo-grupo').addEventListener('click', async () => {
   if (await criarGrupo()) renderTudoDosGrupos();
 });
 el.btnTipoSalvar.addEventListener('click', salvarAlteracoesTipo);
+$('btn-tipo-editar').addEventListener('click', editarProvaPropria);
+$('btn-tipo-cancelar-edicao').addEventListener('click', cancelarEdicaoPropria);
 el.btnTipoNovo.addEventListener('click', salvarComoNovoTipo);
 el.btnTipoRenomear.addEventListener('click', renomearTipo);
 el.btnTipoExcluir.addEventListener('click', excluirTipo);
@@ -9515,6 +9674,7 @@ el.btnIrProva.addEventListener('click', irParaProva);
 el.btnPrincipal.addEventListener('click', acaoPrincipal);
 el.btnVoltar.addEventListener('click', voltarParaConfig);
 $('btn-registrar-prova').addEventListener('click', registrarProvaDoCronometro);
+$('btn-nao-registrar').addEventListener('click', naoRegistrarProva);
 $('btn-bloco').addEventListener('click', () => marcarBloco(false));
 $('btn-bloco-ingles').addEventListener('click', () => marcarBloco(true));
 $('btn-bloco-desfazer').addEventListener('click', desfazerBloco);
