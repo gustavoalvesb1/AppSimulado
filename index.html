@@ -18,6 +18,10 @@
         document.documentElement.dataset.tema = 'acento';
       }
     }
+    // Modo claro dos temas normais (os Editoriais já têm versão clara e escura própria)
+    if (localStorage.getItem('cronometro-simulado:modo') === 'claro' && !/^editorial/.test(temaSalvo || '')) {
+      document.documentElement.dataset.modo = 'claro';
+    }
   } catch (e) {}
 </script>
 <style>
@@ -1760,6 +1764,64 @@
   .tabela tbody tr:hover td { background: color-mix(in srgb, var(--texto) 3%, transparent); }
   .tabela-motivos th { font-size: .68rem; letter-spacing: .04em; }
 
+  /* "Por que você errou": motivos nas linhas, matérias nas colunas, total de erros embaixo */
+  .tabela-motivos { border-collapse: separate; border-spacing: 0; }
+  .tabela-motivos thead th.col-materia { text-transform: none; letter-spacing: 0; font-size: .84rem; vertical-align: bottom; }
+  .nome-col-materia { display: inline-flex; align-items: center; gap: 7px; font-weight: 700; color: var(--texto); white-space: nowrap; }
+  .nome-col-materia::before { content: ''; width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--cor, var(--texto-suave)); }
+  .col-total .nome-col-materia::before { display: none; }
+  .tabela-motivos .obs-col { display: block; margin-top: 2px; font-size: .72rem; font-weight: 500; color: var(--texto-suave); text-transform: none; letter-spacing: 0; }
+  .tabela-motivos .col-motivo {
+    text-align: left; white-space: nowrap; position: sticky; left: 0; z-index: 1; background: var(--hoje-painel, var(--bg-2));
+  }
+  .tabela-motivos th, .tabela-motivos td { border-bottom: 1px solid var(--hoje-linha, var(--borda)); }
+  .tabela-motivos thead th { padding-top: 14px; padding-bottom: 12px; }
+  .tabela-motivos tbody th.col-motivo {
+    font-size: .92rem; font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--texto);
+    padding: 9px 16px 9px 10px;
+  }
+  .tabela-motivos td.num { font-variant-numeric: tabular-nums; min-width: 66px; padding: 7px 8px; }
+  .tabela-motivos tbody tr:hover td, .tabela-motivos tbody tr:hover th { background: color-mix(in srgb, var(--texto) 2.5%, var(--hoje-painel, var(--bg-2))); }
+  /* Número numa pílula arredondada: mais cor = maior parte dos erros daquela matéria */
+  .pilula-motivo {
+    display: inline-flex; align-items: center; justify-content: center; min-width: 40px; padding: 5px 10px; border-radius: 10px;
+    font-weight: 600; background: color-mix(in srgb, var(--amarelo-motivo) calc(var(--peso, 0%) + 22%), transparent);
+    transition: transform .15s;
+  }
+  /* Amarelo claro, no tom do tema Preto e amarelo */
+  .tabela-motivos { --amarelo-motivo: var(--estrela, #f5c518); }
+  .pilula-motivo.zero { background: none; font-weight: 400; color: var(--texto-suave); opacity: .5; }
+  .motivo-maior .pilula-motivo {
+    font-weight: 700;
+    box-shadow: inset 0 0 0 1.5px var(--amarelo-motivo), 0 4px 12px -4px color-mix(in srgb, var(--amarelo-motivo) 60%, transparent);
+  }
+  .tabela-motivos tbody tr:hover .pilula-motivo:not(.zero) { transform: translateY(-1px); }
+  /* Coluna Total: uma faixa levemente destacada */
+  .tabela-motivos .col-total { background: color-mix(in srgb, var(--texto) 3%, transparent); }
+  .tabela-motivos thead .col-total { border-top-left-radius: 12px; border-top-right-radius: 12px; }
+  .tabela-motivos .linha-total th, .tabela-motivos .linha-total td { border-top: 1px solid var(--borda); border-bottom: 0; font-weight: 700; padding-top: 12px; padding-bottom: 12px; }
+  .tabela-motivos .linha-total strong { font-size: 1.12rem; letter-spacing: -.01em; }
+  .tabela-motivos .linha-total .obs-col { margin-top: 0; }
+  .tabela-motivos .linha-chute th, .tabela-motivos .linha-chute td { border-top: 1px dashed var(--hoje-linha, var(--borda)); border-bottom: 0; font-size: .88rem; color: var(--texto-suave); }
+  .tabela-motivos .linha-chute .pilula-motivo { background: none; font-weight: 500; }
+  .tabela-motivos .linha-chute .col-total, .tabela-motivos .linha-chute .col-total { border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
+  .tabela-motivos .linha-sem-motivo th { color: var(--texto-suave); font-style: italic; }
+  /* Moldura (título + frase) e, dentro, o painel elevado com a tabela — o mesmo visual do quadro Hoje */
+  .moldura-motivos {
+    padding: 6px; border: 1px solid var(--hoje-linha); border-radius: 22px;
+    background: var(--hoje-moldura); box-shadow: var(--hoje-sombra);
+  }
+  .moldura-motivos .titulo-motivos { display: block; margin: 0; padding: 12px 14px 12px; }
+  .moldura-motivos .titulo-motivos h3 { margin: 0; font-size: .98rem; font-weight: 600; letter-spacing: -.005em; }
+  .moldura-motivos #nota-motivos { margin: 4px 0 0; }
+  .painel-motivos {
+    padding: 4px 8px 6px; border: 1px solid var(--hoje-linha); border-radius: 17px;
+    background: var(--hoje-painel); box-shadow: var(--hoje-sombra-leve);
+  }
+  .painel-motivos .tabela-motivos { width: 100%; }
+  .moldura-motivos .frase-motivos { margin: 0; padding: 12px 14px 8px; }
+  .moldura-motivos .frase-motivos:empty { display: none; }
+
   /* Números, cenários e dicas */
   .numero { border-radius: 14px; padding: 14px 16px; }
   .numero strong { font-family: var(--fonte-titulo); font-size: 1.7rem; letter-spacing: -.02em; line-height: 1.15; }
@@ -1903,6 +1965,59 @@
     --aviso: #e0a458;
     --nivel-excelente: #5ccb97; --nivel-bom: #7fb2e5; --nivel-ok: #d9b44a; --nivel-mal: #e39a5b; --nivel-ruim: #ee7b72;
   }
+
+  /* ---------- Modo claro dos temas normais (Preto e amarelo, RAFITA e as Cores) ----------
+     Fundo claro e texto escuro; nos temas de Cores o destaque é recalculado no JS
+     (variaveisDoAcento com claro = true) para ter contraste sobre o branco. */
+  :root[data-modo="claro"] {
+    color-scheme: light;
+    --bg: #f3f3ef;
+    --bg-2: #ffffff;
+    --borda: #dcdbd3;
+    --texto: #1b1b18;
+    --texto-suave: #5f5e55;
+    --chip: #f2c200;
+    --chip-borda: #c9a000;
+    --chip-hover: #e3b600;
+    --chip-proximo: #ffe066;
+    --chip-passado: #efe8c8;
+    --chip-texto: #1b1b18;
+    --passado-texto: #6f6430;
+    --foco: #7d6000;
+    --anel: rgba(125, 96, 0, .3);
+    --ok: #7d6000;
+    --pulso: 201, 160, 0;
+    --pausa: #b35c00;
+    --erro: #c0392b;
+    --aviso: #a35400;
+    --estrela: #d99a00;
+    --serie-1: #1f6fc5; --serie-2: #d42020; --serie-3: #0e7f5a; --serie-4: #946600;
+    --serie-5: #b53a6b; --serie-6: #2e7d1f; --serie-7: #6b5fd0; --serie-8: #c24545;
+    --nivel-excelente: #1c7c54; --nivel-bom: #2366a8; --nivel-ok: #8c6d00; --nivel-mal: #b05a12; --nivel-ruim: #b3261e;
+  }
+  :root[data-tema="rosa"][data-modo="claro"] {
+    --bg: #fbf1f5;
+    --bg-2: #ffffff;
+    --borda: #f0d5e2;
+    --texto: #2a0f1d;
+    --texto-suave: #85536b;
+    --chip: #e0388a;
+    --chip-borda: transparent;
+    --chip-hover: #c92d7a;
+    --chip-proximo: #b81f68;
+    --chip-passado: #f7dbe8;
+    --chip-texto: #ffffff;
+    --passado-texto: #9c5f7d;
+    --foco: #b81f68;
+    --anel: rgba(184, 31, 104, .3);
+    --ok: #1c7c54;
+    --pulso: 224, 56, 138;
+  }
+  :root[data-modo="claro"] .amostra { border-color: rgba(0, 0, 0, .12); }
+  /* Gráfico: a linha na cor do tema fica no tom mais escuro (o amarelo claro some no branco) */
+  :root[data-modo="claro"] .area-grafico path[style*="var(--chip)"] { stroke: var(--foco) !important; }
+  :root[data-modo="claro"] .area-grafico circle[style*="var(--chip)"] { fill: var(--foco) !important; }
+  :root[data-modo="claro"] .chave-linha[style*="var(--chip)"] { background: var(--foco) !important; }
 
   /* ---------- Em todas as telas: sem sombras e brilhos, botões em pílula ---------- */
   :root[data-tema^="editorial"] .btn { box-shadow: none; }
@@ -2500,7 +2615,7 @@
   #tela-config .acoes #btn-ir-prova { grid-area: botao; }
   /* Cartão em duas camadas: a moldura (título + botão) e, dentro dela, o painel elevado (número + lista) */
   /* Cores e sombras do visual "painel" (quadro Hoje e tela de Estudos) */
-  .hoje-plano, .dash, .lateral, .cartoes-materias, .total-materias, .menu-temas, .provas-cartoes, .bloco-escolha-prova {
+  .hoje-plano, .dash, .lateral, .cartoes-materias, .total-materias, .menu-temas, .provas-cartoes, .bloco-escolha-prova, .moldura-motivos, .cenarios {
     --hoje-moldura: color-mix(in srgb, var(--texto) 3%, var(--bg));
     --hoje-painel: color-mix(in srgb, var(--texto) 2%, var(--bg-2));
     --hoje-linha: color-mix(in srgb, var(--borda) 70%, transparent);
@@ -2593,7 +2708,7 @@
   .check-hoje:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
   .hoje-plano .vazio-hoje { margin: 0; padding: 10px 0 6px; color: var(--texto-suave); font-size: .88rem; }
   /* Temas claros: sombras mais suaves */
-  :root[data-tema="editorial-claro"] :is(.hoje-plano, .dash, .lateral, .cartoes-materias, .total-materias, .menu-temas, .provas-cartoes, .bloco-escolha-prova) {
+  :is(:root[data-tema="editorial-claro"], :root[data-modo="claro"]) :is(.hoje-plano, .dash, .lateral, .cartoes-materias, .total-materias, .menu-temas, .provas-cartoes, .bloco-escolha-prova, .moldura-motivos, .cenarios) {
     --hoje-moldura: color-mix(in srgb, var(--texto) 3%, var(--bg));
     --hoje-painel: color-mix(in srgb, #fff 70%, var(--bg));
     --hoje-sombra: 0 1px 2px rgba(16, 24, 40, .05), 0 12px 32px -10px rgba(16, 24, 40, .14);
@@ -2840,6 +2955,21 @@
   .opcao-menu-tema[aria-checked="true"]::after { content: "✓"; margin-left: auto; color: var(--chip); font-weight: 700; }
   .amostra-menu-tema { flex: none; display: inline-flex; width: 26px; height: 18px; overflow: hidden; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(127, 127, 127, .35); }
   .amostra-menu-tema span { flex: 1; }
+  /* Escuro | Claro */
+  .seletor-modo { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin: 2px 4px 4px; padding: 3px; border-radius: 12px; background: color-mix(in srgb, var(--texto) 6%, transparent); }
+  .opcao-modo {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 8px; border: 0; border-radius: 9px;
+    background: transparent; color: var(--texto-suave); font: inherit; font-size: .82rem; font-weight: 600; cursor: pointer;
+    transition: background .15s, color .15s, box-shadow .15s;
+  }
+  .opcao-modo svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .opcao-modo:hover:not(:disabled) { color: var(--texto); }
+  .opcao-modo:focus-visible { outline: 2px solid var(--foco); outline-offset: 1px; }
+  .opcao-modo[aria-pressed="true"] { background: var(--bg-2); color: var(--texto); box-shadow: 0 1px 2px rgba(0, 0, 0, .12), 0 2px 6px -2px rgba(0, 0, 0, .18); }
+  .opcao-modo[aria-pressed="true"] svg { color: var(--foco); }
+  .opcao-modo:disabled { cursor: default; opacity: .45; }
+  .aviso-modo { display: none; margin: 2px 8px 4px; color: var(--texto-suave); font-size: .72rem; line-height: 1.35; }
+  .grupo-modo.sem-modo .aviso-modo { display: block; }
 
   /* ==========================================================
      TELA INICIAL: cartões das provas no visual "painel" (todos os temas)
@@ -3008,6 +3138,51 @@
     .total-materias { grid-template-columns: minmax(0, 1fr); }
     .total-materias .valor-total { grid-row: 2; }
     .meio-total { grid-row: 3; }
+  }
+  /* Nota em 3 cenários: mesmos cartões do painel (Sem chutes · Real · Potencial) */
+  .cenarios { gap: 12px; align-items: stretch; }
+  .cenario.sem-chute { --cor: var(--texto-suave); }
+  .cenario.real { --cor: var(--chip); }
+  .cenario.potencial { --cor: var(--nivel-excelente); }
+  :root #tela-resultados .cenarios .cenario {
+    position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center;
+    padding: 14px 16px 13px; border: 1px solid var(--hoje-linha); border-radius: 18px;
+    background:
+      radial-gradient(130% 90% at 100% 0%, color-mix(in srgb, var(--cor) 14%, transparent), transparent 62%),
+      var(--hoje-painel);
+    box-shadow: var(--hoje-sombra-leve);
+    transition: transform .18s, box-shadow .18s, border-color .18s;
+  }
+  :root #tela-resultados .cenarios .cenario::before {
+    content: ""; position: absolute; inset: 0 0 auto; height: 3px;
+    background: linear-gradient(90deg, var(--cor), color-mix(in srgb, var(--cor) 25%, transparent));
+  }
+  :root #tela-resultados .cenarios .cenario:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--cor) 40%, var(--hoje-linha)); box-shadow: var(--hoje-sombra); }
+  :root #tela-resultados .cenarios .cenario .rotulo-cenario { color: var(--texto); font-size: .88rem; font-weight: 600; }
+  :root #tela-resultados .cenarios .cenario strong {
+    font-family: inherit; font-size: 1.7rem; font-weight: 650; letter-spacing: -.02em; line-height: 1.1; margin: 8px 0 0; color: var(--texto);
+  }
+  :root #tela-resultados .cenarios .cenario strong .de-total { display: inline; margin: 0; font-size: .5em; font-weight: 500; color: var(--texto-suave); opacity: 1; }
+  :root #tela-resultados .cenarios .cenario .barra-materia { margin: 10px 0 8px; }
+  :root #tela-resultados .cenarios .cenario > small { margin-top: 0; font-size: .74rem; opacity: 1; }
+  /* Real: o principal, maior e com a borda na cor do tema */
+  :root #tela-resultados .cenarios .cenario.real {
+    padding: 18px 20px 16px; border: 1px solid color-mix(in srgb, var(--cor) 55%, var(--hoje-linha));
+    background:
+      radial-gradient(130% 90% at 100% 0%, color-mix(in srgb, var(--cor) 20%, transparent), transparent 62%),
+      var(--hoje-painel);
+    box-shadow: var(--hoje-sombra);
+  }
+  :root #tela-resultados .cenarios .cenario.real strong { font-size: 2.6rem; }
+  :root #tela-resultados .cenarios .cenario.real .barra-materia { height: 8px; }
+  :root #tela-resultados .cenarios .cenario.real > small { font-size: .8rem; }
+  @media (max-width: 520px) {
+    :root #tela-resultados .cenarios { gap: 8px; }
+    :root #tela-resultados .cenarios .cenario { padding: 11px 10px 10px; border-radius: 16px; }
+    :root #tela-resultados .cenarios .cenario strong { font-size: 1.25rem; }
+    :root #tela-resultados .cenarios .cenario.real { padding: 13px 11px 12px; }
+    :root #tela-resultados .cenarios .cenario.real strong { font-size: 1.75rem; }
+    :root #tela-resultados .cenarios .cenario > small { font-size: .66rem; }
   }
   @media (max-width: 520px) {
     .cartoes-materias { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
@@ -3757,17 +3932,20 @@
 
       <!-- Motivos dos erros (só aparece quando há provas com motivos marcados) -->
       <div id="bloco-motivos" class="bloco-motivos" hidden>
-        <div class="titulo-motivos">
-          <h3>Por que você errou</h3>
+        <!-- Visual "painel" (como o quadro Hoje): moldura com título e, dentro, o painel elevado com a tabela -->
+        <div class="moldura-motivos">
+          <div class="titulo-motivos">
+            <h3>Por que você errou</h3>
+            <p id="nota-motivos" class="grafico-nota"></p>
+          </div>
+          <div class="painel-motivos rolagem-tabela">
+            <table class="tabela tabela-motivos">
+              <thead id="cabeca-motivos"></thead>
+              <tbody id="corpo-motivos"></tbody>
+            </table>
+          </div>
+          <p id="frase-motivos" class="frase-motivos"></p>
         </div>
-        <p id="nota-motivos" class="grafico-nota"></p>
-        <div class="rolagem-tabela">
-          <table class="tabela tabela-motivos">
-            <thead id="cabeca-motivos"></thead>
-            <tbody id="corpo-motivos"></tbody>
-          </table>
-        </div>
-        <p id="frase-motivos" class="frase-motivos"></p>
 
 
 
@@ -5030,8 +5208,49 @@ function clarearAte(cor, fundo, minimo) {
   return resultado;
 }
 
+/** Escurece a cor (misturando com preto) até ter o contraste mínimo sobre o fundo */
+function escurecerAte(cor, fundo, minimo) {
+  let resultado = cor;
+  for (let t = 0.05; contraste(resultado, fundo) < minimo && t <= 1; t += 0.05) {
+    resultado = misturar(cor, '#000000', t);
+  }
+  return resultado;
+}
+
+/** Versão do destaque para o modo claro: fundo claro, então o texto em destaque fica mais escuro */
+function variaveisDoAcentoClaro(acento) {
+  const fundo = '#f3f3ef';
+  const legivel = escurecerAte(acento, '#ffffff', 4.5);
+  const [r, g, b] = hexParaRgb(legivel);
+  const textoNoChip = contraste(acento, '#1b1b18') >= contraste(acento, '#ffffff') ? '#1b1b18' : '#ffffff';
+  const fundoPassado = misturar(acento, fundo, 0.8);
+  let proximo = misturar(acento, '#000000', 0.18);
+  if (textoNoChip === '#1b1b18') proximo = misturar(acento, '#ffffff', 0.3);
+  // Cores muito claras quase somem no fundo claro: ganham um contorno mais escuro
+  const borda = contraste(acento, fundo) < 1.8 ? escurecerAte(acento, fundo, 2.2) : 'transparent';
+  return {
+    '--chip': acento,
+    '--chip-borda': borda,
+    '--chip-hover': misturar(acento, '#000000', 0.1),
+    '--chip-proximo': proximo,
+    '--chip-passado': fundoPassado,
+    '--chip-texto': textoNoChip,
+    '--passado-texto': escurecerAte(misturar(acento, fundo, 0.25), fundoPassado, 3),
+    '--foco': legivel,
+    '--anel': `rgba(${r}, ${g}, ${b}, .3)`,
+    '--ok': legivel,
+    '--pulso': `${r}, ${g}, ${b}`
+  };
+}
+
+/* Modo claro: vale para os temas normais (os Editoriais têm versão clara e escura própria) */
+const CHAVE_MODO = 'cronometro-simulado:modo';
+function modoClaro() { return lerTexto(CHAVE_MODO) === 'claro'; }
+function temaTemModo(tema) { return !tema.id.startsWith('editorial'); }
+
 /** Todas as variáveis de um tema a partir de uma única cor de destaque */
-function variaveisDoAcento(acento) {
+function variaveisDoAcento(acento, claro = false) {
+  if (claro) return variaveisDoAcentoClaro(acento);
   const cartao = '#151515';
   const legivel = clarearAte(acento, cartao, 4.5);   // anel de foco, ponto "em andamento"
   const [r, g, b] = hexParaRgb(legivel);
@@ -5065,9 +5284,11 @@ function aplicarTema(id) {
   const tema = TEMAS.find(t => t.id === id) || TEMAS[0];
   const raiz = document.documentElement;
   VARIAVEIS_DE_ACENTO.forEach(v => raiz.style.removeProperty(v)); // limpa o tema anterior
+  const claro = temaTemModo(tema) && modoClaro();
+  if (claro) raiz.dataset.modo = 'claro'; else delete raiz.dataset.modo;
 
   if (tema.acento) {
-    const cores = variaveisDoAcento(tema.acento);
+    const cores = variaveisDoAcento(tema.acento, claro);
     Object.entries(cores).forEach(([nome, valor]) => raiz.style.setProperty(nome, valor));
     raiz.dataset.tema = 'acento';
     gravar(CHAVE_TEMA_CORES, cores);
@@ -6583,38 +6804,84 @@ function renderMotivos(lista, ordem) {
 
   // "Em branco" só aparece se algum resultado antigo tiver questões em branco
   const temBranco = [...porMateria.values()].some(acc => acc.branco > 0);
-  const colunas = [...MOTIVOS, MOTIVO_CHUTE].filter(x => x.id !== 'branco' || temBranco);
+  const motivosLinhas = MOTIVOS.filter(x => x.id !== 'branco' || temBranco);
+  const materias = [...porMateria.values()].sort((a, b) => posicao(a.chave) - posicao(b.chave));
+
+  // Total (sem as eliminatórias, como no resto do Desempenho)
+  const contam = materias.filter(acc => minimoEliminatoria(acc.nome) === null);
+  const total = { erros: 0, acertos: 0, conta: 0, atencao: 0, conteudo: 0, tempo: 0, branco: 0, chute: 0 };
+  contam.forEach(acc => Object.keys(total).forEach(k => { total[k] += acc[k]; }));
+  const temEliminatoria = contam.length < materias.length;
+  const colunas = materias.map(acc => ({ acc, nome: acc.nome, cor: corDaMateria(acc.chave, ordem) }));
+  if (contam.length > 1 || temEliminatoria) {
+    colunas.push({ acc: total, nome: 'Total', total: true,
+      obs: temEliminatoria ? `sem ${materias.filter(a => !contam.includes(a)).map(a => a.nome).join(', ')}` : '' });
+  }
+  const classificadosDe = acc => MOTIVOS.reduce((s, x) => s + acc[x.id], 0);
+  const semMotivo = colunas.some(c => c.acc.erros > classificadosDe(c.acc));
+
+  // Cabeçalho: uma coluna por matéria (com a cor dela) e o Total
   const cabeca = criar('tr');
-  cabeca.append(criar('th', '', 'Matéria'));
-  colunas.forEach(x => { const th = criar('th', 'num', x.nome); th.title = x.dica; cabeca.append(th); });
+  cabeca.append(criar('th', 'col-motivo', 'Motivo'));
+  colunas.forEach(c => {
+    const th = criar('th', c.total ? 'num col-materia col-total' : 'num col-materia');
+    const nome = criar('span', 'nome-col-materia', c.nome);
+    if (c.cor) nome.style.setProperty('--cor', c.cor);
+    th.append(nome);
+    if (c.obs) th.append(criar('small', 'obs-col', c.obs));
+    cabeca.append(th);
+  });
   $('cabeca-motivos').replaceChildren(cabeca);
 
-  const linha = (nome, acc, classe = '') => {
-    const tr = criar('tr', classe);
-    tr.append(criar('td', '', nome));
-    const maior = Math.max(...MOTIVOS.map(x => acc[x.id]));
-    colunas.forEach(x => {
-      const v = acc[x.id];
-      const destaque = x !== MOTIVO_CHUTE && v > 0 && v === maior;
-      const td = criar('td', destaque ? 'num motivo-maior' : 'num', String(v));
-      if (destaque) td.title = 'Maior motivo de erro nesta matéria';
-      tr.append(td);
+  // Célula: número + fundo mais forte quanto maior a parte dos erros daquela matéria
+  const celula = (v, c, { destaque = false, base = c.acc.erros } = {}) => {
+    const td = criar('td', 'num celula-motivo' + (c.total ? ' col-total' : '') + (destaque ? ' motivo-maior' : ''));
+    const pilula = criar('span', v ? 'pilula-motivo' : 'pilula-motivo zero', v ? String(v) : '–');
+    if (v && base) pilula.style.setProperty('--peso', `${Math.round(8 + Math.min(1, v / base) * 30)}%`); // 8% a 38% de cor
+    td.append(pilula);
+    if (destaque) td.title = `Maior motivo de erro${c.total ? '' : ` em ${c.nome}`}`;
+    return td;
+  };
+  const linhaMotivo = x => {
+    const tr = criar('tr');
+    const th = criar('th', 'col-motivo', x.nome);
+    th.scope = 'row'; th.title = x.dica;
+    tr.append(th);
+    colunas.forEach(c => {
+      const maior = Math.max(...MOTIVOS.map(m => c.acc[m.id]));
+      tr.append(celula(c.acc[x.id], c, { destaque: c.acc[x.id] > 0 && c.acc[x.id] === maior }));
     });
     return tr;
   };
-  const linhas = [...porMateria.values()].sort((a, b) => posicao(a.chave) - posicao(b.chave));
   const corpo = $('corpo-motivos');
-  corpo.replaceChildren(...linhas.map(acc => linha(acc.nome, acc)));
-
-  // Total (sem as eliminatórias, como no resto do Desempenho)
-  const contam = linhas.filter(acc => minimoEliminatoria(acc.nome) === null);
-  const total = { erros: 0, acertos: 0, conta: 0, atencao: 0, conteudo: 0, tempo: 0, branco: 0, chute: 0 };
-  contam.forEach(acc => Object.keys(total).forEach(k => { total[k] += acc[k]; }));
-  const temEliminatoria = contam.length < linhas.length;
-  if (contam.length > 1 || temEliminatoria) {
-    corpo.append(linha(temEliminatoria ? `Total (sem ${linhas.find(a => !contam.includes(a)).nome})` : 'Total',
-      total, 'linha-total'));
+  corpo.replaceChildren(...motivosLinhas.map(linhaMotivo));
+  if (semMotivo) { // erros sem nenhum motivo marcado: para a coluna somar o total
+    const tr = criar('tr', 'linha-sem-motivo');
+    const th = criar('th', 'col-motivo', 'Sem motivo marcado'); th.scope = 'row';
+    tr.append(th);
+    colunas.forEach(c => tr.append(celula(c.acc.erros - classificadosDe(c.acc), c, { base: 0 })));
+    corpo.append(tr);
   }
+  // Total de erros por matéria
+  const trTotal = criar('tr', 'linha-total');
+  const thTotal = criar('th', 'col-motivo', 'Total de erros'); thTotal.scope = 'row';
+  trTotal.append(thTotal);
+  colunas.forEach(c => {
+    const td = criar('td', 'num' + (c.total ? ' col-total' : ''));
+    td.append(criar('strong', '', String(c.acc.erros)));
+    const questoes = c.acc.erros + c.acc.acertos;
+    if (questoes) td.append(criar('small', 'obs-col', `de ${questoes}`));
+    trTotal.append(td);
+  });
+  corpo.append(trTotal);
+  // Chute certo: é acerto, não erro — fica à parte, embaixo
+  const trChute = criar('tr', 'linha-chute');
+  const thChute = criar('th', 'col-motivo', 'Chute certo'); thChute.scope = 'row';
+  thChute.title = MOTIVO_CHUTE.dica;
+  thChute.append(criar('small', 'obs-col', 'acertos no chute'));
+  trChute.append(thChute);
+  colunas.forEach(c => trChute.append(celula(c.acc.chute, c, { base: 0 })));
+  corpo.append(trChute);
 
   // Nota em 3 cenários e dicas (seguem a mesma prova escolhida no seletor)
   renderNotasEDicas(escolhidas);
@@ -6802,16 +7069,24 @@ function renderNotasEDicas(provas) {
     (eliminatoria ? ` (sem ${eliminatoria.nome})` : '') + (n > 1 ? `, média de ${n} provas.` : '.');
 
   const cenarios = [
-    { rotulo: 'Sem chutes', valor: acertos - soma.chute, dica: 'o que você garantiu, tirando os chutes certos' },
+    { rotulo: 'Sem chutes', valor: acertos - soma.chute, dica: 'o que você garantiu, tirando os chutes certos', classe: 'sem-chute' },
     { rotulo: 'Real', valor: acertos, dica: 'a nota que você tirou', classe: 'real' },
     { rotulo: 'Potencial', valor: Math.min(questoes, garantidos + sabiaErrou),
-      dica: 'acertos sem chute + as que você errou mas sabia' }
+      dica: 'acertos sem chute + as que você errou mas sabia', classe: 'potencial' }
   ];
   $('cenarios').replaceChildren(...cenarios.map(c => {
     const caixa = criar('div', `cenario${c.classe ? ` ${c.classe}` : ''}`);
+    const valor = Math.round(media(c.valor)), total = Math.round(totalMedio);
+    const strong = criar('strong', '', String(valor));
+    strong.append(criar('small', 'de-total', `/${total}`));
+    const barra = criar('span', 'barra-materia');
+    const preenchido = criar('span');
+    preenchido.style.width = `${total ? Math.max(0, Math.min(100, valor / total * 100)) : 0}%`;
+    barra.append(preenchido);
     caixa.append(
       criar('span', 'rotulo-cenario', c.rotulo),
-      criar('strong', '', `${Math.round(media(c.valor))}/${Math.round(totalMedio)}`),
+      strong,
+      barra,
       criar('small', '', c.dica)
     );
     return caixa;
@@ -7194,6 +7469,7 @@ function atualizarItemTema() {
   botao.title = `Tema: ${atual.nome}`;
   botao.setAttribute('aria-label', `Tema: ${atual.nome}`);
   document.querySelectorAll('#menu-temas [data-tema]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.tema === atual.id)));
+  atualizarModoMenu();
 }
 function renderMenuTemas() {
   const grupo = (titulo, temas) => {
@@ -7205,7 +7481,9 @@ function renderMenuTemas() {
       b.dataset.tema = tema.id;
       const amostra = criar('span', 'amostra-menu-tema');
       amostra.setAttribute('aria-hidden', 'true');
-      (tema.amostra || ['#0a0a0a', tema.acento]).slice(0, 2).forEach(cor => {
+      const cores = (tema.amostra || ['#0a0a0a', tema.acento]).slice(0, 2);
+      if (temaTemModo(tema) && modoClaro()) cores[0] = tema.id === 'rosa' ? '#fbf1f5' : '#f3f3ef';
+      cores.forEach(cor => {
         const faixa = criar('span'); faixa.style.background = cor; amostra.append(faixa);
       });
       b.append(amostra, criar('span', 'nome-menu-tema', tema.nome.replace(' (original)', '')));
@@ -7214,8 +7492,51 @@ function renderMenuTemas() {
     }));
     return caixa;
   };
-  $('menu-temas').replaceChildren(grupo('Estilos', TEMAS.filter(t => !t.acento)), grupo('Cores', TEMAS.filter(t => t.acento)));
+  $('menu-temas').replaceChildren(grupoModo(), grupo('Estilos', TEMAS.filter(t => !t.acento)), grupo('Cores', TEMAS.filter(t => t.acento)));
   atualizarItemTema();
+}
+/** Escuro | Claro no topo do menu (não vale para os Editoriais, que já têm as duas versões) */
+function grupoModo() {
+  const caixa = criar('div', 'grupo-menu-temas grupo-modo');
+  const seletor = criar('div', 'seletor-modo');
+  seletor.setAttribute('role', 'group');
+  seletor.setAttribute('aria-label', 'Modo');
+  const opcoes = [['escuro', 'Escuro', '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>'],
+                  ['claro', 'Claro', '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>']];
+  opcoes.forEach(([id, nome, icone]) => {
+    const b = criar('button', 'opcao-modo');
+    b.type = 'button';
+    b.dataset.modo = id;
+    b.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${icone}</svg>`;
+    b.append(criar('span', '', nome));
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      gravar(CHAVE_MODO, id);
+      aplicarTema(lerTexto(CHAVE_TEMA) || 'preto-amarelo');
+      atualizarModoMenu();
+    });
+    seletor.append(b);
+  });
+  caixa.append(criar('p', 'titulo-menu-temas', 'Modo'), seletor, criar('p', 'aviso-modo', 'Os temas Editorial já têm versão clara e escura.'));
+  return caixa;
+}
+function atualizarModoMenu() {
+  const atual = TEMAS.find(t => t.id === lerTexto(CHAVE_TEMA)) || TEMAS[0];
+  const vale = temaTemModo(atual);
+  const modo = modoClaro() ? 'claro' : 'escuro';
+  document.querySelectorAll('#menu-temas .opcao-modo').forEach(b => {
+    b.setAttribute('aria-pressed', String(vale && b.dataset.modo === modo));
+    b.disabled = !vale;
+  });
+  const grupoM = document.querySelector('#menu-temas .grupo-modo');
+  if (grupoM) grupoM.classList.toggle('sem-modo', !vale);
+  // As amostras dos temas mudam de fundo conforme o modo
+  document.querySelectorAll('#menu-temas .opcao-menu-tema').forEach(b => {
+    const tema = TEMAS.find(t => t.id === b.dataset.tema);
+    const faixa = b.querySelector('.amostra-menu-tema span');
+    if (!tema || !faixa || !temaTemModo(tema)) return;
+    faixa.style.background = modoClaro() ? (tema.id === 'rosa' ? '#fbf1f5' : '#f3f3ef') : (tema.amostra || ['#0a0a0a'])[0];
+  });
 }
 function abrirMenuTemas() {
   const menu = $('menu-temas');
