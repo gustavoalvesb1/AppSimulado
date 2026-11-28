@@ -713,6 +713,10 @@
   .q-aba.completa .q-conta { color: var(--nivel-excelente); }
 
   .q-barra { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 0 12px; }
+  /* Sem "x/12 registradas", sem o campo Acertos e sem Copiar/Colar/Preencher/Limpar:
+     a barra fica só com o aviso da matéria (ex.: eliminatória) e some quando ele está vazio */
+  .q-barra #q-registradas, .q-barra .q-acertos, .q-barra .q-ferramentas { display: none !important; }
+  .q-barra:has(#q-nota-materia:empty) { display: none; }
   .q-resumo { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; }
   .q-registradas { font-size: 1.05rem; font-variant-numeric: tabular-nums; }
   .q-acertos { display: inline-flex; align-items: baseline; gap: 10px; color: var(--texto-suave); font-size: .92rem; }
@@ -2647,7 +2651,7 @@
   #tela-config .acoes #btn-ir-prova { grid-area: botao; }
   /* Cartão em duas camadas: a moldura (título + botão) e, dentro dela, o painel elevado (número + lista) */
   /* Cores e sombras do visual "painel" (quadro Hoje e tela de Estudos) */
-  .hoje-plano, .dash, .lateral, .cartoes-materias, .total-materias, .menu-temas, .provas-cartoes, .bloco-escolha-prova, .moldura-motivos, .cenarios, .fim-prova, #painel-desempenho {
+  .hoje-plano, .dash, .lateral, .cartoes-materias, .total-materias, .menu-temas, .provas-cartoes, .bloco-escolha-prova, .moldura-motivos, .cenarios, .fim-prova, #painel-desempenho, #painel-edital, #painel-registrar {
     --hoje-moldura: color-mix(in srgb, var(--texto) 3%, var(--bg));
     --hoje-painel: color-mix(in srgb, var(--texto) 2%, var(--bg-2));
     --hoje-linha: color-mix(in srgb, var(--borda) 70%, transparent);
@@ -2740,7 +2744,7 @@
   .check-hoje:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
   .hoje-plano .vazio-hoje { margin: 0; padding: 10px 0 6px; color: var(--texto-suave); font-size: .88rem; }
   /* Temas claros: sombras mais suaves */
-  :is(:root[data-tema="editorial-claro"], :root[data-modo="claro"]) :is(.hoje-plano, .dash, .lateral, .cartoes-materias, .total-materias, .menu-temas, .provas-cartoes, .bloco-escolha-prova, .moldura-motivos, .cenarios, .fim-prova, #painel-desempenho) {
+  :is(:root[data-tema="editorial-claro"], :root[data-modo="claro"]) :is(.hoje-plano, .dash, .lateral, .cartoes-materias, .total-materias, .menu-temas, .provas-cartoes, .bloco-escolha-prova, .moldura-motivos, .cenarios, .fim-prova, #painel-desempenho, #painel-edital, #painel-registrar) {
     --hoje-moldura: color-mix(in srgb, var(--texto) 3%, var(--bg));
     --hoje-painel: color-mix(in srgb, #fff 70%, var(--bg));
     --hoje-sombra: 0 1px 2px rgba(16, 24, 40, .05), 0 12px 32px -10px rgba(16, 24, 40, .14);
@@ -3210,22 +3214,136 @@
     border: 0; background: var(--hoje-painel); color: var(--texto);
     box-shadow: 0 1px 2px rgba(0, 0, 0, .12), 0 2px 6px -2px rgba(0, 0, 0, .18);
   }
-  :root #painel-desempenho .grafico > #subtitulo-grafico,
-  :root #painel-desempenho .grafico > #legenda-grafico,
-  :root #painel-desempenho .grafico > .area-grafico,
-  :root #painel-desempenho .grafico > #nota-grafico {
-    margin: 0; padding-left: 18px; padding-right: 18px; background: var(--hoje-painel);
-    border-left: 1px solid var(--hoje-linha); border-right: 1px solid var(--hoje-linha);
+  /* Painel único e arredondado em volta do gráfico (sem borda retangular por dentro) */
+  :root #painel-desempenho .painel-grafico {
+    padding: 14px 18px 12px; border: 1px solid var(--hoje-linha); border-radius: 17px;
+    background: var(--hoje-painel); box-shadow: var(--hoje-sombra-leve); overflow: hidden;
   }
-  :root #painel-desempenho .grafico > #subtitulo-grafico {
-    padding-top: 14px; border-top: 1px solid var(--hoje-linha); border-radius: 17px 17px 0 0;
+  :root #painel-desempenho .painel-grafico .area-grafico { border: 0; border-radius: 0; background: none; }
+  :root #painel-desempenho .painel-grafico > #subtitulo-grafico { margin-top: 0; }
+  :root #painel-desempenho .painel-grafico > #nota-grafico { margin-bottom: 0; }
+  :root #painel-desempenho .painel-grafico > #nota-grafico:empty { display: none; }
+
+  /* ==========================================================
+     REGISTRAR no estilo Painel: o formulário é a moldura; Prova · Edição · Data · Grupo
+     ficam num painel elevado, com campos arredondados e rótulos pequenos
+     ========================================================== */
+  :root #painel-registrar #form-resultado.cartao {
+    padding: 22px 22px 20px; border: 1px solid var(--hoje-linha); border-radius: 22px;
+    background: var(--hoje-moldura); box-shadow: var(--hoje-sombra);
   }
-  :root #painel-desempenho .grafico > .area-grafico { padding-top: 6px; padding-bottom: 8px; border-radius: 0; }
-  :root #painel-desempenho .grafico > #nota-grafico {
-    padding-bottom: 14px; border-bottom: 1px solid var(--hoje-linha); border-radius: 0 0 17px 17px;
-    box-shadow: 0 6px 8px -6px rgba(0, 0, 0, .10);
+  :root #painel-registrar #form-resultado .form-cabecalho {
+    margin-top: 14px; padding: 16px 18px 18px; gap: 14px 16px; align-items: start;
+    border: 1px solid var(--hoje-linha); border-radius: 18px; background: var(--hoje-painel); box-shadow: var(--hoje-sombra-leve);
   }
-  :root #painel-desempenho .grafico > #nota-grafico:empty { padding-bottom: 10px; }
+  :root #painel-registrar #form-resultado .form-cabecalho .rotulo {
+    margin-bottom: 6px; color: var(--texto-suave); font-size: .7rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  }
+  :root #painel-registrar #form-resultado .form-cabecalho .campo-edicao:focus-within .rotulo { color: var(--foco); }
+  :root #painel-registrar #form-resultado .form-cabecalho .campo {
+    min-height: 44px; border: 1px solid var(--hoje-linha); border-radius: 12px; background-color: var(--hoje-moldura);
+    transition: border-color .15s, box-shadow .15s, background-color .15s;
+  }
+  :root #painel-registrar #form-resultado .form-cabecalho .campo:hover { border-color: color-mix(in srgb, var(--foco) 35%, var(--hoje-linha)); }
+  :root #painel-registrar #form-resultado .form-cabecalho .campo:focus,
+  :root #painel-registrar #form-resultado .form-cabecalho .campo:focus-visible {
+    outline: none; border-color: var(--foco); box-shadow: 0 0 0 3px var(--anel); background-color: var(--hoje-painel);
+  }
+  @media (max-width: 520px) {
+    :root #painel-registrar #form-resultado.cartao { padding: 16px 14px; border-radius: 20px; }
+    :root #painel-registrar #form-resultado .form-cabecalho { padding: 14px; }
+  }
+
+  /* ==========================================================
+     EDITAL: matérias no seletor; cada frente numa moldura com o painel dos tópicos
+     (✓ · tópico · grau de revisão · nº da semana)
+     ========================================================== */
+  .titulo-edital { flex-wrap: wrap; gap: 10px; }
+  #painel-edital .dica { margin: 6px 0 0; }
+  #painel-edital .grau-revisar { --cor: var(--nivel-ok); }
+  #painel-edital .grau-ok { --cor: var(--nivel-excelente); }
+  #painel-edital .grau-estudar { --cor: var(--nivel-ruim); }
+  /* Revisar é amarelo de verdade também nos temas claros (com texto escuro) */
+  :is(:root[data-modo="claro"], :root[data-tema="editorial-claro"]) #painel-edital .grau-revisar { --cor: #f0b90b; }
+  #painel-edital .grau-edital.grau-revisar[aria-pressed="true"] { color: #1b1b18; }
+  .resumo-edital {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 20px; margin-top: 14px;
+    padding: 14px 18px; border: 1px solid var(--hoje-linha); border-radius: 18px;
+    background: var(--hoje-painel); box-shadow: var(--hoje-sombra-leve);
+  }
+  .progresso-edital { display: flex; align-items: center; gap: 10px; flex: 1 1 280px; min-width: 0; }
+  .progresso-edital strong { font-size: 1.9rem; font-weight: 650; letter-spacing: -.02em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .texto-progresso { color: var(--texto-suave); font-size: .86rem; white-space: nowrap; }
+  .progresso-edital .barra-materia { --cor: var(--nivel-excelente); flex: 1 1 80px; min-width: 60px; margin: 0; height: 8px; }
+  .pct-edital { color: var(--texto-suave); font-size: .8rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .contas-graus { display: flex; flex-wrap: wrap; gap: 6px; }
+  .conta-grau {
+    display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
+    font-size: .78rem; font-weight: 600; color: var(--texto); background: color-mix(in srgb, var(--cor, var(--texto-suave)) 14%, transparent);
+  }
+  .conta-grau::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--cor, var(--texto-suave)); }
+  .conta-grau.sem-grau { --cor: var(--texto-suave); }
+  .conta-grau b { font-variant-numeric: tabular-nums; }
+
+  .lista-edital { display: grid; gap: 14px; margin-top: 16px; }
+  .frente-edital { padding: 6px; border: 1px solid var(--hoje-linha); border-radius: 22px; background: var(--hoje-moldura); box-shadow: var(--hoje-sombra); }
+  .cabeca-frente { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 12px 10px; }
+  .cabeca-frente h3 { margin: 0; font-size: .98rem; }
+  .conta-frente {
+    padding: 2px 9px; border-radius: 999px; font-size: .76rem; font-weight: 700; font-variant-numeric: tabular-nums;
+    color: var(--texto-suave); background: color-mix(in srgb, var(--texto) 7%, transparent);
+  }
+  .painel-frente { overflow: hidden; border: 1px solid var(--hoje-linha); border-radius: 17px; background: var(--hoje-painel); box-shadow: var(--hoje-sombra-leve); }
+  .linha-edital {
+    display: grid; grid-template-columns: 28px minmax(0, 1fr) auto 56px; align-items: center; gap: 12px;
+    padding: 8px 14px; border-top: 1px solid var(--hoje-linha); transition: background .15s;
+  }
+  .linha-edital:first-child { border-top: 0; }
+  .linha-edital:not(.cabeca-colunas):hover { background: color-mix(in srgb, var(--texto) 2.5%, transparent); }
+  .cabeca-colunas { padding-top: 10px; padding-bottom: 8px; color: var(--texto-suave); font-size: .68rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+  .cabeca-colunas span:first-child, .cabeca-colunas span:nth-child(n + 3) { text-align: center; }
+  .check-edital {
+    display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border-radius: 50%; cursor: pointer;
+    border: 2px solid color-mix(in srgb, var(--texto-suave) 55%, transparent); background: transparent;
+    transition: background .15s, border-color .15s, transform .15s;
+  }
+  .check-edital svg { width: 15px; height: 15px; fill: none; stroke: #fff; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transform: scale(.5); transition: opacity .15s, transform .15s; }
+  .check-edital:hover { border-color: #1fae57; }
+  .check-edital[aria-checked="true"] { background: #1fae57; border-color: #1fae57; box-shadow: 0 2px 8px -2px rgba(31, 174, 87, .55); }
+  .check-edital[aria-checked="true"] svg { opacity: 1; transform: none; }
+  .check-edital:active { transform: scale(.9); }
+  .check-edital:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+  .nome-topico { font-size: .92rem; line-height: 1.35; overflow-wrap: anywhere; }
+  .linha-edital.feito .nome-topico { color: var(--texto-suave); }
+  .graus-edital { display: inline-flex; gap: 4px; }
+  .grau-edital {
+    min-width: 62px; padding: 5px 9px; border: 1px solid var(--hoje-linha); border-radius: 8px; cursor: pointer;
+    background: transparent; color: var(--texto-suave); font: inherit; font-size: .76rem; font-weight: 600;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .grau-edital:hover { color: var(--texto); border-color: color-mix(in srgb, var(--cor) 65%, var(--hoje-linha)); background: color-mix(in srgb, var(--cor) 10%, transparent); }
+  .grau-edital[aria-pressed="true"] { background: var(--cor); border-color: var(--cor); color: var(--bg); }
+  .grau-edital:focus-visible { outline: 2px solid var(--foco); outline-offset: 1px; }
+  .semana-edital {
+    width: 100%; min-width: 0; height: 34px; padding: 0 4px; border: 1px solid var(--hoje-linha); border-radius: 9px;
+    background: var(--bg); color: var(--texto); font: inherit; font-size: .92rem; font-weight: 600; text-align: center; font-variant-numeric: tabular-nums;
+  }
+  .semana-edital::placeholder { color: var(--texto-suave); opacity: .6; }
+  .semana-edital:focus { outline: 2px solid var(--foco); outline-offset: 1px; border-color: transparent; }
+  @media (max-width: 640px) {
+    .cabeca-colunas { display: none; }
+    /* Semana ao lado do nome; os 3 graus ganham a linha de baixo inteira (não cortam em tela estreita) */
+    .linha-edital { grid-template-columns: 26px minmax(0, 1fr) 52px; grid-template-areas: "check nome semana" ". graus graus"; row-gap: 8px; column-gap: 10px; padding: 10px 12px; }
+    .graus-edital { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grau-edital { white-space: nowrap; }
+    .linha-edital:nth-child(2) { border-top: 0; }
+    .check-edital { grid-area: check; }
+    .nome-topico { grid-area: nome; }
+    .graus-edital { grid-area: graus; }
+    .semana-edital { grid-area: semana; }
+    .grau-edital { min-width: 0; padding: 6px 8px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .check-edital, .check-edital svg, .grau-edital { transition: none; } }
 
   /* Nota em 3 cenários: mesmos cartões do painel (Sem chutes · Real · Potencial) */
   .cenarios { gap: 12px; align-items: stretch; }
@@ -3342,6 +3460,8 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V9l7-5 7 5v11"/><path d="M9.5 20v-5.5h5V20"/></svg><span>2ª fase</span></button></li>
     <li><button class="item-lateral" type="button" data-ir="planejamento" title="Planejamento">
       <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4M8.5 14h2M13.5 14h2M8.5 17h2"/></svg><span>Planejamento</span></button></li>
+    <li><button class="item-lateral" type="button" data-ir="edital" title="Edital">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="3"/><path d="M7.5 9l1.5 1.5L11.5 8M7.5 15l1.5 1.5 2.5-2.5M14 9.5h3M14 15.5h3"/></svg><span>Edital</span></button></li>
   </ul>
 
   <ul class="lista-lateral lista-dicas">
@@ -3755,6 +3875,8 @@
             aria-controls="painel-segunda" aria-selected="false" tabindex="-1">2ª fase</button>
     <button id="nav-planejamento" class="nav-aba" type="button" role="tab" data-aba="planejamento"
             aria-controls="painel-planejamento" aria-selected="false" tabindex="-1"><span class="rotulo-longo">Planejamento</span><span class="rotulo-curto" aria-hidden="true">Plano</span></button>
+    <button id="nav-edital" class="nav-aba" type="button" role="tab" data-aba="edital"
+            aria-controls="painel-edital" aria-selected="false" tabindex="-1">Edital</button>
   </nav>
   <!-- Aparece só no perfil "Exemplo" -->
   <div id="aviso-exemplo" class="aviso-exemplo" hidden>
@@ -3938,6 +4060,20 @@
     </section>
   </div>
 
+  <!-- ABA: EDITAL (tópicos de cada matéria: ✓ estudado, grau de revisão e nº da semana) -->
+  <div id="painel-edital" role="tabpanel" aria-labelledby="nav-edital" hidden>
+    <section class="cartao">
+      <div class="titulo-tela compacto titulo-edital">
+        <h2>Edital</h2>
+        <!-- Matérias: todas à mostra, um clique troca -->
+        <div id="materias-edital" class="segmento grupos-desempenho" role="tablist" aria-label="Matéria"></div>
+      </div>
+      <p class="dica">Marque ✓ no que já estudou, escolha o grau de revisão e escreva a semana (ex.: 01, 12).</p>
+      <div id="resumo-edital" class="resumo-edital"></div>
+      <div id="lista-edital" class="lista-edital"></div>
+    </section>
+  </div>
+
   <!-- ABA: DESEMPENHO -->
   <div id="painel-desempenho" role="tabpanel" aria-labelledby="nav-desempenho">
     <section class="cartao">
@@ -3969,10 +4105,12 @@
                     aria-controls="area-grafico" data-modo="materia" tabindex="-1">Evolução por matéria</button>
           </div>
         </div>
-        <p id="subtitulo-grafico" class="grafico-nota"></p>
-        <ul id="legenda-grafico" class="legenda" aria-label="Legenda do gráfico"></ul>
-        <div id="area-grafico" class="area-grafico" tabindex="0" role="img"></div>
-        <p id="nota-grafico" class="grafico-nota"></p>
+        <div class="painel-grafico">
+          <p id="subtitulo-grafico" class="grafico-nota"></p>
+          <ul id="legenda-grafico" class="legenda" aria-label="Legenda do gráfico"></ul>
+          <div id="area-grafico" class="area-grafico" tabindex="0" role="img"></div>
+          <p id="nota-grafico" class="grafico-nota"></p>
+        </div>
       </div>
 
       <!-- Prova escolhida: vale para os quadros das matérias, a nota em 3 cenários, as questões e "Por que você errou" -->
@@ -4070,7 +4208,6 @@
   <div id="painel-registrar" role="tabpanel" aria-labelledby="nav-registrar" hidden>
     <form id="form-resultado" class="cartao" novalidate>
       <h2 id="titulo-form">Registrar resultado</h2>
-      <p class="dica">Preencha depois da prova, com a folha já corrigida.</p>
       <div class="form-grade form-cabecalho">
         <div>
           <label class="rotulo" for="res-tipo-sel">Prova</label>
@@ -4098,10 +4235,6 @@
       <p id="res-info" class="item-meta" hidden></p>
 
       <h3 class="subtitulo-form">Questões</h3>
-      <p class="dica">Marque Acertou ou Errou em cada questão — ou, se preferir, só digite o total de acertos da matéria.
-        Nas certas, marque se foi chute; nas erradas, se sabia e o motivo (sem tempo, erro de conta, erro de atenção).
-        Isso aparece em "Por que você errou", no Desempenho.</p>
-
       <!-- Abas das matérias -->
       <div id="q-abas" class="q-abas" role="tablist" aria-label="Matérias"></div>
 
@@ -4296,7 +4429,7 @@ const CHAVE_TEMA   = 'cronometro-simulado:tema';   // esquema de cores (todos os
 const DADOS_DO_PERFIL = ['v1', 'tipos', 'resultados', 'ultimo-backup', 'ordenacao', 'ordem-manual', 'versao', 'filtro',
                          'excluidos', 'filtro-historico', 'ultimo-gabarito', 'estudos', 'estudo-ativo', 'estudos-retirados',
                          'grupos', 'filtro-grupo', 'ultimo-grupo', 'segunda-fase', 'grupos-ciclos',
-                         'filtro-grupo-segunda', 'ultimo-grupo-segunda', 'estudos-simulado', 'blocos-de-4', 'planejamento'];
+                         'filtro-grupo-segunda', 'ultimo-grupo-segunda', 'estudos-simulado', 'blocos-de-4', 'planejamento', 'edital'];
 
 function chaveDoPerfil(idPerfil, nome) {
   return idPerfil === 'principal'
@@ -7456,7 +7589,7 @@ function desenharGraficoDesempenho(lista, ordem, fx) {
 
 /* ---------- Abas da tela de Resultados ---------- */
 // Abas de Resultados. Histórico e Perfil e backup não são abas: abrem em janelas, como as Configurações
-const ABAS_TELA = ['desempenho', 'registrar', 'segunda', 'planejamento'];
+const ABAS_TELA = ['desempenho', 'registrar', 'segunda', 'planejamento', 'edital'];
 const JANELAS = ['historico', 'perfil'];
 let abaTela = 'desempenho';
 let abriuJanela = null; // botão que abriu a janela (o foco volta para ele ao fechar)
@@ -7510,6 +7643,7 @@ function trocarAbaTela(aba) {
   if (aba === 'desempenho') atualizarGrafico();
   if (aba === 'segunda') renderSegunda();
   if (aba === 'planejamento') renderPlano();
+  if (aba === 'edital') renderEdital();
 }
 
 /* Sem engrenagem nem Configurações: Tema, Histórico e Perfil e backup (com grupos e teste de som) ficam no rodapé da barra lateral. */
@@ -7528,7 +7662,7 @@ const CHAVE_LATERAL_RECOLHIDA = 'cronometro-simulado:lateral-recolhida'; // '1' 
 /** Marca o item da tela/seção aberta (inicio · estudos · desempenho…) e põe o nome da seção no título de Resultados */
 function atualizarLateral(aba) {
   // (dentro da função: pode ser chamada antes desta parte do código ter rodado)
-  const NOMES_SECOES = { desempenho: 'Desempenho', registrar: 'Registrar', segunda: '2ª fase', planejamento: 'Planejamento' };
+  const NOMES_SECOES = { desempenho: 'Desempenho', registrar: 'Registrar', segunda: '2ª fase', planejamento: 'Planejamento', edital: 'Edital' };
   document.querySelectorAll('#lateral .item-lateral').forEach(b => {
     if (b.dataset.ir === aba) b.setAttribute('aria-current', 'page');
     else b.removeAttribute('aria-current');
@@ -9026,7 +9160,8 @@ function montarBackup() {
     segundaFase: segunda, // ciclos de 2ª fase, metas e excluídos
     estudos, // horas de estudo por matéria
     estudosRetirados: [...estudosRetirados], // sessões apagadas por "Retirar" (não voltam ao importar)
-    planejamento: plano // planejamento semanal (o que estudar em cada dia, manhã e tarde)
+    planejamento: plano, // planejamento semanal (o que estudar em cada dia, manhã e tarde)
+    edital // tópicos do edital: ✓, grau de revisão e nº da semana
   };
 }
 
@@ -9148,9 +9283,15 @@ async function importarBackup() {
   const materiasPlanoNovas = planoLa.materias.filter(m =>
     !plano.materias.some(x => x.id === m.id || chaveMateria(x.nome) === chaveMateria(m.nome)) && !plano.removidas.includes(m.id))
     .slice(0, Math.max(0, MAX_MATERIAS_PLANO - plano.materias.length));
+  // Edital: cada tópico fica com a versão marcada por último (aqui ou lá)
+  const topicosEditalNovos = dados.edital
+    ? Object.entries(limparEdital(dados.edital).itens)
+        .filter(([id, it]) => it.em && (!edital.itens[id] || it.em > (edital.itens[id].em || '')))
+    : [];
 
   const temMudancas = novos.length || maisRecentes.length || tiposNovos.length || removidos.length || estudosNovos.length ||
-    gruposNovos.length || ciclosNovos.length || gruposSegundaNovos.length || diasPlanoNovos.length || materiasPlanoNovas.length;
+    gruposNovos.length || ciclosNovos.length || gruposSegundaNovos.length || diasPlanoNovos.length || materiasPlanoNovas.length ||
+    topicosEditalNovos.length;
   if (!temMudancas && !voltariam.length) {
     guardarExclusoes();
     avisarResultados('Tudo o que está nesse backup já está aqui. Nada foi alterado.');
@@ -9169,6 +9310,7 @@ async function importarBackup() {
     if (gruposSegundaNovos.length) partes.push(plural(gruposSegundaNovos.length, 'grupo novo da 2ª fase', 'grupos novos da 2ª fase'));
     if (diasPlanoNovos.length) partes.push(plural(diasPlanoNovos.length, 'dia de planejamento', 'dias de planejamento'));
     if (materiasPlanoNovas.length) partes.push(plural(materiasPlanoNovas.length, 'matéria nova no planejamento', 'matérias novas no planejamento'));
+    if (topicosEditalNovos.length) partes.push(plural(topicosEditalNovos.length, 'tópico do edital', 'tópicos do edital'));
     const ok = await confirmar(
       `Importar de "${arquivo.name}" para o perfil "${perfilAtivo().nome}": ${partes.join(', ')}? ` +
       (typeof dados.perfil === 'string' && dados.perfil !== perfilAtivo().nome
@@ -9207,6 +9349,11 @@ async function importarBackup() {
       diasPlanoNovos.forEach(([data, d]) => { plano.dias[data] = d; });
       salvarPlano();
       if (!$('painel-planejamento').hidden) renderPlano();
+    }
+    if (topicosEditalNovos.length) {
+      topicosEditalNovos.forEach(([id, it]) => { edital.itens[id] = it; });
+      salvarEdital();
+      if (!$('painel-edital').hidden) renderEdital();
     }
   }
 
@@ -9440,6 +9587,7 @@ async function criarPerfil() {
   if (backup) gravar(chaveDoPerfil(id, 'grupos'), limparGrupos(backup.grupos));
   if (backup) gravar(chaveDoPerfil(id, 'segunda-fase'), limparSegunda(backup.segundaFase));
   if (backup) gravar(chaveDoPerfil(id, 'planejamento'), limparPlano(backup.planejamento));
+  if (backup && backup.edital) gravar(chaveDoPerfil(id, 'edital'), limparEdital(backup.edital));
   if (backup && Array.isArray(backup.tipos)) {
     // Timers padrão + os do backup (sem repetir id nem nome)
     const tipos = BACKUP_PADRAO.tipos.map(limparTipo).filter(Boolean);
@@ -11280,6 +11428,646 @@ if (PERFIL_ATIVO === ID_PERFIL_EXEMPLO && !segunda.ciclos.length && !segunda.exc
   segunda.metas = dados.metas;
   salvarSegunda();
 }
+
+/* ================================================================
+   EDITAL — os tópicos de cada matéria (vindos da planilha do edital).
+   Em cada tópico: ✓ estudado · grau de revisão (Revisar, OK, Estudar) · nº da semana.
+   Os tópicos são fixos; o que você marca fica salvo no perfil (e vai no backup).
+   ================================================================ */
+const EDITAL = [
+  { id: "mat", nome: "Matemática", frentes: [
+    { nome: "Frente 1", topicos: [
+      "Noções básicas de conjuntos",
+      "Funções Eq de 2º grau",
+      "Funções modulo",
+      "Funções Exponencial",
+      "Funções Logaritmo",
+      "Funções Eq irracionais",
+      "Funções Trigonometrica",
+      "Teoria dos números",
+    ] },
+    { nome: "Frente 2", topicos: [
+      "Trigonometria relações fundamentais",
+      "Trigonometria arcos",
+      "Trigonometria circunferência trignométrica",
+      "Trigonometria transf. soma-produto",
+      "Trigonometria equação trignométrica",
+      "Trigonometria função trignométrica inversa",
+      "Trigonometria inequação trignométrica",
+      "Nº complexos princípios",
+      "Nº complexos trabalho trigonométrico",
+      "Nº complexos forma polar",
+      "Nº complexos trabalho geométrico",
+      "Nª binomiais",
+      "Polinômios definições",
+      "Polinômios identidade",
+      "Polinômios algoritmo da divisão",
+      "Polinômios Gerard",
+      "Polinômios newton",
+      "Polinômios fatoração d'Alembert",
+      "Polinômios Bricot-Ruffini",
+      "Polinômios teoremas",
+      "Polinômios eq. recíproca",
+      "Polinômios congruência",
+      "Polinômios MDC e MMC",
+      "Polinômios análise gráfica",
+    ] },
+    { nome: "Frente 3", topicos: [
+      "Sequências PA",
+      "Sequências PG",
+      "Sequências PAG",
+      "Sequências PA de ordem superior",
+      "Sequências resolução de recorrência",
+      "Análise combinatória fatorial",
+      "Análise combinatória PFC",
+      "Análise combinatória permutação simples",
+      "Análise combinatória arranjo simples",
+      "Análise combinatória combinação simples",
+      "Análise combinatória permutação com repetição",
+      "Análise combinatória permutação cíclica",
+      "Análise combinatória eq. diofantinas",
+      "Análise combinatória arranjo completo",
+      "Análise combinatória combinação completa",
+      "Análise combinatória permutação caótica",
+      "Análise combinatória Lemas de Kaplansky",
+      "Análise combinatória Contagem de funções",
+      "Análise combinatória Princípio da reflexão",
+      "Análise combinatória Princípio da casa dos pombos",
+      "Probabilidade I",
+      "Probabilidade II",
+      "Probabilidade III",
+      "Matrizes I",
+      "Matrizes II",
+      "Determinantes I",
+      "Determinantes II",
+      "Determinantes III",
+      "Sistemas lineares",
+    ] },
+    { nome: "Frente 4", topicos: [
+      "Razão de segmentos",
+      "Teorema de Tales",
+      "Teorema da bissetriz interna",
+      "Teorema da bissetriz externa",
+      "Circunferência de apolonio",
+      "Semelhanças base média",
+      "Relações met. no triângulo retângulo",
+      "Relações métricas na circunferência",
+      "Teorema da Ceva",
+      "Teorema de Menelaus",
+      "Quadriláteros inscritíveis",
+      "Quadriláteros circunscritíveis",
+      "Polígonos",
+      "Geom. analítica distância 2 pontos",
+      "Geom. analítica ponto médio",
+      "Geom. analítica baricentro",
+      "Geom. analítica área de polígonos",
+      "Geom. analítica vetores",
+      "Geom. analítica reta",
+      "Geom. analítica distância ponto reta",
+      "Geom. analítica ângulo entre retas",
+      "Geom. analítica eq. das bissetrizes",
+      "Geom. analítica circunferência",
+      "Geom. analítica eclipse",
+      "Geom. analítica parábola",
+      "Geom. analítica hibérbole",
+      "Geom. analítica retas tangentes à curvas",
+      "Geom. analítica tangentes á cônicas",
+    ] },
+    { nome: "Frente 5", topicos: [
+      "Paralelismo e ângulos",
+      "Desigualdades no triângulo",
+      "Ângulos na circunferência",
+      "Congruência de triângulos",
+      "Les dos cossenos",
+      "Lei dos senos",
+      "Cálculo de cevianas Stewart",
+      "Cálculo de cevianas medianas",
+      "Cálculo de cevianas bissetriz interna",
+      "Cálculo de cevianas bissetriz externa",
+      "Cálculo de cevianas Heron",
+      "Pontos notáveis",
+      "Quadriláteros",
+      "Geometria de Posição",
+      "Geometria espacial paralelepípedos",
+      "Geometria espacial cubo",
+      "Geometria espacial prisma",
+      "Geometria espacial pirâmides",
+      "Geometria espacial tetraedro regular",
+      "Geometria espacial tetraedro tri-retangular",
+      "Geometria espacial octaedro regular",
+      "Geometria espacial cone",
+      "Geometria espacial sem. de sólidos (tronco)",
+      "Geometria espacial esfera",
+      "Geometria espacial sólidos de revolução",
+      "Poliedros",
+    ] },
+  ] },
+  { id: "fis", nome: "Física", frentes: [
+    { nome: "Frente 1", topicos: [
+      "Trabalho e energia",
+      "Impulsos e quantidade de movimento I",
+      "Impulsos e quantidade de movimento II",
+      "Colisões I",
+      "Colisões II",
+      "Centro de massa",
+    ] },
+    { nome: "Frente 2", topicos: [
+      "Cinemática MRU",
+      "Cinemática MRUV",
+      "Cinemática Lançamentos",
+      "Cinemática Vetorial",
+      "Cinemática Análise Gráfica",
+      "Cinemática Parábola de segurança",
+      "Cinemática Mov. Circular",
+      "Cinemática MCUV",
+      "Movimento Harmônico Simples I",
+      "Movimento Harmônico Simples II",
+    ] },
+    { nome: "Frente 3", topicos: [
+      "Leis de Newton",
+      "Vínculos geométricos",
+      "Atrito",
+      "Dinâmica do mov. circular",
+      "Estática",
+      "Centro de massa",
+      "Torque",
+      "Mecânica rotacional",
+      "Hidrostática I",
+      "Hidrostática II",
+      "Hidrodinâmica I",
+      "Hidrodinâmica II",
+      "Gravitação I",
+      "Gravitação II",
+    ] },
+    { nome: "Frente 4", topicos: [
+      "Eletrostática Lei de Coulomb",
+      "Eletrostática Campo elétrico",
+      "Eletrostática Potencial elétrico",
+      "Eletrodinâmica Corrente",
+      "Eletrodinâmica resist. e ass. de resistores",
+      "Eletrodinâmica Leis de Kirschoff",
+      "Eletrodinâmica Geradores",
+      "Eletrodinâmica Receptores",
+      "Eletrodinâmica Capacitores",
+      "Eletrodinâmica Circuitos",
+      "Magnetismo Força magnética",
+      "Magnetismo Campo magnético",
+      "Magnetismo Indução I",
+      "Magnetismo Indução II",
+      "Ondulatória Princípios",
+      "Ondulatória Função da onda",
+      "Ondulatória Interferência",
+      "Ondulatória Acústica",
+      "Ondulatória Ondas eletromagnéticas I",
+      "Ondulatória Ondas eletromagnéticas II",
+      "Relatividade restrita Cinemática relat.",
+      "Relatividade restrita Dinâmica relat.",
+      "Física moderna Radiação corpo negro",
+      "Física moderna Efeito fotoelétrico",
+      "Física moderna Átomo de Bohr",
+      "Física moderna Dualidade onda-partícula",
+      "Física moderna Princípio da Incerteza",
+    ] },
+    { nome: "Frente 5", topicos: [
+      "Op. Geométrica introdução",
+      "Op. Geométrica reflexão",
+      "Op. Geométrica Espelho planos",
+      "Op. Geométrica Espelho esféricos",
+      "Op. Geométrica Refração",
+      "Op. Geométrica Dioptro plano",
+      "Op. Geométrica Dioptro esférico",
+      "Op. Geométrica Lentes",
+      "Op. Geométrica Óptica da visão",
+      "Termologia",
+      "Calorimetria",
+      "Gases ideais",
+      "Termodinâmica",
+    ] },
+  ] },
+  { id: "qui", nome: "Química", frentes: [
+    { nome: "Frente 1", topicos: [
+      "Introdução Propriedades do carbono",
+      "Introdução Hibridização",
+      "Introdução Class. de cadeias",
+      "Introdução Aromaticidade",
+      "Funções Hidrocarbonetos",
+      "Funções Álcool",
+      "Funções Fenol",
+      "Funções Ésteres",
+      "Funções Ácidos carboxílicos",
+      "Funções Enol",
+      "Funções Cetona",
+      "Funções Éter",
+      "Funções Aminas",
+      "Funções Amidas",
+      "Funções Nitrilas",
+      "Funções Nitrocompostos",
+      "Funções Haletos",
+      "Funções Sulfuradas",
+      "Propriedades dos compostos orgânicos",
+      "Propriedades dos compostos orgânicos II",
+      "Isomeria plana",
+      "Isomeria geométrica",
+      "Reações orgânicas de substituição I",
+      "Reações orgânicas de substituição II",
+      "Reações orgânicas de substituição III",
+      "Reações orgânicas de adição I",
+      "Reações orgânicas de adição II",
+      "Reações orgânicas de adição III",
+      "Reações orgânicas de eliminação I",
+      "Reações orgânicas de eliminação II",
+      "Reações orgânicas de eliminação III",
+      "Reações orgânicas de oxidação I",
+      "Reações orgânicas de oxidação II",
+      "Reações orgânicas de redução I",
+      "Reações orgânicas de redução II",
+      "Reações orgânicas diversas I",
+      "Reações orgânicas diversas II",
+      "Reações orgânicas diversas III",
+      "Bioquímica I (ciclos)",
+      "Bioquímica II",
+      "Polímeros I",
+      "Polímeros II",
+    ] },
+    { nome: "Frente 2", topicos: [
+      "Substâncias, misturas e sistemas",
+      "Alotropia",
+      "Atomística I",
+      "Atomística II",
+      "Tabela periódica histórico",
+      "Tabela periódica propriedades",
+      "Ligações químicas",
+      "TOM",
+      "Geometria molecular",
+      "Polaridade",
+    ] },
+    { nome: "Frente 3", topicos: [
+      "Gases",
+      "Leis das reações",
+      "Cálculo estequiométrico",
+      "Termoquímica",
+      "Termodinâmica",
+      "Cinética química I",
+      "Cinética química II",
+      "Equilíbrio químico I",
+      "Equilíbrio químico II",
+      "Equlíbrios iônicos I",
+      "Equlíbrios iônicos II",
+      "Hidrolise de sais I",
+      "Hidrólise de sais II",
+      "Solução tampão",
+      "Kps",
+      "Eletroquímica I (Pilhas)",
+      "Eletroquímica II (Eletrólise)",
+      "Radioatividade",
+    ] },
+    { nome: "Frente 4", topicos: [
+      "Teoria atômico-molecular",
+      "Cristalografia",
+      "Coloides",
+      "Soluções",
+      "Propriedades coligativas",
+    ] },
+    { nome: "Frente 5", topicos: [
+      "Oxirredução",
+      "Teoria de Arrhenius",
+      "Ácidos",
+      "Bases",
+      "Conceitos modernos",
+      "Sais",
+      "Óxidos",
+      "Hidretos",
+      "Carbetos",
+      "Reações inorgânicas",
+      "Fosfetos",
+    ] },
+  ] },
+  { id: "por", nome: "Português", frentes: [
+    { nome: "Frente 1 · Morfologia", topicos: [
+      "Estrutura das palavras: morfemas e principais radicais",
+      "Processos de formação de palavras",
+      "Neologismos",
+      "Classes de palavras I (substantivo, adjetivo, artigo, numeral, pronome)",
+      "Classes de palavras II (verbo, advérbio, preposição, conjunção, interjeição)",
+      "Flexão das palavras e função das classes na construção textual",
+    ] },
+    { nome: "Frente 2 · Semântica", topicos: [
+      "Semântica: sinonímia e antonímia",
+      "Semântica: homonímia e paronímia",
+      "Semântica: polissemia e ambiguidade",
+      "Semântica: hiponímia e hiperonímia",
+      "Intertextualidade",
+      "Estilística: figuras de palavras",
+      "Estilística: figuras de pensamento",
+      "Estilística: figuras de construção",
+    ] },
+    { nome: "Frente 3 · Sintaxe", topicos: [
+      "Termos essenciais da oração",
+      "Termos integrantes da oração",
+      "Termos acessórios da oração",
+      "Período simples e período composto: coordenação",
+      "Período composto: subordinação",
+      "Conectivos e produção de sentidos / argumentação nas subordinadas",
+      "Pontuação I (vírgula)",
+      "Pontuação II (demais sinais e implicações semânticas)",
+      "Concordância nominal",
+      "Concordância verbal",
+      "Regência nominal",
+      "Regência verbal",
+      "Crase",
+      "Colocação pronominal",
+    ] },
+    { nome: "Frente 4 · Literatura", topicos: [
+      "Barroco: Gregório de Matos (poesia lírico-filosófica e satírica)",
+      "Arcadismo: Tomás Antônio Gonzaga (Marília de Dirceu)",
+      "Romantismo (poesia): Gonçalves Dias",
+      "Romantismo (poesia): Álvares de Azevedo",
+      "Romantismo (poesia): Castro Alves",
+      "Romantismo (prosa): José de Alencar (Iracema; Senhora)",
+      "Romantismo (prosa): Manuel Antônio de Almeida (Memórias de um Sargento de Milícias)",
+      "Realismo: Machado de Assis I (Memórias Póstumas de Brás Cubas; Quincas Borba)",
+      "Realismo: Machado de Assis II (Dom Casmurro; Esaú e Jacó; Memorial de Aires)",
+      "Realismo: Machado de Assis III (Papéis avulsos; Histórias sem data; Várias histórias)",
+      "Naturalismo: Aluísio Azevedo (O cortiço)",
+      "Parnasianismo: Olavo Bilac e Raimundo Correia",
+      "Simbolismo: Cruz e Sousa e Alphonsus de Guimaraens",
+      "Pré-modernismo: Euclides da Cunha (Os Sertões)",
+      "Pré-modernismo: Augusto dos Anjos",
+      "Pré-modernismo: Lima Barreto (Triste Fim de Policarpo Quaresma; Vida e Morte de M. J. Gonzaga de Sá)",
+      "Modernismo: Mário de Andrade (Pauliceia Desvairada; Macunaíma; Contos Novos)",
+      "Modernismo: Oswald de Andrade (Poesias reunidas)",
+      "Modernismo: Manuel Bandeira (Libertinagem; Estrela da Manhã)",
+      "Modernismo: Alcântara Machado (Brás, Bexiga e Barra Funda)",
+      "Modernismo: Carlos Drummond de Andrade (Sentimento do Mundo; Rosa do Povo)",
+      "Modernismo: Cecília Meireles (Romanceiro da Inconfidência)",
+      "Modernismo: João Cabral de Melo Neto (Morte e Vida Severina; A educação pela pedra)",
+      "Modernismo: Ferreira Gullar",
+      "Modernismo: Graciliano Ramos (Vidas Secas; São Bernardo)",
+      "Modernismo: Jorge Amado (Capitães da Areia)",
+      "Modernismo: Clarice Lispector (Laços de família; A hora da estrela)",
+      "Modernismo: Guimarães Rosa (Sagarana; Campo Geral)",
+      "Contemporâneos: Ariano Suassuna (Auto da Compadecida)",
+      "Contemporâneos: Murilo Rubião (O Pirotécnico Zacarias)",
+      "Contemporâneos: José J. Veiga (Sombras de Reis Barbudos)",
+      "Contemporâneos: Paulo Leminski (Toda Poesia)",
+    ] },
+    { nome: "Frente 4 · Literatura Portuguesa", topicos: [
+      "Trovadorismo: cantigas de amor e de amigo",
+      "Humanismo: Gil Vicente (Auto da Barca do Inferno)",
+      "Humanismo: Gil Vicente (Farsa de Inês Pereira)",
+      "Classicismo: Camões lírico (sonetos)",
+      "Classicismo: Os Lusíadas, Inês de Castro (canto III, 118-135)",
+      "Classicismo: Os Lusíadas, Velho do Restelo (canto IV, 90-104)",
+      "Classicismo: Os Lusíadas, Gigante Adamastor (canto V, 37-60)",
+      "Barroco: Padre Antônio Vieira (Sermão da Sexagésima)",
+      "Barroco: Padre Antônio Vieira (Sermão de Santo Antônio aos Peixes)",
+      "Neoclassicismo/Pré-romantismo: Bocage (Sonetos)",
+      "Romantismo: Alexandre Herculano (Eurico, o presbítero)",
+      "Romantismo: Camilo Castelo Branco (Amor de perdição)",
+      "Realismo: Eça de Queirós (O Crime do Padre Amaro)",
+      "Realismo: Eça de Queirós (O primo Basílio)",
+      "Realismo: Eça de Queirós (A Cidade e as Serras)",
+      "Simbolismo: Camilo Pessanha (Clepsidra)",
+      "Modernismo (Orpheu): Fernando Pessoa ortônimo",
+      "Modernismo (Orpheu): Fernando Pessoa heterônimos",
+      "Contemporâneo: José Saramago (Memorial do Convento)",
+      "Contemporâneo: José Saramago (Ensaio sobre a Cegueira)",
+      "Contemporâneo: José Saramago (Conto da Ilha Desconhecida)",
+    ] },
+  ] },
+];
+/** Marcações que já vinham na planilha (✓ e grau OK); valem até você mexer no tópico */
+const EDITAL_INICIAL = {"mat-3-17": {"feito": true}, "qui-2-3": {"grau": "ok"}, "qui-2-4": {"grau": "ok"}, "qui-2-6": {"grau": "ok"}, "qui-2-9": {"grau": "ok"}, "qui-2-10": {"grau": "ok"}, "qui-3-10": {"grau": "ok"}, "qui-3-11": {"grau": "ok"}, "qui-3-12": {"grau": "ok"}, "qui-3-13": {"grau": "ok"}, "qui-3-14": {"grau": "ok"}, "qui-3-15": {"grau": "ok"}, "qui-3-18": {"grau": "ok"}};
+const GRAUS_EDITAL = [
+  { id: 'revisar', nome: 'Revisar' },
+  { id: 'ok', nome: 'OK' },
+  { id: 'estudar', nome: 'Estudar' }
+];
+const CHAVE_EDITAL = chaveDoPerfil(PERFIL_ATIVO, 'edital'); // { itens: { 'mat-1-1': { f, g, s, em } }, materia }
+const IDS_TOPICOS_EDITAL = new Set(EDITAL.flatMap(m =>
+  m.frentes.flatMap((fr, fi) => fr.topicos.map((_, ti) => idTopicoEdital(m.id, fi, ti)))));
+function idTopicoEdital(materia, fi, ti) { return `${materia}-${fi + 1}-${ti + 1}`; }
+
+/** Confere o que veio do armazenamento ou de um backup; sem nada salvo ainda, começa com as marcações da planilha */
+function limparEdital(e) {
+  const fonte = e && typeof e === 'object' && e.itens && typeof e.itens === 'object' ? e.itens : null;
+  const itens = {};
+  if (fonte) {
+    Object.entries(fonte).forEach(([id, it]) => {
+      if (!IDS_TOPICOS_EDITAL.has(id) || !it || typeof it !== 'object') return;
+      itens[id] = {
+        f: it.f === true,
+        g: GRAUS_EDITAL.some(x => x.id === it.g) ? it.g : '',
+        s: typeof it.s === 'string' ? it.s.replace(/\D/g, '').slice(0, 2) : '',
+        em: typeof it.em === 'string' ? it.em : ''
+      };
+    });
+  } else {
+    Object.entries(EDITAL_INICIAL).forEach(([id, it]) => { itens[id] = { f: !!it.feito, g: it.grau || '', s: '', em: '' }; });
+  }
+  const materia = e && EDITAL.some(m => m.id === e.materia) ? e.materia : EDITAL[0].id;
+  return { itens, materia };
+}
+
+const edital = limparEdital(lerJSON(CHAVE_EDITAL));
+let temporizadorEdital = null;
+function salvarEdital() { clearTimeout(temporizadorEdital); temporizadorEdital = null; gravar(CHAVE_EDITAL, edital); }
+function salvarEditalDepois() { clearTimeout(temporizadorEdital); temporizadorEdital = setTimeout(salvarEdital, 400); }
+window.addEventListener('pagehide', () => { if (temporizadorEdital) salvarEdital(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && temporizadorEdital) salvarEdital(); });
+
+function itemEdital(id) { return edital.itens[id] || { f: false, g: '', s: '', em: '' }; }
+function mudarItemEdital(id, mudanca) {
+  edital.itens[id] = { ...itemEdital(id), ...mudanca, em: new Date().toISOString() };
+}
+
+/** Contagens de uma matéria (ou de uma frente, passando os ids) */
+function contarEdital(ids) {
+  const c = { total: ids.length, feitos: 0, revisar: 0, ok: 0, estudar: 0 };
+  ids.forEach(id => {
+    const it = itemEdital(id);
+    if (it.f) c.feitos++;
+    if (it.g) c[it.g]++;
+  });
+  return c;
+}
+function idsDaMateriaEdital(m) { return m.frentes.flatMap((fr, fi) => fr.topicos.map((_, ti) => idTopicoEdital(m.id, fi, ti))); }
+function materiaAtualEdital() { return EDITAL.find(m => m.id === edital.materia) || EDITAL[0]; }
+
+/* ----- Desenho ----- */
+function renderTopoEdital() {
+  const atual = materiaAtualEdital();
+  // Matérias: todas à mostra, um clique troca (igual ao seletor de grupos do Desempenho)
+  $('materias-edital').replaceChildren(...EDITAL.map(m => {
+    const c = contarEdital(idsDaMateriaEdital(m));
+    const b = criar('button');
+    b.type = 'button';
+    b.setAttribute('role', 'tab');
+    b.dataset.materia = m.id;
+    const ativa = m.id === atual.id;
+    b.setAttribute('aria-selected', String(ativa));
+    b.tabIndex = ativa ? 0 : -1;
+    b.title = `${m.nome}: ${c.feitos} de ${c.total} tópicos estudados`;
+    b.append(criar('span', '', m.nome), criar('span', 'conta', `${c.feitos}/${c.total}`));
+    return b;
+  }));
+
+  // Resumo da matéria: estudados (com barra) e quantos em cada grau
+  const c = contarEdital(idsDaMateriaEdital(atual));
+  const pct = c.total ? Math.round(c.feitos / c.total * 100) : 0;
+  const progresso = criar('div', 'progresso-edital');
+  const barra = criar('span', 'barra-materia');
+  const cheio = criar('span');
+  cheio.style.width = `${pct}%`;
+  barra.append(cheio);
+  progresso.append(
+    criar('strong', '', String(c.feitos)),
+    criar('span', 'texto-progresso', `de ${c.total} tópicos estudados`),
+    barra,
+    criar('span', 'pct-edital', `${pct}%`)
+  );
+  const graus = criar('div', 'contas-graus');
+  GRAUS_EDITAL.forEach(g => {
+    const p = criar('span', `conta-grau grau-${g.id}`, g.nome);
+    p.append(criar('b', '', String(c[g.id])));
+    graus.append(p);
+  });
+  const sem = c.total - c.revisar - c.ok - c.estudar;
+  const semGrau = criar('span', 'conta-grau sem-grau', 'Sem grau');
+  semGrau.append(criar('b', '', String(sem)));
+  graus.append(semGrau);
+  $('resumo-edital').replaceChildren(progresso, graus);
+}
+
+function linhaEdital(id, nome) {
+  const it = itemEdital(id);
+  const linha = criar('div', `linha-edital${it.f ? ' feito' : ''}`);
+  linha.dataset.id = id;
+  const check = criar('button', 'check-edital');
+  check.type = 'button';
+  check.setAttribute('role', 'checkbox');
+  check.setAttribute('aria-checked', String(it.f));
+  check.setAttribute('aria-label', `Estudado: ${nome}`);
+  check.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12.5l4 4 8-9"/></svg>';
+  const graus = criar('div', 'graus-edital');
+  graus.setAttribute('role', 'group');
+  graus.setAttribute('aria-label', `Grau de revisão: ${nome}`);
+  GRAUS_EDITAL.forEach(g => {
+    const b = criar('button', `grau-edital grau-${g.id}`, g.nome);
+    b.type = 'button';
+    b.dataset.grau = g.id;
+    b.setAttribute('aria-pressed', String(it.g === g.id));
+    graus.append(b);
+  });
+  const semana = criar('input', 'semana-edital');
+  semana.type = 'text';
+  semana.inputMode = 'numeric';
+  semana.maxLength = 2;
+  semana.autocomplete = 'off';
+  semana.placeholder = '–';
+  semana.value = it.s;
+  semana.setAttribute('aria-label', `Nº da semana: ${nome}`);
+  linha.append(check, criar('span', 'nome-topico', nome), graus, semana);
+  return linha;
+}
+
+function renderEdital() {
+  const atual = materiaAtualEdital();
+  renderTopoEdital();
+  $('lista-edital').replaceChildren(...atual.frentes.map((fr, fi) => {
+    const ids = fr.topicos.map((_, ti) => idTopicoEdital(atual.id, fi, ti));
+    const caixa = criar('section', 'frente-edital');
+    caixa.dataset.frente = String(fi);
+    const cab = criar('header', 'cabeca-frente');
+    const c = contarEdital(ids);
+    cab.append(criar('h3', '', fr.nome), criar('span', 'conta-frente', `${c.feitos}/${c.total}`));
+    const painel = criar('div', 'painel-frente');
+    const colunas = criar('div', 'linha-edital cabeca-colunas');
+    colunas.setAttribute('aria-hidden', 'true');
+    colunas.append(criar('span', '', '✓'), criar('span', '', 'Tópico'), criar('span', '', 'Grau de revisão'), criar('span', '', 'Semana'));
+    painel.append(colunas, ...fr.topicos.map((nome, ti) => linhaEdital(ids[ti], nome)));
+    caixa.append(cab, painel);
+    return caixa;
+  }));
+}
+
+/** Depois de marcar algo: só os números mudam (as linhas ficam, para não perder o foco) */
+function atualizarContasEdital() {
+  const atual = materiaAtualEdital();
+  renderTopoEdital();
+  document.querySelectorAll('#lista-edital .frente-edital').forEach(caixa => {
+    const fi = Number(caixa.dataset.frente);
+    const fr = atual.frentes[fi];
+    if (!fr) return;
+    const c = contarEdital(fr.topicos.map((_, ti) => idTopicoEdital(atual.id, fi, ti)));
+    caixa.querySelector('.conta-frente').textContent = `${c.feitos}/${c.total}`;
+  });
+}
+
+/* ----- Ações ----- */
+$('materias-edital').addEventListener('click', e => {
+  const b = e.target.closest('button[data-materia]');
+  if (!b || b.dataset.materia === edital.materia) return;
+  edital.materia = b.dataset.materia;
+  salvarEdital();
+  renderEdital();
+  $('materias-edital').querySelector(`[data-materia="${edital.materia}"]`).focus();
+});
+// Setas ← → trocam de matéria
+$('materias-edital').addEventListener('keydown', e => {
+  const passo = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+  if (!passo) return;
+  e.preventDefault();
+  const i = EDITAL.findIndex(m => m.id === edital.materia);
+  edital.materia = EDITAL[(i + passo + EDITAL.length) % EDITAL.length].id;
+  salvarEdital();
+  renderEdital();
+  $('materias-edital').querySelector(`[data-materia="${edital.materia}"]`).focus();
+});
+
+$('lista-edital').addEventListener('click', e => {
+  const linha = e.target.closest('.linha-edital[data-id]');
+  if (!linha) return;
+  const id = linha.dataset.id;
+  if (e.target.closest('.check-edital')) {
+    const f = !itemEdital(id).f;
+    mudarItemEdital(id, { f });
+    salvarEdital();
+    linha.classList.toggle('feito', f);
+    linha.querySelector('.check-edital').setAttribute('aria-checked', String(f));
+    atualizarContasEdital();
+    return;
+  }
+  const g = e.target.closest('.grau-edital');
+  if (g) {
+    const novo = itemEdital(id).g === g.dataset.grau ? '' : g.dataset.grau; // tocar de novo desmarca
+    mudarItemEdital(id, { g: novo });
+    salvarEdital();
+    linha.querySelectorAll('.grau-edital').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.grau === novo)));
+    atualizarContasEdital();
+  }
+});
+// Nº da semana: só números, até 2 dígitos ("1" vira "01" ao sair do campo)
+$('lista-edital').addEventListener('input', e => {
+  const campo = e.target.closest('.semana-edital');
+  if (!campo) return;
+  const limpo = campo.value.replace(/\D/g, '').slice(0, 2);
+  if (limpo !== campo.value) campo.value = limpo;
+  mudarItemEdital(campo.closest('.linha-edital').dataset.id, { s: limpo });
+  salvarEditalDepois();
+});
+$('lista-edital').addEventListener('change', e => {
+  const campo = e.target.closest('.semana-edital');
+  if (!campo) return;
+  if (/^\d$/.test(campo.value)) {
+    campo.value = `0${campo.value}`;
+    mudarItemEdital(campo.closest('.linha-edital').dataset.id, { s: campo.value });
+  }
+  salvarEdital();
+});
+$('lista-edital').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.closest('.semana-edital')) e.target.blur();
+});
 
 aplicarTema(lerTexto(CHAVE_TEMA) || 'preto-amarelo');
 renderMateriasConfig();
