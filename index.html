@@ -3344,6 +3344,11 @@
     .grau-edital { min-width: 0; padding: 6px 8px; }
   }
   @media (prefers-reduced-motion: reduce) { .check-edital, .check-edital svg, .grau-edital { transition: none; } }
+  /* Arrastando para marcar vários: sem selecionar texto; caixas de semana selecionadas em destaque */
+  body.arrastando-edital, body.arrastando-edital * { user-select: none; -webkit-user-select: none; cursor: grabbing; }
+  .linha-edital.semana-marcada { background: color-mix(in srgb, var(--foco) 9%, transparent); }
+  .linha-edital.semana-marcada .semana-edital { border-color: var(--foco); box-shadow: 0 0 0 1px var(--foco); }
+  .check-edital, .grau-edital { -webkit-touch-callout: none; }
 
   /* Nota em 3 cenários: mesmos cartões do painel (Sem chutes · Real · Potencial) */
   .cenarios { gap: 12px; align-items: stretch; }
@@ -12025,48 +12030,219 @@ $('materias-edital').addEventListener('keydown', e => {
   $('materias-edital').querySelector(`[data-materia="${edital.materia}"]`).focus();
 });
 
+/* Mudanças numa linha (usadas pelo clique e pelo arrastar) */
+function linhaEditalPorId(id) { return document.querySelector(`#lista-edital .linha-edital[data-id="${id}"]`); }
+function marcarCheckEdital(linha, f) {
+  mudarItemEdital(linha.dataset.id, { f });
+  linha.classList.toggle('feito', f);
+  linha.querySelector('.check-edital').setAttribute('aria-checked', String(f));
+}
+function marcarGrauEdital(linha, g) {
+  mudarItemEdital(linha.dataset.id, { g });
+  linha.querySelectorAll('.grau-edital').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.grau === g)));
+}
+function marcarSemanaEdital(linha, s) {
+  mudarItemEdital(linha.dataset.id, { s });
+  const campo = linha.querySelector('.semana-edital');
+  if (campo.value !== s) campo.value = s;
+}
+
+/* ----- Clicar, segurar e arrastar: marca vários tópicos de uma vez -----
+   Começando no ✓ ou num grau, tudo entre a primeira e a linha atual recebe o mesmo valor
+   (voltar o arrasto desfaz). Começando na semana, as caixas ficam selecionadas e o número
+   digitado vai para todas. No mouse basta arrastar; no toque, segure um instante antes. */
+let arrastoEdital = null;
+let ignorarCliqueEdital = false;
+function linhasDaListaEdital() { return [...document.querySelectorAll('#lista-edital .linha-edital[data-id]')]; }
+function limparSelecaoSemana() {
+  document.querySelectorAll('#lista-edital .linha-edital.semana-marcada').forEach(l => l.classList.remove('semana-marcada'));
+}
+
+function aplicarArrastoEdital(linhaAtual) {
+  const a = arrastoEdital;
+  const linhas = linhasDaListaEdital();
+  const i0 = linhas.findIndex(l => l.dataset.id === a.inicio);
+  const i1 = linhas.indexOf(linhaAtual);
+  if (i0 < 0 || i1 < 0) return;
+  const [de, ate] = i0 <= i1 ? [i0, i1] : [i1, i0];
+  const dentro = new Set(linhas.slice(de, ate + 1).map(l => l.dataset.id));
+  if (a.tipo === 'semana') {
+    linhas.forEach(l => l.classList.toggle('semana-marcada', dentro.has(l.dataset.id)));
+    return;
+  }
+  // Quem saiu do intervalo volta a ser como era
+  a.originais.forEach((orig, id) => {
+    if (dentro.has(id)) return;
+    const l = linhaEditalPorId(id);
+    if (l) { if (a.tipo === 'check') marcarCheckEdital(l, orig.f); else marcarGrauEdital(l, orig.g); }
+    edital.itens[id] = orig;
+    a.originais.delete(id);
+  });
+  dentro.forEach(id => {
+    if (!a.originais.has(id)) a.originais.set(id, { ...itemEdital(id) });
+    const l = linhaEditalPorId(id);
+    if (a.tipo === 'check') { if (itemEdital(id).f !== a.valor) marcarCheckEdital(l, a.valor); }
+    else if (itemEdital(id).g !== a.valor) marcarGrauEdital(l, a.valor);
+  });
+  atualizarContasEdital();
+}
+
+function ativarArrastoEdital() {
+  const a = arrastoEdital;
+  a.ativo = true;
+  document.body.classList.add('arrastando-edital');
+  if (a.tipo === 'semana') {
+    limparSelecaoSemana();
+    if (document.activeElement && document.activeElement.closest('.semana-edital')) document.activeElement.blur();
+  }
+  aplicarArrastoEdital(linhaEditalPorId(a.inicio));
+}
+
+function linhaSobOPonto(x, y) {
+  const el = document.elementFromPoint(x, y);
+  return el && el.closest('#lista-edital .linha-edital[data-id]');
+}
+
+// Rolagem automática ao arrastar perto da borda de cima/baixo da janela
+let rolagemArrastoEdital = null;
+function rolarDuranteArrasto() {
+  const a = arrastoEdital;
+  if (!a || !a.ativo) { rolagemArrastoEdital = null; return; }
+  const margem = 70;
+  const passo = a.y < margem ? -(margem - a.y) / 4 : a.y > innerHeight - margem ? (a.y - (innerHeight - margem)) / 4 : 0;
+  if (passo) {
+    scrollBy(0, passo);
+    const l = linhaSobOPonto(a.x, a.y);
+    if (l) aplicarArrastoEdital(l);
+  }
+  rolagemArrastoEdital = requestAnimationFrame(rolarDuranteArrasto);
+}
+
+$('lista-edital').addEventListener('pointerdown', e => {
+  if (e.button !== 0 || !e.isPrimary) return;
+  const linha = e.target.closest('.linha-edital[data-id]');
+  if (!linha) return;
+  const id = linha.dataset.id;
+  let tipo, valor;
+  const g = e.target.closest('.grau-edital');
+  if (e.target.closest('.check-edital')) { tipo = 'check'; valor = !itemEdital(id).f; }
+  else if (g) { tipo = 'grau'; valor = itemEdital(id).g === g.dataset.grau ? '' : g.dataset.grau; }
+  else if (e.target.closest('.semana-edital')) { tipo = 'semana'; }
+  else return;
+  if (tipo !== 'semana' || !linha.classList.contains('semana-marcada')) limparSelecaoSemana();
+  arrastoEdital = { tipo, valor, inicio: id, ativo: false, toque: e.pointerType !== 'mouse', x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, originais: new Map(), espera: null };
+  // No toque, arrastar logo é rolar a página: só vira seleção depois de segurar
+  if (arrastoEdital.toque) {
+    const a = arrastoEdital;
+    a.espera = setTimeout(() => {
+      if (arrastoEdital !== a) return;
+      ativarArrastoEdital();
+      if (navigator.vibrate) navigator.vibrate(12);
+    }, 380);
+  }
+});
+
+document.addEventListener('pointermove', e => {
+  const a = arrastoEdital;
+  if (!a || !e.isPrimary) return;
+  a.x = e.clientX; a.y = e.clientY;
+  if (!a.ativo) {
+    const longe = Math.hypot(e.clientX - a.x0, e.clientY - a.y0) > 8;
+    if (a.toque) { if (longe) { clearTimeout(a.espera); arrastoEdital = null; } return; }
+    const l = linhaSobOPonto(e.clientX, e.clientY);
+    if (!l || l.dataset.id === a.inicio) return; // ainda na mesma linha: é um clique normal
+    ativarArrastoEdital();
+  }
+  const l = linhaSobOPonto(e.clientX, e.clientY);
+  if (l) aplicarArrastoEdital(l);
+  if (!rolagemArrastoEdital) rolagemArrastoEdital = requestAnimationFrame(rolarDuranteArrasto);
+});
+// No toque, depois de segurar, o dedo arrasta a seleção em vez de rolar
+document.addEventListener('touchmove', e => { if (arrastoEdital && arrastoEdital.ativo) e.preventDefault(); }, { passive: false });
+$('lista-edital').addEventListener('contextmenu', e => { if (arrastoEdital) e.preventDefault(); });
+
+function terminarArrastoEdital(cancelado) {
+  const a = arrastoEdital;
+  if (!a) return;
+  clearTimeout(a.espera);
+  arrastoEdital = null;
+  cancelAnimationFrame(rolagemArrastoEdital);
+  rolagemArrastoEdital = null;
+  document.body.classList.remove('arrastando-edital');
+  if (!a.ativo) return;
+  ignorarCliqueEdital = true; // o clique que vem junto com o soltar não conta
+  setTimeout(() => { ignorarCliqueEdital = false; }, 0);
+  if (a.tipo === 'semana') {
+    if (cancelado) { limparSelecaoSemana(); return; }
+    const marcadas = document.querySelectorAll('#lista-edital .linha-edital.semana-marcada');
+    if (marcadas.length < 2) { limparSelecaoSemana(); return; }
+    const campo = linhaEditalPorId(a.inicio).querySelector('.semana-edital');
+    campo.focus();
+    campo.select();
+    return;
+  }
+  salvarEdital();
+}
+document.addEventListener('pointerup', e => { if (e.isPrimary) terminarArrastoEdital(false); });
+document.addEventListener('pointercancel', e => {
+  // O navegador assumiu o gesto (rolagem): se a seleção já estava ativa, fica o que foi marcado
+  if (e.isPrimary) terminarArrastoEdital(!(arrastoEdital && arrastoEdital.ativo && arrastoEdital.tipo !== 'semana'));
+});
+
 $('lista-edital').addEventListener('click', e => {
+  if (ignorarCliqueEdital) { e.preventDefault(); return; }
   const linha = e.target.closest('.linha-edital[data-id]');
   if (!linha) return;
   const id = linha.dataset.id;
   if (e.target.closest('.check-edital')) {
-    const f = !itemEdital(id).f;
-    mudarItemEdital(id, { f });
+    marcarCheckEdital(linha, !itemEdital(id).f);
     salvarEdital();
-    linha.classList.toggle('feito', f);
-    linha.querySelector('.check-edital').setAttribute('aria-checked', String(f));
     atualizarContasEdital();
     return;
   }
   const g = e.target.closest('.grau-edital');
   if (g) {
-    const novo = itemEdital(id).g === g.dataset.grau ? '' : g.dataset.grau; // tocar de novo desmarca
-    mudarItemEdital(id, { g: novo });
+    marcarGrauEdital(linha, itemEdital(id).g === g.dataset.grau ? '' : g.dataset.grau); // tocar de novo desmarca
     salvarEdital();
-    linha.querySelectorAll('.grau-edital').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.grau === novo)));
     atualizarContasEdital();
   }
 });
-// Nº da semana: só números, até 2 dígitos ("1" vira "01" ao sair do campo)
+
+/* Nº da semana: só números, até 2 dígitos ("1" vira "01" ao sair do campo).
+   Com várias caixas selecionadas (arrastando), o número vai para todas. */
+function linhasDaSemana(campo) {
+  const linha = campo.closest('.linha-edital');
+  return linha.classList.contains('semana-marcada')
+    ? [...document.querySelectorAll('#lista-edital .linha-edital.semana-marcada')]
+    : [linha];
+}
 $('lista-edital').addEventListener('input', e => {
   const campo = e.target.closest('.semana-edital');
   if (!campo) return;
   const limpo = campo.value.replace(/\D/g, '').slice(0, 2);
   if (limpo !== campo.value) campo.value = limpo;
-  mudarItemEdital(campo.closest('.linha-edital').dataset.id, { s: limpo });
+  linhasDaSemana(campo).forEach(l => marcarSemanaEdital(l, limpo));
   salvarEditalDepois();
 });
 $('lista-edital').addEventListener('change', e => {
   const campo = e.target.closest('.semana-edital');
   if (!campo) return;
   if (/^\d$/.test(campo.value)) {
-    campo.value = `0${campo.value}`;
-    mudarItemEdital(campo.closest('.linha-edital').dataset.id, { s: campo.value });
+    const s = `0${campo.value}`;
+    linhasDaSemana(campo).forEach(l => marcarSemanaEdital(l, s));
   }
   salvarEdital();
 });
+$('lista-edital').addEventListener('focusout', e => {
+  if (!e.target.closest('.semana-edital') || arrastoEdital) return;
+  // Saiu das caixas selecionadas: a seleção acaba
+  const destino = e.relatedTarget && e.relatedTarget.closest('.linha-edital.semana-marcada .semana-edital');
+  if (!destino) limparSelecaoSemana();
+});
 $('lista-edital').addEventListener('keydown', e => {
-  if (e.key === 'Enter' && e.target.closest('.semana-edital')) e.target.blur();
+  if (!e.target.closest('.semana-edital')) return;
+  if (e.key === 'Enter') e.target.blur();
+  if (e.key === 'Escape') { limparSelecaoSemana(); e.target.blur(); }
 });
 
 aplicarTema(lerTexto(CHAVE_TEMA) || 'preto-amarelo');
